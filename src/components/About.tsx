@@ -5,6 +5,11 @@ const About = () => {
   return (
     <section id="about" className="py-20 bg-snackbar-softgray">
       <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-6">Sobre Nós</h2>
+          <div className="h-1 w-24 bg-snackbar-blue mx-auto mb-8"></div>
+        </div>
+        
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2">
             <div className="relative">
@@ -21,10 +26,27 @@ const About = () => {
                 />
               </div>
             </div>
+            
+            <div className="grid grid-cols-3 gap-4 mt-16">
+              <img 
+                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=400" 
+                alt="Nossa cozinha" 
+                className="rounded-lg shadow-sm h-24 object-cover w-full"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=400" 
+                alt="Nosso espaço" 
+                className="rounded-lg shadow-sm h-24 object-cover w-full"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=400" 
+                alt="Nossos pratos" 
+                className="rounded-lg shadow-sm h-24 object-cover w-full"
+              />
+            </div>
           </div>
           
           <div className="md:w-1/2 mt-16 md:mt-0">
-            <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-6">Sobre Nós</h2>
             <p className="text-snackbar-gray mb-6">
               A Sabor Express nasceu da paixão por comida de qualidade e do desejo de oferecer lanches artesanais feitos com ingredientes frescos e selecionados. 
             </p>
@@ -35,7 +57,7 @@ const About = () => {
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-3 rounded-full shadow-sm">
-                  <Clock className="w-5 h-5 text-snackbar-dark" />
+                  <Clock className="w-5 h-5 text-snackbar-blue" />
                 </div>
                 <div>
                   <h3 className="text-lg font-medium text-snackbar-dark mb-1">Horário de Funcionamento</h3>
@@ -46,7 +68,7 @@ const About = () => {
               
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-3 rounded-full shadow-sm">
-                  <MapPin className="w-5 h-5 text-snackbar-dark" />
+                  <MapPin className="w-5 h-5 text-snackbar-blue" />
                 </div>
                 <div>
                   <h3 className="text-lg font-medium text-snackbar-dark mb-1">Localização</h3>
