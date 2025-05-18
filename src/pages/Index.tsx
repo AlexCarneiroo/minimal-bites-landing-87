@@ -8,6 +8,7 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import Gallery from '@/components/Gallery';
 import SpecialOffers from '@/components/SpecialOffers';
+import Delivery from '@/components/Delivery';
 
 const Index = () => {
   return (
@@ -17,6 +18,7 @@ const Index = () => {
       <FeaturedItems />
       <SpecialOffers />
       <Gallery />
+      <Delivery />
       <About />
       <Testimonials />
       <Contact />

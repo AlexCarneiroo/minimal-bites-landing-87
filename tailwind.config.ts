@@ -63,16 +63,15 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Cores mais vibrantes para o restaurante
+				// Updated color scheme (black, white, blue)
 				snackbar: {
 					gray: '#8E9196',
-					peach: '#FDE1D3',
-					dark: '#222222',
+					dark: '#000000',    // Black
 					softgray: '#F1F0FB',
-					orange: '#F97316',    // Laranja vibrante
-					purple: '#8B5CF6',    // Roxo vibrante
-					magenta: '#D946EF',   // Magenta
-					blue: '#0EA5E9',      // Azul oceano
+					blue: '#0066cc',    // Primary blue
+					lightblue: '#4a9eff',
+					darkblue: '#004c99',
+					white: '#FFFFFF'    // White
 				}
 			},
 			borderRadius: {
@@ -114,8 +113,8 @@ export default {
 				'fade-in': 'fade-in 0.5s ease-out'
 			},
 			backgroundImage: {
-				'gradient-elegant': 'linear-gradient(90deg, hsla(277, 75%, 84%, 1) 0%, hsla(297, 50%, 51%, 1) 100%)',
-				'gradient-warm': 'linear-gradient(90deg, hsla(39, 100%, 77%, 1) 0%, hsla(22, 90%, 57%, 1) 100%)',
+				'gradient-elegant': 'linear-gradient(90deg, #000000 0%, #333333 100%)',
+				'gradient-blue': 'linear-gradient(90deg, #004c99 0%, #0066cc 100%)',
 			}
 		}
 	},
