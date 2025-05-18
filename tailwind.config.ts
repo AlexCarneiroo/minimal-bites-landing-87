@@ -63,12 +63,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for our snack bar
+				// Cores mais vibrantes para o restaurante
 				snackbar: {
 					gray: '#8E9196',
 					peach: '#FDE1D3',
 					dark: '#222222',
 					softgray: '#F1F0FB',
+					orange: '#F97316',    // Laranja vibrante
+					purple: '#8B5CF6',    // Roxo vibrante
+					magenta: '#D946EF',   // Magenta
+					blue: '#0EA5E9',      // Azul oceano
 				}
 			},
 			borderRadius: {
@@ -108,6 +112,10 @@ export default {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out'
+			},
+			backgroundImage: {
+				'gradient-elegant': 'linear-gradient(90deg, hsla(277, 75%, 84%, 1) 0%, hsla(297, 50%, 51%, 1) 100%)',
+				'gradient-warm': 'linear-gradient(90deg, hsla(39, 100%, 77%, 1) 0%, hsla(22, 90%, 57%, 1) 100%)',
 			}
 		}
 	},

@@ -6,6 +6,8 @@ import About from '@/components/About';
 import Testimonials from '@/components/Testimonials';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import Gallery from '@/components/Gallery';
+import SpecialOffers from '@/components/SpecialOffers';
 
 const Index = () => {
   return (
@@ -13,6 +15,8 @@ const Index = () => {
       <Navbar />
       <Hero />
       <FeaturedItems />
+      <SpecialOffers />
+      <Gallery />
       <About />
       <Testimonials />
       <Contact />
