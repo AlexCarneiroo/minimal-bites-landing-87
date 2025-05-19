@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Utensils, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,6 +32,9 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center space-x-2">
+            <div className="bg-blue-600 p-2 rounded-lg">
+              <Utensils className="w-6 h-6 text-white" />
+            </div>
             <span className="font-bold text-xl text-white">Sabor Express</span>
           </div>
           
