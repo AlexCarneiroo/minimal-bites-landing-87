@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { ChefHat } from 'lucide-react';
+import ReservationDialog from './ReservationDialog';
 
 const Hero = () => {
   return (
@@ -23,9 +24,11 @@ const Hero = () => {
                 <Button className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-6">
                   Ver Menu
                 </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6">
-                  Fazer Reserva
-                </Button>
+                <ReservationDialog>
+                  <Button variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6">
+                    Fazer Reserva
+                  </Button>
+                </ReservationDialog>
               </div>
             </div>
             <div className="md:w-1/2">
