@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Utensils, Menu, X, ShoppingCart } from 'lucide-react';
+import { Utensils, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,12 +48,8 @@ const Navbar = () => {
           </div>
           
           {/* Order Button - Desktop */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" className="border-white text-white rounded-full">
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              Carrinho (0)
-            </Button>
-            <Button className="bg-blue-600 text-white hover:bg-blue-700">
+          <div className="hidden md:flex items-center">
+            <Button className="bg-blue-600 text-white hover:bg-blue-700 rounded-full px-6">
               Fazer Pedido
             </Button>
           </div>
@@ -76,7 +72,7 @@ const Navbar = () => {
               <a href="#about" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Sobre</a>
               <a href="#contact" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Contato</a>
               <div className="pt-4 border-t border-gray-700">
-                <Button className="bg-blue-600 text-white hover:bg-blue-700 w-full">
+                <Button className="bg-blue-600 text-white hover:bg-blue-700 w-full rounded-full">
                   Fazer Pedido
                 </Button>
               </div>
