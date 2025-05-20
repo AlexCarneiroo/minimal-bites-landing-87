@@ -1,3 +1,4 @@
+
 import { Utensils, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
 
 const Footer = () => {
@@ -59,14 +60,14 @@ const Footer = () => {
         {/* Divisor */}
         <div className="my-10 border-t border-white/10"></div>
         
-        {/* Seção da empresa desenvolvedora */}
-        <div className="flex flex-col md:flex-row items-center justify-between">
+        {/* Seção da empresa desenvolvedora - Responsiva */}
+        <div className="flex flex-col items-center text-center md:flex-row md:items-center md:justify-between md:text-left">
           <div className="flex flex-col items-center md:items-start mb-6 md:mb-0">
             <div className="flex items-center gap-3 mb-2">
               <img 
                 src="/lovable-uploads/26d56408-a96d-4449-b9dc-fc1daedd8aaf.png"
                 alt="MK Solutions Logo" 
-                className="h-12 w-auto"
+                className="h-10 md:h-12 w-auto"
               />
             </div>
             <p className="text-sm text-gray-300 mt-2">
@@ -77,7 +78,7 @@ const Footer = () => {
             </p>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex gap-4 mt-4 md:mt-0">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" 
               className="bg-snackbar-blue rounded-full p-2 hover:bg-snackbar-blue/80 transition-colors">
               <Instagram size={20} className="text-white" />
