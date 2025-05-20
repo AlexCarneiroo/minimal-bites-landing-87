@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,5 +98,29 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+  
+  .text-gradient-blue {
+    @apply bg-gradient-to-r from-snackbar-blue to-snackbar-lightblue bg-clip-text text-transparent;
+  }
+  
+  .image-hover-zoom {
+    @apply transition-all duration-500 hover:scale-105;
+  }
+}
+
+@layer utilities {
+  .mask-bottom-fade {
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  }
+  
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
   }
 }
