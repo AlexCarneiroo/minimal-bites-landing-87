@@ -24,6 +24,19 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
   
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    setIsMenuOpen(false);
+    
+    const section = document.getElementById(sectionId);
+    if (section) {
+      window.scrollTo({
+        top: section.offsetTop - 80, // Offset for navbar height
+        behavior: 'smooth'
+      });
+    }
+  };
+  
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-black text-white shadow-md py-2' : 'bg-black/90 backdrop-blur-sm text-white py-4'
@@ -40,12 +53,12 @@ const Navbar = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
-            <a href="#home" className="text-white hover:text-blue-400 transition-colors">Home</a>
-            <a href="#menu" className="text-white hover:text-blue-400 transition-colors">Menu</a>
-            <a href="#gallery" className="text-white hover:text-blue-400 transition-colors">Galeria</a>
-            <a href="#about" className="text-white hover:text-blue-400 transition-colors">Sobre</a>
-            <a href="#contact" className="text-white hover:text-blue-400 transition-colors">Contato</a>
-            <a href="#delivery" className="text-white hover:text-blue-400 transition-colors flex items-center gap-1">
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-white hover:text-blue-400 transition-all duration-300">Home</a>
+            <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="text-white hover:text-blue-400 transition-all duration-300">Menu</a>
+            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="text-white hover:text-blue-400 transition-all duration-300">Galeria</a>
+            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="text-white hover:text-blue-400 transition-all duration-300">Sobre</a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-white hover:text-blue-400 transition-all duration-300">Contato</a>
+            <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="text-white hover:text-blue-400 transition-all duration-300 flex items-center gap-1">
               <Truck className="h-4 w-4" />
               Delivery
             </a>
@@ -70,12 +83,12 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 py-4 animate-fade-in">
             <div className="flex flex-col space-y-4">
-              <a href="#home" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Home</a>
-              <a href="#menu" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Menu</a>
-              <a href="#gallery" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Galeria</a>
-              <a href="#about" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Sobre</a>
-              <a href="#contact" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Contato</a>
-              <a href="#delivery" className="text-white hover:text-blue-400 transition-colors flex items-center gap-1" onClick={toggleMenu}>
+              <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-white hover:text-blue-400 transition-all duration-300">Home</a>
+              <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="text-white hover:text-blue-400 transition-all duration-300">Menu</a>
+              <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="text-white hover:text-blue-400 transition-all duration-300">Galeria</a>
+              <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="text-white hover:text-blue-400 transition-all duration-300">Sobre</a>
+              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-white hover:text-blue-400 transition-all duration-300">Contato</a>
+              <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="text-white hover:text-blue-400 transition-all duration-300 flex items-center gap-1">
                 <Truck className="h-4 w-4" />
                 Delivery
               </a>
