@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Utensils, Menu, X } from 'lucide-react';
+import { Utensils, Menu, X, Truck } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,7 +35,7 @@ const Navbar = () => {
             <div className="bg-blue-600 p-2 rounded-lg">
               <Utensils className="w-6 h-6 text-white" />
             </div>
-            <span className="font-bold text-xl text-white">Sabor Express</span>
+            <span className="font-bold text-xl text-white">Paizam</span>
           </div>
           
           {/* Desktop Navigation */}
@@ -45,6 +45,10 @@ const Navbar = () => {
             <a href="#gallery" className="text-white hover:text-blue-400 transition-colors">Galeria</a>
             <a href="#about" className="text-white hover:text-blue-400 transition-colors">Sobre</a>
             <a href="#contact" className="text-white hover:text-blue-400 transition-colors">Contato</a>
+            <a href="#delivery" className="text-white hover:text-blue-400 transition-colors flex items-center gap-1">
+              <Truck className="h-4 w-4" />
+              Delivery
+            </a>
           </div>
           
           {/* Order Button - Desktop */}
@@ -71,6 +75,10 @@ const Navbar = () => {
               <a href="#gallery" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Galeria</a>
               <a href="#about" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Sobre</a>
               <a href="#contact" className="text-white hover:text-blue-400 transition-colors" onClick={toggleMenu}>Contato</a>
+              <a href="#delivery" className="text-white hover:text-blue-400 transition-colors flex items-center gap-1" onClick={toggleMenu}>
+                <Truck className="h-4 w-4" />
+                Delivery
+              </a>
               <div className="pt-4 border-t border-gray-700">
                 <Button className="bg-blue-600 text-white hover:bg-blue-700 w-full rounded-full">
                   Fazer Pedido
