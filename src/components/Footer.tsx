@@ -1,5 +1,5 @@
 
-import { Utensils } from 'lucide-react';
+import { Utensils, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -57,7 +57,45 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="mt-12 pt-8 border-t border-white/10 text-center">
+        {/* Seção da desenvolvedora */}
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-4 mb-6 md:mb-0">
+              <div className="bg-white/10 p-3 rounded-full">
+                <img 
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100" 
+                  alt="Logo Desenvolvedora" 
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-white">DevName Studio</h3>
+                <p className="text-gray-300 text-sm">Desenvolvido com ❤️</p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" 
+                className="bg-white/10 hover:bg-snackbar-blue/50 rounded-full p-2 transition-colors">
+                <Facebook size={18} className="text-white" />
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+                className="bg-white/10 hover:bg-snackbar-blue/50 rounded-full p-2 transition-colors">
+                <Instagram size={18} className="text-white" />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+                className="bg-white/10 hover:bg-snackbar-blue/50 rounded-full p-2 transition-colors">
+                <Linkedin size={18} className="text-white" />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
+                className="bg-white/10 hover:bg-snackbar-blue/50 rounded-full p-2 transition-colors">
+                <Twitter size={18} className="text-white" />
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-6 text-center">
           <p className="text-gray-400 text-sm">
             © {new Date().getFullYear()} Sabor Express. Todos os direitos reservados.
           </p>
