@@ -46,7 +46,7 @@ const Hero = () => {
                 <div className="absolute -inset-1 bg-gradient-to-r from-snackbar-blue to-snackbar-lightblue rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-1000"></div>
                 <div className="bg-black p-4 rounded-2xl shadow-2xl overflow-hidden relative">
                   <img 
-                    src="/lovable-uploads/60fbac7a-2534-4a3a-9e55-befdf6fc69fa.png" 
+                    src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800" 
                     alt="Sabor Extraordinário" 
                     className="w-full h-auto rounded-lg object-cover aspect-[4/3] transition-transform duration-500"
                   />
