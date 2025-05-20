@@ -41,21 +41,21 @@ const Hero = () => {
               </div>
             </div>
             
-            <div className="md:w-1/2 animate-fade-in" style={{ animationDelay: "500ms" }}>
+            <div className="md:w-1/2 animate-fade-in" style={{ animationDelay: "500ms", animationIterationCount: "1" }}>
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-snackbar-blue to-snackbar-lightblue rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-1000"></div>
                 <div className="bg-black p-4 rounded-2xl shadow-2xl overflow-hidden relative">
                   <img 
-                    src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800" 
-                    alt="Especialidade da casa" 
-                    className="w-full h-auto rounded-lg object-cover aspect-[4/3] group-hover:scale-105 transition-transform duration-500"
+                    src="/lovable-uploads/60fbac7a-2534-4a3a-9e55-befdf6fc69fa.png" 
+                    alt="Sabor Extraordinário" 
+                    className="w-full h-auto rounded-lg object-cover aspect-[4/3] transition-transform duration-500"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
                     <h3 className="text-white text-xl font-bold mb-1">Sabor Extraordinário</h3>
                     <p className="text-gray-300">Experimente nossa especialidade</p>
                   </div>
                 </div>
-                <div className="absolute -bottom-6 -right-6 animate-pulse">
+                <div className="absolute -bottom-6 -right-6">
                   <div className="bg-snackbar-blue w-16 h-16 md:w-24 md:h-24 rounded-full flex items-center justify-center shadow-lg">
                     <div className="text-center">
                       <p className="font-bold text-white text-sm md:text-base">Desde</p>
