@@ -13,7 +13,7 @@ import {
   Instagram,
   Youtube,
   Linkedin,
-  Image as ImageIcon
+  ImagePlus
 } from 'lucide-react';
 
 import {
@@ -39,13 +39,48 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import AdminLogin from '@/components/AdminLogin';
 import ColorPicker from '@/components/ColorPicker';
+import SpecialOfferEditor from '@/components/SpecialOfferEditor';
 import { useToast } from '@/hooks/use-toast';
 
-// Dados mockados para o exemplo - será substituído por dados reais do Supabase
+// Dados mockados para o exemplo - será substituído por dados reais do banco de dados
 const mockReservations = [
   { id: 1, name: 'João Silva', date: '2025-05-25', time: '19:00', people: 4, phone: '(11) 98765-4321', status: 'Confirmada' },
   { id: 2, name: 'Maria Oliveira', date: '2025-05-26', time: '20:00', people: 2, phone: '(11) 91234-5678', status: 'Pendente' },
   { id: 3, name: 'Pedro Santos', date: '2025-05-27', time: '19:30', people: 6, phone: '(11) 99876-5432', status: 'Confirmada' },
+];
+
+// Ofertas especiais iniciais
+const initialOffers = [
+  { 
+    id: '1', 
+    name: 'Combo Família', 
+    description: '4 hambúrgueres, 4 batatas e 4 refrigerantes',
+    regularPrice: 150.00,
+    promoPrice: 120.00,
+    discount: '-20%',
+    label: null,
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=600'
+  },
+  { 
+    id: '2', 
+    name: 'Lanches Vegetarianos', 
+    description: 'Opções saudáveis e deliciosas para todos os gostos',
+    regularPrice: 25.90,
+    promoPrice: null,
+    discount: null,
+    label: 'NEW',
+    image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&q=80&w=600'
+  },
+  { 
+    id: '3', 
+    name: 'Happy Hour', 
+    description: 'Compre um milk shake e ganhe outro, todos os dias das 15h às 17h',
+    regularPrice: 16.90,
+    promoPrice: null,
+    discount: null,
+    label: '2x1',
+    image: 'https://images.unsplash.com/photo-1638176066623-b5b2f71da06c?auto=format&fit=crop&q=80&w=600'
+  },
 ];
 
 const Admin = () => {
@@ -76,6 +111,7 @@ const Admin = () => {
 
   const [primaryColor, setPrimaryColor] = useState('#0066cc'); // Cor inicial
   const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800');
+  const [specialOffers, setSpecialOffers] = useState(initialOffers);
 
   // Função simulando login
   const handleLogin = (username: string, password: string) => {
@@ -119,14 +155,13 @@ const Admin = () => {
       description: `Seção ${section} atualizada com sucesso`,
     });
     
-    // Na implementação real, salvar no banco de dados Supabase
+    // Na implementação real, salvar no banco de dados
     console.log('Dados salvos:', { establishmentData, primaryColor });
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Na implementação real, fazer upload para Supabase Storage
       // Por enquanto, criar uma URL local temporária
       const tempUrl = URL.createObjectURL(file);
       setHeroImage(tempUrl);
@@ -162,6 +197,11 @@ const Admin = () => {
         [period]: time
       }
     }));
+  };
+
+  const handleUpdateOffers = (newOffers: any[]) => {
+    setSpecialOffers(newOffers);
+    // Em uma implementação real, enviaríamos isso para o backend
   };
 
   if (!isAuthenticated) {
@@ -376,14 +416,6 @@ const Admin = () => {
                       onChange={setPrimaryColor}
                       onSave={() => handleSave('cor')}
                     />
-                    
-                    <div className="mt-4">
-                      <p className="text-sm font-medium mb-2">Prévia</p>
-                      <div className="flex gap-2 items-center">
-                        <div className="h-10 w-10 rounded" style={{ backgroundColor: primaryColor }}></div>
-                        <span>{primaryColor}</span>
-                      </div>
-                    </div>
                   </div>
                   
                   <div>
@@ -401,7 +433,7 @@ const Admin = () => {
                       
                       <label htmlFor="hero-image" className="cursor-pointer">
                         <div className="flex items-center gap-2 text-sm text-blue-600">
-                          <ImageIcon className="h-4 w-4" />
+                          <ImagePlus className="h-4 w-4" />
                           <span>Alterar imagem</span>
                         </div>
                         <input 
@@ -479,20 +511,10 @@ const Admin = () => {
             <h2 className="text-2xl font-bold">Ofertas Especiais</h2>
             <Card>
               <CardContent className="p-6">
-                <p className="text-gray-500 mb-4">
-                  Gerencie as ofertas especiais que aparecerão no site.
-                </p>
-                
-                <div className="mt-4">
-                  <Button>Adicionar Nova Oferta</Button>
-                </div>
-                
-                <div className="mt-6">
-                  <p className="text-sm text-gray-500">
-                    As ofertas especiais serão exibidas após a implementação do banco de dados.
-                    Conecte seu projeto ao Supabase para habilitar esta funcionalidade.
-                  </p>
-                </div>
+                <SpecialOfferEditor 
+                  initialOffers={specialOffers} 
+                  onSave={handleUpdateOffers} 
+                />
               </CardContent>
             </Card>
           </TabsContent>

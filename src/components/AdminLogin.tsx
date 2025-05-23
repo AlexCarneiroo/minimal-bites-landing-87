@@ -4,6 +4,7 @@ import { Lock, User } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminLoginProps {
   onLogin: (username: string, password: string) => void;
@@ -12,9 +13,20 @@ interface AdminLoginProps {
 const AdminLogin = ({ onLogin }: AdminLoginProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!username || !password) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     onLogin(username, password);
   };
 
