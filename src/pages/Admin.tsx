@@ -12,48 +12,18 @@ import GeneralSettings from '@/components/admin/GeneralSettings';
 import AppearanceSettings from '@/components/admin/AppearanceSettings';
 import ReservationsManager from '@/components/admin/ReservationsManager';
 import SpecialOfferEditor from '@/components/SpecialOfferEditor';
+import FeedbackManager from '@/components/admin/FeedbackManager';
+import AboutSection from '@/components/admin/AboutSection';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
+import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
+import FooterSettings from '@/components/admin/FooterSettings';
 
 // Dados mockados para o exemplo - será substituído por dados reais do banco de dados
 const mockReservations = [
   { id: 1, name: 'João Silva', date: '2025-05-25', time: '19:00', people: 4, phone: '(11) 98765-4321', status: 'Confirmada' },
   { id: 2, name: 'Maria Oliveira', date: '2025-05-26', time: '20:00', people: 2, phone: '(11) 91234-5678', status: 'Pendente' },
   { id: 3, name: 'Pedro Santos', date: '2025-05-27', time: '19:30', people: 6, phone: '(11) 99876-5432', status: 'Confirmada' },
-];
-
-// Ofertas especiais iniciais
-const initialOffers = [
-  { 
-    id: '1', 
-    name: 'Combo Família', 
-    description: '4 hambúrgueres, 4 batatas e 4 refrigerantes',
-    regularPrice: 150.00,
-    promoPrice: 120.00,
-    discount: '-20%',
-    label: null,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=600'
-  },
-  { 
-    id: '2', 
-    name: 'Lanches Vegetarianos', 
-    description: 'Opções saudáveis e deliciosas para todos os gostos',
-    regularPrice: 25.90,
-    promoPrice: null,
-    discount: null,
-    label: 'NEW',
-    image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&q=80&w=600'
-  },
-  { 
-    id: '3', 
-    name: 'Happy Hour', 
-    description: 'Compre um milk shake e ganhe outro, todos os dias das 15h às 17h',
-    regularPrice: 16.90,
-    promoPrice: null,
-    discount: null,
-    label: '2x1',
-    image: 'https://images.unsplash.com/photo-1638176066623-b5b2f71da06c?auto=format&fit=crop&q=80&w=600'
-  },
 ];
 
 const Admin = () => {
@@ -68,6 +38,7 @@ const Admin = () => {
     address: 'Av. Exemplo, 123 - Centro',
     phone: '(51) 3740 2900',
     email: 'contato@paizam.com.br',
+    logo: '',
     schedule: {
       weekdays: '11h às 22h',
       weekends: '12h às 23h',
@@ -82,8 +53,58 @@ const Admin = () => {
   });
 
   const [primaryColor, setPrimaryColor] = useState('#0066cc');
-  const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800');
-  const [specialOffers, setSpecialOffers] = useState(initialOffers);
+  const [heroImage, setHeroImage] = useState('');
+  const [specialOffers, setSpecialOffers] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [aboutData, setAboutData] = useState({
+    title: 'Sobre Nós',
+    description: 'Descrição da empresa',
+    image: ''
+  });
+
+  const [footerData, setFooterData] = useState({
+    copyright: '© 2024 Todos os direitos reservados.',
+    companyName: 'Nome da Empresa',
+    additionalText: 'Texto adicional do footer'
+  });
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const settings = await getSiteSettings();
+      if (settings) {
+        // Carregar dados do estabelecimento
+        if (settings.establishmentData) {
+          setEstablishmentData(settings.establishmentData);
+        }
+
+        // Carregar configurações de aparência
+        setPrimaryColor(settings.primaryColor || '#0066cc');
+        setHeroImage(settings.heroImage || '');
+
+        // Carregar dados sobre
+        if (settings.about) {
+          setAboutData(settings.about);
+        }
+
+        // Carregar feedbacks
+        if (settings.feedbacks) {
+          setFeedbacks(settings.feedbacks);
+        }
+
+        // Carregar ofertas especiais
+        if (settings.specialOffers) {
+          setSpecialOffers(settings.specialOffers);
+        }
+
+        // Carregar dados do footer
+        if (settings.footer) {
+          setFooterData(settings.footer);
+        }
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   // Função simulando login
   const handleLogin = (username: string, password: string) => {
@@ -116,12 +137,46 @@ const Admin = () => {
     navigate('/');
   };
 
-  const handleSave = (section: string) => {
-    toast({
-      title: "Alterações salvas",
-      description: `Seção ${section} atualizada com sucesso`,
-    });
-    console.log('Dados salvos:', { establishmentData, primaryColor });
+  const handleSave = async (section: string) => {
+    try {
+      const settings: Partial<SiteSettings> = {};
+      
+      switch (section) {
+        case 'general':
+          settings.establishmentData = establishmentData;
+          break;
+        case 'appearance':
+          settings.primaryColor = primaryColor;
+          settings.heroImage = heroImage;
+          break;
+        case 'about':
+          settings.about = aboutData;
+          break;
+        case 'feedbacks':
+          settings.feedbacks = feedbacks;
+          break;
+        case 'special-offers':
+          settings.specialOffers = specialOffers;
+          break;
+        case 'footer':
+          settings.footer = footerData;
+          break;
+      }
+
+      await saveSiteSettings(settings);
+      
+      toast({
+        title: "Alterações salvas",
+        description: `Seção ${section} atualizada com sucesso`,
+      });
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as alterações",
+        variant: "destructive",
+      });
+    }
   };
 
   const updateEstablishmentData = (field: string, value: string) => {
@@ -153,6 +208,17 @@ const Admin = () => {
 
   const handleUpdateOffers = (newOffers: any[]) => {
     setSpecialOffers(newOffers);
+    handleSave('special-offers');
+  };
+
+  const handleUpdateFeedbacks = (newFeedbacks: any[]) => {
+    setFeedbacks(newFeedbacks);
+    handleSave('feedbacks');
+  };
+
+  const handleUpdateAbout = (data: { title: string; description: string; image: string }) => {
+    setAboutData(data);
+    handleSave('about');
   };
 
   if (!isAuthenticated) {
@@ -165,11 +231,14 @@ const Admin = () => {
       
       <main className="container mx-auto p-4 md:p-6">
         <Tabs defaultValue="general" className="space-y-4">
-          <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <TabsList className="grid grid-cols-1 md:grid-cols-7 gap-2">
             <TabsTrigger value="general">Geral</TabsTrigger>
             <TabsTrigger value="appearance">Aparência</TabsTrigger>
             <TabsTrigger value="reservations">Reservas</TabsTrigger>
             <TabsTrigger value="special-offers">Ofertas Especiais</TabsTrigger>
+            <TabsTrigger value="feedbacks">Feedbacks</TabsTrigger>
+            <TabsTrigger value="about">Sobre Nós</TabsTrigger>
+            <TabsTrigger value="footer">Footer</TabsTrigger>
           </TabsList>
           
           <TabsContent value="general">
@@ -204,6 +273,46 @@ const Admin = () => {
                   <SpecialOfferEditor 
                     initialOffers={specialOffers} 
                     onSave={handleUpdateOffers} 
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="feedbacks">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Gerenciar Feedbacks</h2>
+              <Card>
+                <CardContent className="p-6">
+                  <FeedbackManager onSave={handleUpdateFeedbacks} />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="about">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Seção Sobre Nós</h2>
+              <AboutSection
+                title={aboutData.title}
+                description={aboutData.description}
+                image={aboutData.image}
+                onSave={handleUpdateAbout}
+              />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="footer">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Configurações do Footer</h2>
+              <Card>
+                <CardContent className="p-6">
+                  <FooterSettings
+                    footerData={footerData}
+                    onSave={(data) => {
+                      setFooterData(data);
+                      handleSave('footer');
+                    }}
                   />
                 </CardContent>
               </Card>

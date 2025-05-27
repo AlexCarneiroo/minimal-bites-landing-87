@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { 
   Clock, 
   Mail, 
@@ -13,6 +13,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { useToast } from "@/hooks/use-toast";
 
 interface EstablishmentData {
   name: string;
@@ -20,6 +24,7 @@ interface EstablishmentData {
   address: string;
   phone: string;
   email: string;
+  logo: string;
   schedule: {
     weekdays: string;
     weekends: string;
@@ -41,180 +46,202 @@ interface GeneralSettingsProps {
   handleSave: (section: string) => void;
 }
 
-const GeneralSettings = ({
+export default function GeneralSettings({
   establishmentData,
   updateEstablishmentData,
   updateSocialMedia,
   updateSchedule,
   handleSave
-}: GeneralSettingsProps) => {
+}: GeneralSettingsProps) {
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    
+    try {
+      await handleSave('general');
+      toast({
+        title: "Configurações salvas",
+        description: "As configurações gerais foram atualizadas com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as configurações",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Informações Gerais</h2>
+    <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardContent className="p-6">
+          <h2 className="text-2xl font-bold mb-6">Informações do Estabelecimento</h2>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-1">Nome do Estabelecimento</label>
-                <Input 
-                  id="name" 
+                <Label htmlFor="name">Nome do Estabelecimento</Label>
+                <Input
+                  id="name"
                   value={establishmentData.name}
                   onChange={(e) => updateEstablishmentData('name', e.target.value)}
+                  placeholder="Nome do seu estabelecimento"
                 />
               </div>
-              
+
               <div>
-                <label htmlFor="description" className="block text-sm font-medium mb-1">Descrição</label>
-                <textarea
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
                   id="description"
-                  className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   value={establishmentData.description}
                   onChange={(e) => updateEstablishmentData('description', e.target.value)}
+                  placeholder="Descreva seu estabelecimento"
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="address">Endereço</Label>
+                <Input
+                  id="address"
+                  value={establishmentData.address}
+                  onChange={(e) => updateEstablishmentData('address', e.target.value)}
+                  placeholder="Endereço completo"
                 />
               </div>
             </div>
-            
+
             <div className="space-y-4">
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium mb-1">Telefone</label>
-                <div className="flex items-center">
-                  <Phone className="mr-2 h-4 w-4 text-gray-500" />
-                  <Input 
-                    id="phone" 
-                    value={establishmentData.phone}
-                    onChange={(e) => updateEstablishmentData('phone', e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">E-mail</label>
-                <div className="flex items-center">
-                  <Mail className="mr-2 h-4 w-4 text-gray-500" />
-                  <Input 
-                    id="email" 
-                    value={establishmentData.email}
-                    onChange={(e) => updateEstablishmentData('email', e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium mb-1">Endereço</label>
-                <div className="flex items-center">
-                  <MapPin className="mr-2 h-4 w-4 text-gray-500" />
-                  <Input 
-                    id="address" 
-                    value={establishmentData.address}
-                    onChange={(e) => updateEstablishmentData('address', e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <Separator className="my-6" />
-          
-          <h3 className="text-lg font-medium mb-4">Horário de Funcionamento</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="weekdays" className="block text-sm font-medium mb-1">Segunda - Sexta</label>
-              <div className="flex items-center">
-                <Clock className="mr-2 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="weekdays" 
-                  value={establishmentData.schedule.weekdays}
-                  onChange={(e) => updateSchedule('weekdays', e.target.value)}
+                <Label htmlFor="phone">Telefone</Label>
+                <Input
+                  id="phone"
+                  value={establishmentData.phone}
+                  onChange={(e) => updateEstablishmentData('phone', e.target.value)}
+                  placeholder="(00) 0000-0000"
                 />
               </div>
-            </div>
-            
-            <div>
-              <label htmlFor="weekends" className="block text-sm font-medium mb-1">Sábado - Domingo</label>
-              <div className="flex items-center">
-                <Clock className="mr-2 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="weekends" 
-                  value={establishmentData.schedule.weekends}
-                  onChange={(e) => updateSchedule('weekends', e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="holidays" className="block text-sm font-medium mb-1">Feriados</label>
-              <div className="flex items-center">
-                <Clock className="mr-2 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="holidays" 
-                  value={establishmentData.schedule.holidays}
-                  onChange={(e) => updateSchedule('holidays', e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-          
-          <Separator className="my-6" />
-          
-          <h3 className="text-lg font-medium mb-4">Redes Sociais</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="facebook" className="block text-sm font-medium mb-1">Facebook</label>
-              <div className="flex items-center">
-                <Facebook className="mr-2 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="facebook" 
-                  value={establishmentData.socialMedia.facebook}
-                  onChange={(e) => updateSocialMedia('facebook', e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="instagram" className="block text-sm font-medium mb-1">Instagram</label>
-              <div className="flex items-center">
-                <Instagram className="mr-2 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="instagram" 
-                  value={establishmentData.socialMedia.instagram}
-                  onChange={(e) => updateSocialMedia('instagram', e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="youtube" className="block text-sm font-medium mb-1">Youtube</label>
-              <div className="flex items-center">
-                <Youtube className="mr-2 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="youtube" 
-                  value={establishmentData.socialMedia.youtube}
-                  onChange={(e) => updateSocialMedia('youtube', e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="linkedin" className="block text-sm font-medium mb-1">LinkedIn</label>
-              <div className="flex items-center">
-                <Linkedin className="mr-2 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="linkedin" 
-                  value={establishmentData.socialMedia.linkedin}
-                  onChange={(e) => updateSocialMedia('linkedin', e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <Button onClick={() => handleSave('geral')}>Salvar Alterações</Button>
+              <div>
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={establishmentData.email}
+                  onChange={(e) => updateEstablishmentData('email', e.target.value)}
+                  placeholder="seu@email.com"
+                />
+              </div>
+
+              <div>
+                <Label>Logo</Label>
+                <ImageUpload
+                  value={establishmentData.logo}
+                  onChange={(url) => updateEstablishmentData('logo', url)}
+                />
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-};
 
-export default GeneralSettings;
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-bold mb-6">Horário de Funcionamento</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <Label htmlFor="weekdays">Dias de Semana</Label>
+              <Input
+                id="weekdays"
+                value={establishmentData.schedule.weekdays}
+                onChange={(e) => updateSchedule('weekdays', e.target.value)}
+                placeholder="Ex: 11h às 22h"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="weekends">Finais de Semana</Label>
+              <Input
+                id="weekends"
+                value={establishmentData.schedule.weekends}
+                onChange={(e) => updateSchedule('weekends', e.target.value)}
+                placeholder="Ex: 12h às 23h"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="holidays">Feriados</Label>
+              <Input
+                id="holidays"
+                value={establishmentData.schedule.holidays}
+                onChange={(e) => updateSchedule('holidays', e.target.value)}
+                placeholder="Ex: 12h às 20h"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-bold mb-6">Redes Sociais</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="facebook">Facebook</Label>
+              <Input
+                id="facebook"
+                value={establishmentData.socialMedia.facebook}
+                onChange={(e) => updateSocialMedia('facebook', e.target.value)}
+                placeholder="https://facebook.com/seu-perfil"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="instagram">Instagram</Label>
+              <Input
+                id="instagram"
+                value={establishmentData.socialMedia.instagram}
+                onChange={(e) => updateSocialMedia('instagram', e.target.value)}
+                placeholder="https://instagram.com/seu-perfil"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="youtube">YouTube</Label>
+              <Input
+                id="youtube"
+                value={establishmentData.socialMedia.youtube}
+                onChange={(e) => updateSocialMedia('youtube', e.target.value)}
+                placeholder="https://youtube.com/seu-canal"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="linkedin">LinkedIn</Label>
+              <Input
+                id="linkedin"
+                value={establishmentData.socialMedia.linkedin}
+                onChange={(e) => updateSocialMedia('linkedin', e.target.value)}
+                placeholder="https://linkedin.com/seu-perfil"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end">
+        <Button type="submit" disabled={isSaving}>
+          {isSaving ? "Salvando..." : "Salvar Alterações"}
+        </Button>
+      </div>
+    </form>
+  );
+}

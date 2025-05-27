@@ -1,11 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Utensils, Menu, X, Truck } from 'lucide-react';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { settings } = useSiteSettings();
+  const primaryColor = settings?.primaryColor || '#0066cc';
   
   useEffect(() => {
     const handleScroll = () => {
@@ -45,7 +47,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="bg-blue-600 p-2 rounded-lg">
+            <div style={{ backgroundColor: primaryColor }} className="p-2 rounded-lg">
               <Utensils className="w-6 h-6 text-white" />
             </div>
             <span className="font-bold text-xl text-white">Paizam</span>
@@ -72,32 +74,27 @@ const Navbar = () => {
           </div>
           
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-white p-2">
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+          <button
+            className="md:hidden text-white"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
         
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 py-4 animate-fade-in">
-            <div className="flex flex-col space-y-4">
-              <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-white hover:text-blue-400 transition-all duration-300">Home</a>
-              <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="text-white hover:text-blue-400 transition-all duration-300">Menu</a>
-              <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="text-white hover:text-blue-400 transition-all duration-300">Galeria</a>
-              <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="text-white hover:text-blue-400 transition-all duration-300">Sobre</a>
-              <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-white hover:text-blue-400 transition-all duration-300">Contato</a>
-              <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="text-white hover:text-blue-400 transition-all duration-300 flex items-center gap-1">
-                <Truck className="h-4 w-4" />
-                Delivery
-              </a>
-              <div className="pt-4 border-t border-gray-700">
-                <Button className="bg-blue-600 text-white hover:bg-blue-700 w-full rounded-full">
-                  Fazer Pedido
-                </Button>
-              </div>
-            </div>
+          <div className="md:hidden mt-4 space-y-4 pb-4">
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="block text-white hover:text-blue-400 transition-all duration-300">Home</a>
+            <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="block text-white hover:text-blue-400 transition-all duration-300">Menu</a>
+            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="block text-white hover:text-blue-400 transition-all duration-300">Galeria</a>
+            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="block text-white hover:text-blue-400 transition-all duration-300">Sobre</a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="block text-white hover:text-blue-400 transition-all duration-300">Contato</a>
+            <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="block text-white hover:text-blue-400 transition-all duration-300 flex items-center gap-1">
+              <Truck className="h-4 w-4" />
+              Delivery
+            </a>
           </div>
         )}
       </div>

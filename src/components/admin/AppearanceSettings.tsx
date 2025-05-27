@@ -1,95 +1,121 @@
-
-import { ImagePlus } from 'lucide-react';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import ColorPicker from '@/components/ColorPicker';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { useToast } from "@/hooks/use-toast";
+
+const PREDEFINED_COLORS = [
+  { name: 'Azul', value: '#0066cc' },
+  { name: 'Verde', value: '#22c55e' },
+  { name: 'Vermelho', value: '#ef4444' },
+  { name: 'Roxo', value: '#8b5cf6' },
+  { name: 'Laranja', value: '#f97316' },
+  { name: 'Rosa', value: '#ec4899' },
+  { name: 'Ciano', value: '#06b6d4' },
+  { name: 'Amarelo', value: '#eab308' }
+];
 
 interface AppearanceSettingsProps {
   primaryColor: string;
   setPrimaryColor: (color: string) => void;
   heroImage: string;
-  setHeroImage: (image: string) => void;
+  setHeroImage: (url: string) => void;
   handleSave: (section: string) => void;
 }
 
-const AppearanceSettings = ({
+export default function AppearanceSettings({
   primaryColor,
   setPrimaryColor,
   heroImage,
   setHeroImage,
   handleSave
-}: AppearanceSettingsProps) => {
+}: AppearanceSettingsProps) {
+  const { updateSettings } = useSiteSettings();
   const { toast } = useToast();
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Por enquanto, criar uma URL local temporária
-      const tempUrl = URL.createObjectURL(file);
-      setHeroImage(tempUrl);
+  const handleColorChange = async (color: string) => {
+    try {
+      setPrimaryColor(color);
+      await updateSettings({ primaryColor: color });
       toast({
-        title: "Imagem carregada",
-        description: "A nova imagem foi adicionada",
+        title: "Cor atualizada",
+        description: "A cor primária foi atualizada com sucesso",
+      });
+      handleSave('appearance');
+    } catch (error) {
+      console.error('Erro ao atualizar cor:', error);
+      toast({
+        title: "Erro ao atualizar cor",
+        description: "Não foi possível atualizar a cor primária",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleHeroImageChange = async (url: string) => {
+    try {
+      setHeroImage(url);
+      await updateSettings({ heroImage: url });
+      toast({
+        title: "Imagem atualizada",
+        description: "A imagem de fundo foi atualizada com sucesso",
+      });
+      handleSave('appearance');
+    } catch (error) {
+      console.error('Erro ao atualizar imagem:', error);
+      toast({
+        title: "Erro ao atualizar imagem",
+        description: "Não foi possível atualizar a imagem de fundo",
+        variant: "destructive",
       });
     }
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Aparência</h2>
+    <div className="space-y-6">
       <Card>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h3 className="text-lg font-semibold mb-4">Aparência</h3>
+          <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-medium mb-4">Cor Principal</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Esta cor será aplicada nos elementos destacados do site.
-              </p>
-              <ColorPicker 
-                color={primaryColor} 
-                onChange={setPrimaryColor}
-                onSave={() => handleSave('cor')}
-              />
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-medium mb-4">Imagem Principal (Hero)</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Esta imagem aparece na seção de destaque da página inicial.
-              </p>
-              
-              <div className="border border-gray-200 rounded p-4">
-                <img 
-                  src={heroImage} 
-                  alt="Imagem principal" 
-                  className="w-full h-48 object-cover rounded mb-4" 
-                />
-                
-                <label htmlFor="hero-image" className="cursor-pointer">
-                  <div className="flex items-center gap-2 text-sm text-blue-600">
-                    <ImagePlus className="h-4 w-4" />
-                    <span>Alterar imagem</span>
-                  </div>
-                  <input 
-                    id="hero-image" 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden"
-                    onChange={handleImageUpload}
+              <Label htmlFor="primaryColor">Cor Primária</Label>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="color"
+                    id="primaryColor"
+                    value={primaryColor}
+                    onChange={(e) => handleColorChange(e.target.value)}
+                    className="w-12 h-12 rounded cursor-pointer"
                   />
-                </label>
+                  <span className="text-sm text-gray-500">{primaryColor}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {PREDEFINED_COLORS.map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => handleColorChange(color.value)}
+                      className={`p-2 rounded border ${
+                        primaryColor === color.value ? 'ring-2 ring-offset-2 ring-primary' : ''
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    >
+                      <span className="sr-only">{color.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="mt-6">
-            <Button onClick={() => handleSave('aparência')}>Salvar Alterações</Button>
+            <ImageUpload
+              value={heroImage}
+              onChange={handleHeroImageChange}
+              label="Imagem de Fundo"
+            />
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default AppearanceSettings;
+}
