@@ -3,13 +3,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA2k0WSfKmk2Ta2OrQTQ9yU1vPts5QywXc",
-  authDomain: "leandpages.firebaseapp.com",
-  projectId: "leandpages",
-  storageBucket: "leandpages.firebasestorage.app",
-  messagingSenderId: "125625473745",
-  appId: "1:125625473745:web:1703fcdb578ce4938203f0",
-  measurementId: "G-4TD5QFLKSX"
+  apiKey: "AIzaSyA1AVmYr_uwpQPndnvB3u2psCRgVVI7UxI",
+  authDomain: "leandpages-34716.firebaseapp.com",
+  projectId: "leandpages-34716",
+  storageBucket: "leandpages-34716.firebasestorage.app",
+  messagingSenderId: "894386449102",
+  appId: "1:894386449102:web:e73da165e2139a94ee3e9f",
+  measurementId: "G-Q20SLJ5J6D"
 };
 
 const app = initializeApp(firebaseConfig);

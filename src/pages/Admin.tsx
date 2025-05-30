@@ -10,7 +10,7 @@ import AdminLogin from '@/components/AdminLogin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import GeneralSettings from '@/components/admin/GeneralSettings';
 import AppearanceSettings from '@/components/admin/AppearanceSettings';
-import ReservationsManager from '@/components/admin/ReservationsManager';
+import ReservationManager from '@/components/admin/ReservationManager';
 import SpecialOfferEditor from '@/components/SpecialOfferEditor';
 import FeedbackManager from '@/components/admin/FeedbackManager';
 import AboutSection from '@/components/admin/AboutSection';
@@ -18,13 +18,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
 import FooterSettings from '@/components/admin/FooterSettings';
-
-// Dados mockados para o exemplo - será substituído por dados reais do banco de dados
-const mockReservations = [
-  { id: 1, name: 'João Silva', date: '2025-05-25', time: '19:00', people: 4, phone: '(11) 98765-4321', status: 'Confirmada' },
-  { id: 2, name: 'Maria Oliveira', date: '2025-05-26', time: '20:00', people: 2, phone: '(11) 91234-5678', status: 'Pendente' },
-  { id: 3, name: 'Pedro Santos', date: '2025-05-27', time: '19:30', people: 6, phone: '(11) 99876-5432', status: 'Confirmada' },
-];
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -90,11 +83,11 @@ const Admin = () => {
         if (settings.feedbacks) {
           setFeedbacks(settings.feedbacks);
         }
-
+/* 
         // Carregar ofertas especiais
         if (settings.specialOffers) {
           setSpecialOffers(settings.specialOffers);
-        }
+        } */
 
         // Carregar dados do footer
         if (settings.footer) {
@@ -207,7 +200,7 @@ const Admin = () => {
   };
 
   const handleUpdateOffers = (newOffers: any[]) => {
-    setSpecialOffers(newOffers);
+    //setSpecialOffers(newOffers);
     handleSave('special-offers');
   };
 
@@ -262,7 +255,14 @@ const Admin = () => {
           </TabsContent>
           
           <TabsContent value="reservations">
-            <ReservationsManager reservations={mockReservations} />
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Gerenciar Reservas</h2>
+              <Card>
+                <CardContent className="p-6">
+                  <ReservationManager />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
           
           <TabsContent value="special-offers">

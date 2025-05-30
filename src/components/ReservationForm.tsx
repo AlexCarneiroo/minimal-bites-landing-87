@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -31,6 +30,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase'; // ajuste o path conforme necessário
+
 
 // Define form schema
 const formSchema = z.object({
@@ -74,20 +76,45 @@ const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
     label: `${i + 1} ${i === 0 ? 'pessoa' : 'pessoas'}`,
   }));
 
-  const onSubmit = (data: FormValues) => {
-    console.log('Reservation data submitted:', data);
+const onSubmit = async (data: FormValues) => {
+  try {
+    console.log('Iniciando salvamento da reserva...', data); // Log para debug
+
+    const reservationData = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      date: format(data.date, 'yyyy-MM-dd'),
+      time: data.time,
+      guests: Number(data.guests),
+      message: data.specialRequests || '',
+      status: 'pending',
+      createdAt: Timestamp.now(),
+    };
+
+    console.log('Dados formatados:', reservationData); // Log para debug
+
+    const docRef = await addDoc(collection(db, 'reservations'), reservationData);
+    console.log('Documento criado com ID:', docRef.id); // Log para debug
+
     toast({
       title: 'Reserva realizada com sucesso!',
       description: `${data.name}, sua reserva para ${data.guests} no dia ${format(data.date, 'PP', { locale: pt })} às ${data.time} foi confirmada.`,
     });
-    
-    if (onSuccess) {
-      onSuccess();
-    }
-    
-    // Reset form
+
+    if (onSuccess) onSuccess();
     form.reset();
-  };
+  } catch (error) {
+    console.error("Erro detalhado ao salvar no Firebase:", error);
+    toast({
+      title: 'Erro ao salvar reserva',
+      description: 'Tente novamente mais tarde.',
+      variant: 'destructive',
+    });
+  }
+};
+
+
 
   return (
     <div className="w-full max-w-md mx-auto p-6 rounded-lg bg-white">

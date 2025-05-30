@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-
+import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 interface Feedback {
   id: string;
   name: string;
@@ -16,7 +17,7 @@ interface Feedback {
 }
 
 interface FeedbackManagerProps {
-  onSave: (feedbacks: Feedback[]) => void;
+  onSave?: (feedbacks: Feedback[]) => void;
 }
 
 export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
@@ -34,24 +35,28 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     try {
+      const feedbacksCollection = collection(db, 'feedbacks');
+
       if (!currentFeedback.id) {
-        // Novo feedback
+        // Criar novo feedback
         const newFeedback = {
           ...currentFeedback,
-          id: Date.now().toString()
+          createdAt: new Date()
         };
-        const updatedFeedbacks = [...feedbacks, newFeedback];
-        setFeedbacks(updatedFeedbacks);
-        await onSave(updatedFeedbacks);
+
+        const docRef = await addDoc(feedbacksCollection, newFeedback);
+        setFeedbacks([...feedbacks, { ...newFeedback, id: docRef.id }]);
       } else {
         // Atualizar feedback existente
-        const updatedFeedbacks = feedbacks.map(f => 
+        const feedbackDoc = doc(db, 'feedbacks', currentFeedback.id);
+        await setDoc(feedbackDoc, currentFeedback);
+
+        const updatedFeedbacks = feedbacks.map(f =>
           f.id === currentFeedback.id ? currentFeedback : f
         );
         setFeedbacks(updatedFeedbacks);
-        await onSave(updatedFeedbacks);
       }
 
       // Limpar formulário
@@ -67,16 +72,19 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
         title: "Feedback salvo",
         description: "O feedback foi salvo com sucesso",
       });
+
     } catch (error) {
       toast({
         title: "Erro ao salvar",
         description: "Não foi possível salvar o feedback",
         variant: "destructive",
       });
+      console.error("Erro ao salvar feedback no Firebase:", error);
     } finally {
       setIsSaving(false);
     }
   };
+
 
   const handleEdit = (feedback: Feedback) => {
     setCurrentFeedback(feedback);
@@ -87,7 +95,7 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
       const updatedFeedbacks = feedbacks.filter(f => f.id !== id);
       setFeedbacks(updatedFeedbacks);
       await onSave(updatedFeedbacks);
-      
+
       toast({
         title: "Feedback removido",
         description: "O feedback foi removido com sucesso",
@@ -100,6 +108,28 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
       });
     }
   };
+  const fetchFeedbacks = async () => {
+    try {
+      const feedbacksCollection = collection(db, 'feedbacks');
+      const feedbackSnapshot = await getDocs(feedbacksCollection);
+      const feedbackList = feedbackSnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name || '',
+        role: doc.data().role || '',
+        comment: doc.data().comment || '',
+        image: doc.data().image || ''
+      }));
+      setFeedbacks(feedbackList);
+    } catch (error) {
+      console.error('Erro ao buscar feedbacks:', error);
+    }
+  };
+
+  useEffect(() => {
+  fetchFeedbacks();
+}, []);
+
+
 
   return (
     <div className="space-y-6">
@@ -109,7 +139,7 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
             <h3 className="text-lg font-semibold mb-4">
               {currentFeedback.id ? 'Editar Feedback' : 'Novo Feedback'}
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
