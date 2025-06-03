@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { motion, AnimatePresence } from "framer-motion";
+
 interface Feedback {
   id: string;
   name: string;
@@ -17,13 +19,15 @@ interface Feedback {
 }
 
 interface FeedbackManagerProps {
-  onSave?: (feedbacks: Feedback[]) => void;
+  enabled: boolean;
+  onSave: (data: any) => void;
 }
 
-export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
+export default function FeedbackManager({ enabled, onSave }: FeedbackManagerProps) {
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingFeedback, setEditingFeedback] = useState<Feedback | null>(null);
   const [currentFeedback, setCurrentFeedback] = useState<Feedback>({
     id: '',
     name: '',
@@ -34,32 +38,35 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
+    setIsLoading(true);
 
     try {
-      const feedbacksCollection = collection(db, 'feedbacks');
-
-      if (!currentFeedback.id) {
-        // Criar novo feedback
-        const newFeedback = {
+      const feedbacksRef = collection(db, 'feedbacks');
+      
+      if (editingFeedback?.id) {
+        // Atualizar feedback existente
+        const feedbackRef = doc(db, 'feedbacks', editingFeedback.id);
+        await updateDoc(feedbackRef, {
+          ...currentFeedback,
+          updatedAt: new Date()
+        });
+        toast({
+          title: "Feedback atualizado",
+          description: "O feedback foi atualizado com sucesso",
+        });
+      } else {
+        // Adicionar novo feedback
+        await addDoc(feedbacksRef, {
           ...currentFeedback,
           createdAt: new Date()
-        };
-
-        const docRef = await addDoc(feedbacksCollection, newFeedback);
-        setFeedbacks([...feedbacks, { ...newFeedback, id: docRef.id }]);
-      } else {
-        // Atualizar feedback existente
-        const feedbackDoc = doc(db, 'feedbacks', currentFeedback.id);
-        await setDoc(feedbackDoc, currentFeedback);
-
-        const updatedFeedbacks = feedbacks.map(f =>
-          f.id === currentFeedback.id ? currentFeedback : f
-        );
-        setFeedbacks(updatedFeedbacks);
+        });
+        toast({
+          title: "Feedback adicionado",
+          description: "O feedback foi adicionado com sucesso",
+        });
       }
 
-      // Limpar formulário
+      // Limpar formulário e recarregar feedbacks
       setCurrentFeedback({
         id: '',
         name: '',
@@ -67,24 +74,25 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
         comment: '',
         image: ''
       });
-
-      toast({
-        title: "Feedback salvo",
-        description: "O feedback foi salvo com sucesso",
+      setEditingFeedback(null);
+      await loadFeedbacks();
+      
+      // Atualizar o estado no componente pai
+      onSave({
+        enabled,
+        items: feedbacks
       });
-
     } catch (error) {
+      console.error('Erro ao salvar feedback:', error);
       toast({
         title: "Erro ao salvar",
         description: "Não foi possível salvar o feedback",
         variant: "destructive",
       });
-      console.error("Erro ao salvar feedback no Firebase:", error);
     } finally {
-      setIsSaving(false);
+      setIsLoading(false);
     }
   };
-
 
   const handleEdit = (feedback: Feedback) => {
     setCurrentFeedback(feedback);
@@ -94,7 +102,10 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
     try {
       const updatedFeedbacks = feedbacks.filter(f => f.id !== id);
       setFeedbacks(updatedFeedbacks);
-      await onSave(updatedFeedbacks);
+      await onSave({
+        enabled,
+        items: updatedFeedbacks
+      });
 
       toast({
         title: "Feedback removido",
@@ -108,7 +119,8 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
       });
     }
   };
-  const fetchFeedbacks = async () => {
+
+  const loadFeedbacks = async () => {
     try {
       const feedbacksCollection = collection(db, 'feedbacks');
       const feedbackSnapshot = await getDocs(feedbacksCollection);
@@ -126,130 +138,221 @@ export default function FeedbackManager({ onSave }: FeedbackManagerProps) {
   };
 
   useEffect(() => {
-  fetchFeedbacks();
-}, []);
+    loadFeedbacks();
+  }, []);
 
+  const feedbackVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  };
 
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.95 }
+  };
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              {currentFeedback.id ? 'Editar Feedback' : 'Novo Feedback'}
-            </h3>
+      {enabled ? (
+        <AnimatePresence mode="wait">
+          <motion.div
+            variants={feedbackVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-4">
+                  {editingFeedback ? 'Editar Feedback' : 'Adicionar Novo Feedback'}
+                </h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                      >
+                        <Label htmlFor="name">Nome</Label>
+                        <Input
+                          id="name"
+                          value={currentFeedback.name}
+                          onChange={(e) => setCurrentFeedback(prev => ({
+                            ...prev,
+                            name: e.target.value
+                          }))}
+                          placeholder="Nome do cliente"
+                          required
+                          className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                        />
+                      </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Nome</Label>
-                  <Input
-                    id="name"
-                    value={currentFeedback.name}
-                    onChange={(e) => setCurrentFeedback(prev => ({
-                      ...prev,
-                      name: e.target.value
-                    }))}
-                    placeholder="Nome do cliente"
-                    required
-                  />
-                </div>
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <Label htmlFor="role">Cargo/Função</Label>
+                        <Input
+                          id="role"
+                          value={currentFeedback.role}
+                          onChange={(e) => setCurrentFeedback(prev => ({
+                            ...prev,
+                            role: e.target.value
+                          }))}
+                          placeholder="Ex: Cliente, Colaborador, etc."
+                          required
+                          className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                        />
+                      </motion.div>
 
-                <div>
-                  <Label htmlFor="role">Cargo/Função</Label>
-                  <Input
-                    id="role"
-                    value={currentFeedback.role}
-                    onChange={(e) => setCurrentFeedback(prev => ({
-                      ...prev,
-                      role: e.target.value
-                    }))}
-                    placeholder="Ex: Cliente, Colaborador, etc."
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="comment">Comentário</Label>
-                  <Textarea
-                    id="comment"
-                    value={currentFeedback.comment}
-                    onChange={(e) => setCurrentFeedback(prev => ({
-                      ...prev,
-                      comment: e.target.value
-                    }))}
-                    placeholder="Comentário do cliente"
-                    rows={4}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>Foto</Label>
-                <ImageUpload
-                  value={currentFeedback.image}
-                  onChange={(url) => setCurrentFeedback(prev => ({
-                    ...prev,
-                    image: url
-                  }))}
-                  label="Foto do Cliente"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSaving}>
-            {isSaving ? "Salvando..." : currentFeedback.id ? "Atualizar Feedback" : "Adicionar Feedback"}
-          </Button>
-        </div>
-      </form>
-
-      {feedbacks.length > 0 && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Feedbacks Cadastrados</h3>
-            <div className="space-y-4">
-              {feedbacks.map(feedback => (
-                <div key={feedback.id} className="flex items-start justify-between p-4 border rounded-lg">
-                  <div className="flex items-start space-x-4">
-                    {feedback.image && (
-                      <img
-                        src={feedback.image}
-                        alt={feedback.name}
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
-                    )}
-                    <div>
-                      <h4 className="font-semibold">{feedback.name}</h4>
-                      <p className="text-sm text-gray-500">{feedback.role}</p>
-                      <p className="mt-2">{feedback.comment}</p>
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <Label htmlFor="comment">Comentário</Label>
+                        <Textarea
+                          id="comment"
+                          value={currentFeedback.comment}
+                          onChange={(e) => setCurrentFeedback(prev => ({
+                            ...prev,
+                            comment: e.target.value
+                          }))}
+                          placeholder="Comentário do cliente"
+                          rows={4}
+                          required
+                          className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                        />
+                      </motion.div>
                     </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(feedback)}
+
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 }}
                     >
-                      Editar
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(feedback.id)}
-                    >
-                      Remover
-                    </Button>
+                      <Label>Foto</Label>
+                      <ImageUpload
+                        value={currentFeedback.image}
+                        onChange={(url) => setCurrentFeedback(prev => ({
+                          ...prev,
+                          image: url
+                        }))}
+                        label="Foto do Cliente"
+                      />
+                    </motion.div>
                   </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="flex justify-end space-x-2"
+                  >
+                    {editingFeedback && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingFeedback(null);
+                          setCurrentFeedback({
+                            id: '',
+                            name: '',
+                            role: '',
+                            comment: '',
+                            image: ''
+                          });
+                        }}
+                        className="transition-all duration-200 hover:bg-gray-100"
+                      >
+                        Cancelar Edição
+                      </Button>
+                    )}
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="transition-all duration-200 hover:scale-105 bg-primary hover:bg-primary/90 text-white"
+                    >
+                      {isLoading ? "Salvando..." : editingFeedback ? "Atualizar Feedback" : "Adicionar Feedback"}
+                    </Button>
+                  </motion.div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Feedbacks Cadastrados</h3>
+                <div className="space-y-4">
+                  <AnimatePresence mode="popLayout">
+                    {feedbacks.map((feedback, index) => (
+                      <motion.div
+                        key={feedback.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-start justify-between p-4 border rounded-lg hover:shadow-md transition-shadow duration-200"
+                      >
+                        <div className="flex items-start space-x-4">
+                          {feedback.image && (
+                            <motion.img
+                              whileHover={{ scale: 1.1 }}
+                              src={feedback.image}
+                              alt={feedback.name}
+                              className="w-16 h-16 rounded-full object-cover"
+                            />
+                          )}
+                          <div>
+                            <h4 className="font-semibold">{feedback.name}</h4>
+                            <p className="text-sm text-gray-500">{feedback.role}</p>
+                            <p className="mt-2">{feedback.comment}</p>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(feedback)}
+                              className="transition-all duration-200 hover:bg-gray-100"
+                            >
+                              Editar
+                            </Button>
+                          </motion.div>
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDelete(feedback.id)}
+                              className="transition-all duration-200 bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              Remover
+                            </Button>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </AnimatePresence>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="text-center py-8"
+        >
+          <p className="text-muted-foreground">Esta seção está desabilitada</p>
+        </motion.div>
       )}
     </div>
   );

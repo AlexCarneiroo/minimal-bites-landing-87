@@ -10,6 +10,14 @@ export interface SiteSettings {
     phone: string;
     email: string;
     logo: string;
+    menuUrl?: string;
+    mapsUrl?: string;
+    featuredProduct?: {
+      title: string;
+      description: string;
+      image: string;
+      year: string;
+    };
     schedule: {
       weekdays: string;
       weekends: string;
@@ -32,29 +40,34 @@ export interface SiteSettings {
   about: {
     title: string;
     description: string;
-    image: string;
+    images: string[];
+    spaceImages: string[];
   };
 
   // Feedbacks
-  feedbacks: Array<{
-    id: string;
-    name: string;
-    photo: string;
-    message: string;
-    rating: number;
-  }>;
+  feedbacks: {
+    enabled: boolean;
+    items: Array<{
+      id: string;
+      name: string;
+      comment: string;
+      rating: number;
+      date: string;
+    }>;
+  };
 
   // Ofertas Especiais
-  specialOffers: Array<{
-    id: string;
-    name: string;
-    description: string;
-    regularPrice: number;
-    promoPrice: number | null;
-    discount: string | null;
-    label: string | null;
-    image: string;
-  }>;
+  specialOffers: {
+    enabled: boolean;
+    items: Array<{
+      id: string;
+      title: string;
+      description: string;
+      image: string;
+      price: number;
+      specialPrice?: number;
+    }>;
+  };
 
   // Footer
   footer: {
