@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,10 +7,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import GeneralSettings from '@/components/admin/GeneralSettings';
 import AppearanceSettings from '@/components/admin/AppearanceSettings';
 import AboutSection from '@/components/admin/AboutSection';
-import ReservationManager from '@/components/admin/ReservationManager';
-import FeedbackManager from '@/components/admin/FeedbackManager';
-import SpecialOfferManager from '@/components/admin/SpecialOfferManager';
-import FooterManager from '@/components/admin/FooterManager';
+import ReservationsManager from '@/components/admin/ReservationsManager';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { useToast } from "@/hooks/use-toast";
 import { SiteSettings } from '@/lib/site-settings';
@@ -94,7 +90,7 @@ const Admin = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <TabsList className="grid w-full grid-cols-7 gap-2 p-2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl">
+              <TabsList className="grid w-full grid-cols-4 gap-2 p-2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl">
                 <TabsTrigger 
                   value="general" 
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
@@ -118,24 +114,6 @@ const Admin = () => {
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
                 >
                   Reservas
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="feedback" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
-                >
-                  Depoimentos
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="offers" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
-                >
-                  Ofertas
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="footer" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
-                >
-                  Rodapé
                 </TabsTrigger>
               </TabsList>
             </motion.div>
@@ -206,48 +184,7 @@ const Admin = () => {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ReservationManager />
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="feedback" className="space-y-6">
-                <motion.div
-                  key="feedback"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <FeedbackManager 
-                    enabled={true}
-                    onSave={(feedbacks) => {
-                      console.log('Feedbacks atualizados:', feedbacks);
-                    }} 
-                  />
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="offers" className="space-y-6">
-                <motion.div
-                  key="offers"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <SpecialOfferManager />
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="footer" className="space-y-6">
-                <motion.div
-                  key="footer"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <FooterManager />
+                  <ReservationsManager />
                 </motion.div>
               </TabsContent>
             </AnimatePresence>
