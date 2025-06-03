@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -203,7 +204,7 @@ export default function SpecialOfferManager() {
   };
 
   return (
-    <div className="space-y-6 bg-red-900">
+    <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardContent className="p-6">
@@ -213,7 +214,7 @@ export default function SpecialOfferManager() {
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Nome da Ofertaa</Label>
+                <Label htmlFor="name">Nome da Oferta</Label>
                 <Input
                   id="name"
                   value={currentOffer.name}
@@ -246,23 +247,23 @@ export default function SpecialOfferManager() {
                   <Label htmlFor="regularPrice">Preço Regular</Label>
                   <Input
                     id="regularPrice"
-                    type="text"
+                    type="number"
                     step="0.01"
                     value={currentOffer.regularPrice}
                     onChange={(e) => setCurrentOffer(prev => ({
                       ...prev,
-                      regularPrice: parseFloat(e.target.value)
+                      regularPrice: parseFloat(e.target.value) || 0
                     }))}
                     placeholder="0.00"
                     required
                   />
                 </div>
-                    <h1>testeeeeeeeeeeeee</h1>
+
                 <div>
                   <Label htmlFor="promoPrice">Preço Promocional</Label>
                   <Input
                     id="promoPrice"
-                    type="text"
+                    type="number"
                     step="0.01"
                     value={currentOffer.promoPrice || ''}
                     onChange={(e) => setCurrentOffer(prev => ({
