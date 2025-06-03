@@ -1,37 +1,119 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import AdminLogin from '@/components/AdminLogin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import GeneralSettings from '@/components/admin/GeneralSettings';
 import AppearanceSettings from '@/components/admin/AppearanceSettings';
-import AboutSection from '@/components/admin/AboutSection';
 import ReservationManager from '@/components/admin/ReservationManager';
-import { useSiteSettings } from '@/contexts/SiteSettingsContext';
-import { useToast } from "@/hooks/use-toast";
-import { SiteSettings } from '@/lib/site-settings';
+import SpecialOfferEditor from '@/components/SpecialOfferEditor';
+import FeedbackManager from '@/components/admin/FeedbackManager';
+import AboutSection from '@/components/admin/AboutSection';
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from '@/hooks/use-toast';
+import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
+import FooterSettings from '@/components/admin/FooterSettings';
+import { Button } from "@/components/ui/button";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState('general');
-  const { settings, updateSettings } = useSiteSettings();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const storedAuth = localStorage.getItem('isAuthenticated');
-    if (storedAuth === 'true') {
-      setIsAuthenticated(true);
+  // Estados para os dados do estabelecimento
+  const [establishmentData, setEstablishmentData] = useState({
+    name: 'Paizam',
+    description: 'Lanches artesanais feitos com ingredientes frescos e muito carinho para você.',
+    address: 'Av. Exemplo, 123 - Centro',
+    phone: '(51) 3740 2900',
+    email: 'contato@paizam.com.br',
+    logo: '',
+    schedule: {
+      weekdays: '11h às 22h',
+      weekends: '12h às 23h',
+      holidays: '12h às 20h',
+    },
+    socialMedia: {
+      facebook: 'https://facebook.com',
+      instagram: 'https://instagram.com',
+      youtube: 'https://youtube.com',
+      linkedin: 'https://linkedin.com',
     }
+  });
+
+  const [primaryColor, setPrimaryColor] = useState('#0066cc');
+  const [heroImage, setHeroImage] = useState('');
+  const [specialOffers, setSpecialOffers] = useState({
+    enabled: true,
+    items: []
+  });
+  const [feedbacks, setFeedbacks] = useState({
+    enabled: true,
+    items: []
+  });
+  const [aboutData, setAboutData] = useState({
+    title: 'Sobre Nós',
+    description: 'Descrição da empresa',
+    images: [],
+    spaceImages: []
+  });
+
+  const [footerData, setFooterData] = useState({
+    copyright: '© 2024 Todos os direitos reservados.',
+    companyName: 'Nome da Empresa',
+    additionalText: 'Texto adicional do footer'
+  });
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const settings = await getSiteSettings();
+      if (settings) {
+        // Carregar dados do estabelecimento
+        if (settings.establishmentData) {
+          setEstablishmentData(settings.establishmentData);
+        }
+
+        // Carregar configurações de aparência
+        setPrimaryColor(settings.primaryColor || '#0066cc');
+        setHeroImage(settings.heroImage || '');
+
+        // Carregar dados sobre
+        if (settings.about) {
+          setAboutData(settings.about);
+        }
+
+        // Carregar feedbacks
+        if (settings.feedbacks) {
+          setFeedbacks(settings.feedbacks);
+        }
+/* 
+        // Carregar ofertas especiais
+        if (settings.specialOffers) {
+          setSpecialOffers(settings.specialOffers);
+        } */
+
+        // Carregar dados do footer
+        if (settings.footer) {
+          setFooterData(settings.footer);
+        }
+      }
+    };
+
+    loadSettings();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('isAuthenticated', isAuthenticated.toString());
-  }, [isAuthenticated]);
-
+  // Função simulando login
   const handleLogin = (username: string, password: string) => {
     if (username === 'admin' && password === 'admin') {
       setIsAuthenticated(true);
+      localStorage.setItem('admin_authenticated', 'true');
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo ao painel administrativo",
@@ -39,34 +121,154 @@ const Admin = () => {
     } else {
       toast({
         title: "Erro no login",
-        description: "Usuário ou senha incorretos",
+        description: "Credenciais inválidas",
         variant: "destructive",
       });
     }
   };
 
+  useEffect(() => {
+    const auth = localStorage.getItem('admin_authenticated');
+    if (auth === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   const handleLogout = () => {
     setIsAuthenticated(false);
-    toast({
-      title: "Logout realizado",
-      description: "Até logo!",
-    });
+    localStorage.removeItem('admin_authenticated');
+    navigate('/');
   };
 
   const handleSave = async (section: string) => {
     try {
+      const settings: Partial<SiteSettings> = {};
+      
+      switch (section) {
+        case 'general':
+          settings.establishmentData = establishmentData;
+          break;
+        case 'appearance':
+          settings.primaryColor = primaryColor;
+          settings.heroImage = heroImage;
+          break;
+        case 'about':
+          settings.about = aboutData;
+          break;
+        case 'feedbacks':
+          settings.feedbacks = feedbacks;
+          break;
+        case 'special-offers':
+          settings.specialOffers = specialOffers;
+          break;
+        case 'footer':
+          settings.footer = footerData;
+          break;
+      }
+
+      await saveSiteSettings(settings);
+      
       toast({
-        title: "Configurações salvas",
-        description: "As alterações foram salvas com sucesso",
+        title: "Alterações salvas",
+        description: `Seção ${section} atualizada com sucesso`,
       });
     } catch (error) {
       console.error('Erro ao salvar:', error);
       toast({
         title: "Erro ao salvar",
-        description: "Não foi possível salvar as configurações",
+        description: "Não foi possível salvar as alterações",
         variant: "destructive",
       });
     }
+  };
+
+  const updateEstablishmentData = (field: string, value: string) => {
+    setEstablishmentData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const updateSocialMedia = (platform: string, url: string) => {
+    setEstablishmentData(prev => ({
+      ...prev,
+      socialMedia: {
+        ...prev.socialMedia,
+        [platform]: url
+      }
+    }));
+  };
+
+  const updateSchedule = (period: string, time: string) => {
+    setEstablishmentData(prev => ({
+      ...prev,
+      schedule: {
+        ...prev.schedule,
+        [period]: time
+      }
+    }));
+  };
+
+  const handleUpdateOffers = (newOffers: any) => {
+    setSpecialOffers(newOffers);
+    handleSave('special-offers');
+  };
+
+  const handleUpdateFeedbacks = (newFeedbacks: any) => {
+    setFeedbacks(newFeedbacks);
+    handleSave('feedbacks');
+  };
+
+  const handleUpdateAbout = (data: { 
+    title: string; 
+    description: string; 
+    images: string[];
+    spaceImages: string[];
+  }) => {
+    setAboutData(data);
+    handleSave('about');
+  };
+
+  const toggleSection = async (section: 'feedbacks' | 'special-offers') => {
+    try {
+      const settings: Partial<SiteSettings> = {};
+      
+      if (section === 'feedbacks') {
+        const newState = { ...feedbacks, enabled: !feedbacks.enabled };
+        setFeedbacks(newState);
+        settings.feedbacks = newState;
+      } else {
+        const newState = { ...specialOffers, enabled: !specialOffers.enabled };
+        setSpecialOffers(newState);
+        settings.specialOffers = newState;
+      }
+
+      await saveSiteSettings(settings);
+      
+      toast({
+        title: "Seção atualizada",
+        description: `A seção foi ${settings[section]?.enabled ? 'habilitada' : 'desabilitada'} com sucesso`,
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar seção:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar o estado da seção",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const tabVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.95 }
   };
 
   if (!isAuthenticated) {
@@ -74,124 +276,257 @@ const Admin = () => {
   }
 
   return (
-    <ThemeProvider>
-      <div className="min-h-screen">
-        <AdminHeader onLogout={handleLogout} />
-        
-        <motion.div 
-          className="container mx-auto px-6 py-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <AdminHeader onLogout={handleLogout} />
+      
+      <main className="container mx-auto p-4 md:p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <TabsList className="grid w-full grid-cols-4 gap-2 p-2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl">
-                <TabsTrigger 
-                  value="general" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
+          <Tabs defaultValue="general" className="space-y-6">
+            <TabsList className="grid grid-cols-1 md:grid-cols-7 gap-2 p-1 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm">
+              {[
+                { value: "general", label: "Geral" },
+                { value: "appearance", label: "Aparência" },
+                { value: "reservations", label: "Reservas" },
+                { value: "special-offers", label: "Ofertas" },
+                { value: "feedbacks", label: "Feedbacks" },
+                { value: "about", label: "Sobre" },
+                { value: "footer", label: "Footer" }
+              ].map((tab) => (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className={cn(
+                    "data-[state=active]:bg-white data-[state=active]:text-primary",
+                    "data-[state=active]:shadow-sm transition-all duration-200",
+                    "hover:bg-white/50"
+                  )}
                 >
-                  Geral
+                  {tab.label}
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="appearance" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
-                >
-                  Aparência
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="about" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
-                >
-                  Sobre
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="reservations" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-xl font-semibold transition-all duration-300"
-                >
-                  Reservas
-                </TabsTrigger>
-              </TabsList>
-            </motion.div>
-
+              ))}
+            </TabsList>
+            
             <AnimatePresence mode="wait">
-              <TabsContent value="general" className="space-y-6">
+              <TabsContent value="general">
                 <motion.div
-                  key="general"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                   transition={{ duration: 0.3 }}
                 >
                   <GeneralSettings
-                    establishmentData={settings?.establishmentData}
-                    onSave={(data) => {
-                      updateSettings({ establishmentData: data });
-                      handleSave('general');
-                    }}
+                    establishmentData={establishmentData}
+                    updateEstablishmentData={updateEstablishmentData}
+                    updateSocialMedia={updateSocialMedia}
+                    updateSchedule={updateSchedule}
+                    handleSave={handleSave}
                   />
                 </motion.div>
               </TabsContent>
-
-              <TabsContent value="appearance" className="space-y-6">
+              
+              <TabsContent value="appearance">
                 <motion.div
-                  key="appearance"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                   transition={{ duration: 0.3 }}
                 >
                   <AppearanceSettings
-                    primaryColor={settings?.primaryColor || '#0066cc'}
-                    setPrimaryColor={(color) => updateSettings({ primaryColor: color })}
-                    heroImage={settings?.heroImage || ''}
-                    setHeroImage={(url) => updateSettings({ heroImage: url })}
+                    primaryColor={primaryColor}
+                    setPrimaryColor={setPrimaryColor}
+                    heroImage={heroImage}
+                    setHeroImage={setHeroImage}
                     handleSave={handleSave}
                   />
                 </motion.div>
               </TabsContent>
 
-              <TabsContent value="about" className="space-y-6">
+              <TabsContent value="reservations">
                 <motion.div
-                  key="about"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                   transition={{ duration: 0.3 }}
                 >
-                  <AboutSection
-                    title={settings?.about?.title || ''}
-                    description={settings?.about?.description || ''}
-                    images={settings?.about?.images || []}
-                    spaceImages={settings?.about?.spaceImages || []}
-                    onSave={(data) => {
-                      updateSettings({ about: data });
-                      handleSave('about');
-                    }}
-                  />
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold">Gerenciar Reservas</h2>
+                    <motion.div
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+                        <CardContent className="p-6">
+                          <ReservationManager />
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </div>
                 </motion.div>
               </TabsContent>
-
-              <TabsContent value="reservations" className="space-y-6">
+              
+              <TabsContent value="special-offers">
                 <motion.div
-                  key="reservations"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                   transition={{ duration: 0.3 }}
                 >
-                  <ReservationManager />
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-2xl font-bold">Gerenciar Produtos</h2>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant={specialOffers.enabled ? "default" : "secondary"}
+                          onClick={() => toggleSection('special-offers')}
+                          className="transition-all duration-200 bg-primary hover:bg-primary/90 text-white"
+                        >
+                          {specialOffers.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
+                        </Button>
+                      </motion.div>
+                    </div>
+                    <motion.div
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+                        <CardContent className="p-6">
+                          <SpecialOfferEditor 
+                            enabled={specialOffers.enabled}
+                            onSave={handleUpdateOffers}
+                          />
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+              
+              <TabsContent value="feedbacks">
+                <motion.div
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-2xl font-bold">Gerenciar Feedbacks</h2>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant={feedbacks.enabled ? "default" : "secondary"}
+                          onClick={() => toggleSection('feedbacks')}
+                          className="transition-all duration-200 bg-primary hover:bg-primary/90 text-white"
+                        >
+                          {feedbacks.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
+                        </Button>
+                      </motion.div>
+                    </div>
+                    <motion.div
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+                        <CardContent className="p-6">
+                          <FeedbackManager 
+                            enabled={feedbacks.enabled}
+                            onSave={handleUpdateFeedbacks} 
+                          />
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+              
+              <TabsContent value="about">
+                <motion.div
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold">Seção Sobre Nós</h2>
+                    <motion.div
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+                        <CardContent className="p-6">
+                          <AboutSection
+                            title={aboutData.title}
+                            description={aboutData.description}
+                            images={aboutData.images}
+                            spaceImages={aboutData.spaceImages}
+                            onSave={handleUpdateAbout}
+                          />
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+              
+              <TabsContent value="footer">
+                <motion.div
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold">Configurações do Footer</h2>
+                    <motion.div
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+                        <CardContent className="p-6">
+                          <FooterSettings
+                            footerData={footerData}
+                            onSave={(data) => {
+                              setFooterData(data);
+                              handleSave('footer');
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </div>
                 </motion.div>
               </TabsContent>
             </AnimatePresence>
           </Tabs>
         </motion.div>
-      </div>
-    </ThemeProvider>
+      </main>
+    </div>
   );
 };
 

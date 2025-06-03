@@ -48,13 +48,10 @@ export default function Dashboard() {
         <TabsContent value="feedback">
           <Card>
             <CardContent className="p-6">
-              <FeedbackManager 
-                enabled={true}
-                onSave={(feedbacks) => {
-                  // Atualizar feedbacks se necessário
-                  console.log('Feedbacks atualizados:', feedbacks);
-                }} 
-              />
+              <FeedbackManager onSave={(feedbacks) => {
+                // Atualizar feedbacks se necessário
+                console.log('Feedbacks atualizados:', feedbacks);
+              }} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -93,4 +90,4 @@ export default function Dashboard() {
       </Tabs>
     </div>
   );
-}
+} 
