@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +8,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import GeneralSettings from '@/components/admin/GeneralSettings';
 import AppearanceSettings from '@/components/admin/AppearanceSettings';
 import AboutSection from '@/components/admin/AboutSection';
-import ReservationsManager from '@/components/admin/ReservationsManager';
+import ReservationManager from '@/components/admin/ReservationManager';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { useToast } from "@/hooks/use-toast";
 import { SiteSettings } from '@/lib/site-settings';
@@ -184,7 +185,7 @@ const Admin = () => {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ReservationsManager />
+                  <ReservationManager />
                 </motion.div>
               </TabsContent>
             </AnimatePresence>
