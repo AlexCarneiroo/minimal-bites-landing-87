@@ -1,8 +1,34 @@
 
 import { Button } from '@/components/ui/button';
 import { Truck, Package, Phone } from 'lucide-react';
+import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 
 const Delivery = () => {
+  const { data: establishmentData, loading } = useEstablishmentData();
+
+  // Dados padrão como fallback
+  const defaultData = {
+    phone: '(11) 9999-9999',
+    menuUrl: 'https://www.saborexpress.com.br'
+  };
+
+  const deliveryData = {
+    phone: establishmentData?.phone || defaultData.phone,
+    menuUrl: establishmentData?.menuUrl || defaultData.menuUrl
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-black text-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-gray-300">Carregando informações de delivery...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20 bg-black text-white">
       <div className="container mx-auto px-4">
@@ -24,7 +50,7 @@ const Delivery = () => {
               <Phone className="w-6 h-6 text-blue-400" />
             </div>
             <h3 className="text-xl font-bold mb-2">Telefone</h3>
-            <p className="text-gray-300 mb-4">(11) 9999-9999</p>
+            <p className="text-gray-300 mb-4">{deliveryData.phone}</p>
             <p className="text-sm text-gray-400">Atendimento rápido e prático</p>
           </div>
           
@@ -42,14 +68,17 @@ const Delivery = () => {
               <Truck className="w-6 h-6 text-blue-400" />
             </div>
             <h3 className="text-xl font-bold mb-2">Website</h3>
-            <p className="text-gray-300 mb-4">www.saborexpress.com.br</p>
-            <p className="text-sm text-gray-400">Faça seu pedido pelo nosso site</p>
+            <p className="text-gray-300 mb-4">Cardápio Online</p>
+            <p className="text-sm text-gray-400">Faça seu pedido pelo nosso cardápio</p>
           </div>
         </div>
         
         <div className="text-center">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-6">
-            Acessar
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-6"
+            onClick={() => window.open(deliveryData.menuUrl, '_blank')}
+          >
+            Acessar Cardápio
           </Button>
         </div>
       </div>
