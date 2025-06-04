@@ -16,7 +16,7 @@ export function useRealtimeData<T extends DocumentData>(collectionName: string) 
           const items = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
-          })) as T[];
+          } as T));
           
           setData(items);
           setLoading(false);
