@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { ColorPicker } from "@/components/ColorPicker";
+import ColorPicker from "@/components/ColorPicker";
 import { useToast } from "@/hooks/use-toast";
 import { saveAppearanceSettings, getAppearanceSettings } from '@/lib/firebase-operations';
 
@@ -62,6 +62,11 @@ export default function AppearanceSettings() {
     }
   };
 
+  const handleColorSave = () => {
+    // Trigger form submission when color is saved
+    handleSubmit(new Event('submit') as any);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
@@ -77,10 +82,8 @@ export default function AppearanceSettings() {
                   <ColorPicker
                     color={primaryColor}
                     onChange={setPrimaryColor}
+                    onSave={handleColorSave}
                   />
-                  <span className="text-sm text-muted-foreground">
-                    {primaryColor}
-                  </span>
                 </div>
               </div>
             </div>
