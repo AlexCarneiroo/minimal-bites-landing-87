@@ -1,12 +1,13 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ImageUpload } from "@/components/ui/image-upload";
 import { motion, AnimatePresence } from "framer-motion";
+import ConhecaNosManager from './ConhecaNosManager';
 
 interface AboutSectionProps {
   title: string;
@@ -32,59 +33,60 @@ export default function AboutSection({
   const [formData, setFormData] = useState({
     title: title || '',
     description: description || '',
-    images: Array.isArray(images) ? images : [],
-    spaceImages: Array.isArray(spaceImages) ? spaceImages : []
+    images: Array.isArray(images) ? images : []
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-    toast({
-      title: "Alterações salvas",
-      description: "As informações foram atualizadas com sucesso",
+  // Atualizar formData quando props mudarem
+  useEffect(() => {
+    setFormData({
+      title: title || '',
+      description: description || '',
+      images: Array.isArray(images) ? images : []
     });
-  };
+  }, [title, description, images]);
 
-  const handleAddImage = () => {
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, '']
-    }));
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      // Salvar via API
+      const response = await fetch('/api/about', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          images: formData.images
+        }),
+      });
 
-  const handleRemoveImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
-  };
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao salvar');
+      }
 
-  const handleImageChange = (index: number, url: string) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.map((img, i) => i === index ? url : img)
-    }));
-  };
+      // Chamar onSave para atualizar o estado local
+      onSave({
+        title: formData.title,
+        description: formData.description,
+        images: formData.images,
+        spaceImages: [] // As imagens do espaço são gerenciadas separadamente
+      });
 
-  const handleAddSpaceImage = () => {
-    setFormData(prev => ({
-      ...prev,
-      spaceImages: [...prev.spaceImages, '']
-    }));
-  };
-
-  const handleRemoveSpaceImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      spaceImages: prev.spaceImages.filter((_, i) => i !== index)
-    }));
-  };
-
-  const handleSpaceImageChange = (index: number, url: string) => {
-    setFormData(prev => ({
-      ...prev,
-      spaceImages: prev.spaceImages.map((img, i) => i === index ? url : img)
-    }));
+      toast({
+        title: "Alterações salvas",
+        description: "As informações foram atualizadas com sucesso",
+      });
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: error instanceof Error ? error.message : "Não foi possível salvar as alterações",
+        variant: "destructive",
+      });
+    }
   };
 
   const cardVariants = {
@@ -165,6 +167,7 @@ export default function AboutSection({
         </Card>
       </motion.div>
 
+      {/* Seção para gerenciar fotos do "Conheça Nosso Espaço" */}
       <motion.div
         variants={cardVariants}
         initial="hidden"
@@ -172,55 +175,10 @@ export default function AboutSection({
         exit="exit"
         transition={{ duration: 0.3, delay: 0.1 }}
       >
-        <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-          <CardContent className="p-6">
-            <h3 className="text-xl font-semibold mb-4">Imagens da Empresa</h3>
-            <div className="space-y-4">
-              <AnimatePresence mode="popLayout">
-                {formData.images.map((image, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center space-x-4"
-                  >
-                    <div className="flex-1">
-                      <ImageUpload
-                        value={image}
-                        onChange={(url) => handleImageChange(index, url)}
-                        label={`Imagem ${index + 1}`}
-                      />
-                    </div>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => handleRemoveImage(index)}
-                        className="transition-all duration-200 bg-red-600 hover:bg-red-700 text-white"
-                      >
-                        Remover
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  type="button"
-                  onClick={handleAddImage}
-                  className="transition-all duration-200 bg-primary hover:bg-primary/90 text-white"
-                >
-                  Adicionar Imagem
-                </Button>
-              </motion.div>
-            </div>
-          </CardContent>
-        </Card>
+        <ConhecaNosManager />
       </motion.div>
 
+      {/* Visualização das Informações */}
       <motion.div
         variants={cardVariants}
         initial="hidden"
@@ -230,69 +188,12 @@ export default function AboutSection({
       >
         <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
           <CardContent className="p-6">
-            <h3 className="text-xl font-semibold mb-4">Conheça Nosso Espaço</h3>
-            <div className="space-y-4">
-              <AnimatePresence mode="popLayout">
-                {formData.spaceImages.map((image, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center space-x-4"
-                  >
-                    <div className="flex-1">
-                      <ImageUpload
-                        value={image}
-                        onChange={(url) => handleSpaceImageChange(index, url)}
-                        label={`Imagem do Espaço ${index + 1}`}
-                      />
-                    </div>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => handleRemoveSpaceImage(index)}
-                        className="transition-all duration-200 bg-red-600 hover:bg-red-700 text-white"
-                      >
-                        Remover
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  type="button"
-                  onClick={handleAddSpaceImage}
-                  className="transition-all duration-200 bg-primary hover:bg-primary/90 text-white"
-                >
-                  Adicionar Imagem do Espaço
-                </Button>
-              </motion.div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Visualização das Informações */}
-      <motion.div
-        variants={cardVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        transition={{ duration: 0.3, delay: 0.3 }}
-      >
-        <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-          <CardContent className="p-6">
             <h3 className="text-xl font-semibold mb-4">Visualização</h3>
             
             <div className="space-y-6">
               <div>
-                <h4 className="text-lg font-medium mb-2">{formData.title}</h4>
-                <p className="text-gray-600">{formData.description}</p>
+                <h4 className="text-lg font-medium mb-2">{formData.title || 'Título não definido'}</h4>
+                <p className="text-gray-600">{formData.description || 'Descrição não definida'}</p>
               </div>
 
               {formData.images.length > 0 && (
@@ -315,31 +216,10 @@ export default function AboutSection({
                   </div>
                 </div>
               )}
-
-              {formData.spaceImages.length > 0 && (
-                <div>
-                  <h4 className="text-lg font-medium mb-4">Conheça Nosso Espaço</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {formData.spaceImages.map((image, index) => (
-                      <motion.div
-                        key={index}
-                        whileHover={{ scale: 1.05 }}
-                        className="relative aspect-video rounded-lg overflow-hidden"
-                      >
-                        <img
-                          src={image}
-                          alt={`Imagem do espaço ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
       </motion.div>
     </div>
   );
-} 
+}
