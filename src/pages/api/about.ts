@@ -1,4 +1,3 @@
-
 import { NextApiRequest, NextApiResponse } from 'next';
 import { collection, getDocs, addDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -21,16 +20,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else if (req.method === 'POST') {
     try {
-      const { title, description, images } = req.body;
+      const { title, description, image, mission, vision, values } = req.body;
 
-      if (!title || !description) {
-        return res.status(400).json({ error: 'Título e descrição são obrigatórios' });
+      if (!title || !description || !mission || !vision) {
+        return res.status(400).json({ error: 'Campos obrigatórios não preenchidos' });
       }
 
       const aboutData = {
         title,
         description,
-        images: images || [],
+        image,
+        mission,
+        vision,
+        values,
         updatedAt: serverTimestamp()
       };
 
@@ -57,4 +59,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+} 
