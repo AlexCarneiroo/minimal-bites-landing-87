@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   Clock, 
@@ -18,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { useToast } from "@/hooks/use-toast";
+import { saveGeneralSettings, getGeneralSettings } from '@/lib/firebase-operations';
 
 interface EstablishmentData {
   name: string;
@@ -80,16 +80,13 @@ export default function GeneralSettings() {
   const [isSaving, setIsSaving] = useState(false);
   const [establishmentData, setEstablishmentData] = useState<EstablishmentData>(defaultEstablishmentData);
 
-  // Carregar dados do banco
+  // Carregar dados do Firebase
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/general-settings');
-        if (response.ok) {
-          const data = await response.json();
-          if (data) {
-            setEstablishmentData({ ...defaultEstablishmentData, ...data });
-          }
+        const data = await getGeneralSettings();
+        if (data) {
+          setEstablishmentData({ ...defaultEstablishmentData, ...data });
         }
       } catch (error) {
         console.error('Erro ao carregar configurações:', error);
@@ -156,23 +153,18 @@ export default function GeneralSettings() {
     setIsSaving(true);
     
     try {
-      const response = await fetch('/api/general-settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(establishmentData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao salvar configurações');
+      const success = await saveGeneralSettings(establishmentData);
+      
+      if (success) {
+        toast({
+          title: "Configurações salvas",
+          description: "As configurações gerais foram atualizadas com sucesso",
+        });
+      } else {
+        throw new Error('Erro ao salvar');
       }
-
-      toast({
-        title: "Configurações salvas",
-        description: "As configurações gerais foram atualizadas com sucesso",
-      });
     } catch (error) {
+      console.error('Erro ao salvar:', error);
       toast({
         title: "Erro ao salvar",
         description: "Não foi possível salvar as configurações",
