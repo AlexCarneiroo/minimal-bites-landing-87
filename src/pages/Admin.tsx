@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -27,29 +28,6 @@ const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Estados para os dados do estabelecimento
-  const [establishmentData, setEstablishmentData] = useState({
-    name: 'Paizam',
-    description: 'Lanches artesanais feitos com ingredientes frescos e muito carinho para você.',
-    address: 'Av. Exemplo, 123 - Centro',
-    phone: '(51) 3740 2900',
-    email: 'contato@paizam.com.br',
-    logo: '',
-    schedule: {
-      weekdays: '11h às 22h',
-      weekends: '12h às 23h',
-      holidays: '12h às 20h',
-    },
-    socialMedia: {
-      facebook: 'https://facebook.com',
-      instagram: 'https://instagram.com',
-      youtube: 'https://youtube.com',
-      linkedin: 'https://linkedin.com',
-    }
-  });
-
-  const [primaryColor, setPrimaryColor] = useState('#0066cc');
-  const [heroImage, setHeroImage] = useState('');
   const [specialOffers, setSpecialOffers] = useState({
     enabled: true,
     items: []
@@ -75,15 +53,6 @@ const Admin = () => {
     const loadSettings = async () => {
       const settings = await getSiteSettings();
       if (settings) {
-        // Carregar dados do estabelecimento
-        if (settings.establishmentData) {
-          setEstablishmentData(settings.establishmentData);
-        }
-
-        // Carregar configurações de aparência
-        setPrimaryColor(settings.primaryColor || '#0066cc');
-        setHeroImage(settings.heroImage || '');
-
         // Carregar dados sobre
         if (settings.about) {
           setAboutData(settings.about);
@@ -93,11 +62,11 @@ const Admin = () => {
         if (settings.feedbacks) {
           setFeedbacks(settings.feedbacks);
         }
-/* 
+
         // Carregar ofertas especiais
         if (settings.specialOffers) {
           setSpecialOffers(settings.specialOffers);
-        } */
+        }
 
         // Carregar dados do footer
         if (settings.footer) {
@@ -145,13 +114,6 @@ const Admin = () => {
       const settings: Partial<SiteSettings> = {};
       
       switch (section) {
-        case 'general':
-          settings.establishmentData = establishmentData;
-          break;
-        case 'appearance':
-          settings.primaryColor = primaryColor;
-          settings.heroImage = heroImage;
-          break;
         case 'about':
           settings.about = aboutData;
           break;
@@ -180,33 +142,6 @@ const Admin = () => {
         variant: "destructive",
       });
     }
-  };
-
-  const updateEstablishmentData = (field: string, value: string) => {
-    setEstablishmentData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const updateSocialMedia = (platform: string, url: string) => {
-    setEstablishmentData(prev => ({
-      ...prev,
-      socialMedia: {
-        ...prev.socialMedia,
-        [platform]: url
-      }
-    }));
-  };
-
-  const updateSchedule = (period: string, time: string) => {
-    setEstablishmentData(prev => ({
-      ...prev,
-      schedule: {
-        ...prev.schedule,
-        [period]: time
-      }
-    }));
   };
 
   const handleUpdateOffers = (newOffers: any) => {
@@ -319,13 +254,7 @@ const Admin = () => {
                   exit="exit"
                   transition={{ duration: 0.3 }}
                 >
-                  <GeneralSettings
-                    establishmentData={establishmentData}
-                    updateEstablishmentData={updateEstablishmentData}
-                    updateSocialMedia={updateSocialMedia}
-                    updateSchedule={updateSchedule}
-                    handleSave={handleSave}
-                  />
+                  <GeneralSettings />
                 </motion.div>
               </TabsContent>
               
@@ -337,13 +266,7 @@ const Admin = () => {
                   exit="exit"
                   transition={{ duration: 0.3 }}
                 >
-                  <AppearanceSettings
-                    primaryColor={primaryColor}
-                    setPrimaryColor={setPrimaryColor}
-                    heroImage={heroImage}
-                    setHeroImage={setHeroImage}
-                    handleSave={handleSave}
-                  />
+                  <AppearanceSettings />
                 </motion.div>
               </TabsContent>
 
