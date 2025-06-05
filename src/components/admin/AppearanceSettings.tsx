@@ -1,8 +1,9 @@
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useToast } from "@/hooks/use-toast";
 
 const PREDEFINED_COLORS = [
@@ -16,60 +17,80 @@ const PREDEFINED_COLORS = [
   { name: 'Amarelo', value: '#eab308' }
 ];
 
-interface AppearanceSettingsProps {
-  primaryColor: string;
-  setPrimaryColor: (color: string) => void;
-  heroImage: string;
-  setHeroImage: (url: string) => void;
-  handleSave: (section: string) => void;
-}
-
-export default function AppearanceSettings({
-  primaryColor,
-  setPrimaryColor,
-  heroImage,
-  setHeroImage,
-  handleSave
-}: AppearanceSettingsProps) {
-  const { updateSettings } = useSiteSettings();
+export default function AppearanceSettings() {
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  const [primaryColor, setPrimaryColor] = useState('#0066cc');
+  const [heroImage, setHeroImage] = useState('');
 
-  const handleColorChange = async (color: string) => {
+  // Carregar dados do banco
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/appearance');
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setPrimaryColor(data.primaryColor || '#0066cc');
+            setHeroImage(data.heroImage || '');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar configurações de aparência:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    
     try {
-      setPrimaryColor(color);
-      await updateSettings({ primaryColor: color });
-      toast({
-        title: "Cor atualizada",
-        description: "A cor primária foi atualizada com sucesso",
+      const response = await fetch('/api/appearance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          primaryColor,
+          heroImage
+        }),
       });
-      handleSave('appearance');
-    } catch (error) {
-      console.error('Erro ao atualizar cor:', error);
+
+      if (!response.ok) {
+        throw new Error('Erro ao salvar configurações');
+      }
+
       toast({
-        title: "Erro ao atualizar cor",
-        description: "Não foi possível atualizar a cor primária",
+        title: "Configurações salvas",
+        description: "As configurações de aparência foram atualizadas com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as configurações",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  const handleColorChange = async (color: string) => {
+    setPrimaryColor(color);
+    toast({
+      title: "Cor atualizada",
+      description: "A cor primária foi atualizada. Clique em 'Salvar' para confirmar.",
+    });
+  };
+
   const handleHeroImageChange = async (url: string) => {
-    try {
-      setHeroImage(url);
-      await updateSettings({ heroImage: url });
-      toast({
-        title: "Imagem atualizada",
-        description: "A imagem de fundo foi atualizada com sucesso",
-      });
-      handleSave('appearance');
-    } catch (error) {
-      console.error('Erro ao atualizar imagem:', error);
-      toast({
-        title: "Erro ao atualizar imagem",
-        description: "Não foi possível atualizar a imagem de fundo",
-        variant: "destructive",
-      });
-    }
+    setHeroImage(url);
+    toast({
+      title: "Imagem atualizada",
+      description: "A imagem de fundo foi atualizada. Clique em 'Salvar' para confirmar.",
+    });
   };
 
   return (
@@ -108,11 +129,20 @@ export default function AppearanceSettings({
                 </div>
               </div>
             </div>
-            <ImageUpload
-              value={heroImage}
-              onChange={handleHeroImageChange}
-              label="Imagem de Fundo"
-            />
+            <div>
+              <Label>Imagem de Fundo</Label>
+              <ImageUpload
+                value={heroImage}
+                onChange={handleHeroImageChange}
+                label="Imagem de Fundo"
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-end mt-6">
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving ? "Salvando..." : "Salvar Alterações"}
+            </Button>
           </div>
         </CardContent>
       </Card>

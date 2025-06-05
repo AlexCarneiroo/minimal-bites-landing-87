@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,14 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 interface AboutContent {
   id: string;
   title: string;
   description: string;
-  images: string[];
+  image: string;
   mission: string;
   vision: string;
   values: string[];
@@ -26,7 +25,7 @@ export default function AboutManager() {
     id: '',
     title: '',
     description: '',
-    images: [],
+    image: '',
     mission: '',
     vision: '',
     values: []
@@ -41,10 +40,10 @@ export default function AboutManager() {
       const data = await response.json();
       if (data) {
         setAboutContent({
-          id: data.id,
+          id: data.id || '',
           title: data.title || '',
           description: data.description || '',
-          images: data.images || [],
+          image: data.image || '',
           mission: data.mission || '',
           vision: data.vision || '',
           values: data.values || []
@@ -160,6 +159,18 @@ export default function AboutManager() {
               </div>
 
               <div>
+                <Label>Imagem Principal</Label>
+                <ImageUpload
+                  value={aboutContent.image}
+                  onChange={(url) => setAboutContent(prev => ({
+                    ...prev,
+                    image: url
+                  }))}
+                  label="Imagem Principal da Seção"
+                />
+              </div>
+
+              <div>
                 <Label htmlFor="mission">Missão</Label>
                 <Textarea
                   id="mission"
@@ -218,39 +229,6 @@ export default function AboutManager() {
                   </Button>
                 </div>
               </div>
-
-              <div>
-                <Label>Imagens (até 5)</Label>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
-                  {aboutContent.images.map((img, idx) => (
-                    <div key={idx} className="relative group border rounded overflow-hidden">
-                      <img src={img} alt={`Imagem ${idx + 1}`} className="w-full h-24 object-cover" />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-1 right-1 opacity-80 group-hover:opacity-100"
-                        onClick={() => setAboutContent(prev => ({
-                          ...prev,
-                          images: prev.images.filter((_, i) => i !== idx)
-                        }))}
-                      >Remover</Button>
-                    </div>
-                  ))}
-                  {aboutContent.images.length < 5 && (
-                    <div className="flex flex-col items-center justify-center border rounded h-24">
-                      <ImageUpload
-                        value={''}
-                        onChange={url => setAboutContent(prev => ({
-                          ...prev,
-                          images: [...prev.images, url]
-                        }))}
-                        label="Adicionar"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -263,4 +241,4 @@ export default function AboutManager() {
       </form>
     </div>
   );
-} 
+}
