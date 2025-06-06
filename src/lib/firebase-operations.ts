@@ -1,6 +1,6 @@
 
 import { db } from './firebase';
-import { collection, doc, setDoc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, addDoc, deleteDoc } from 'firebase/firestore';
 
 // Configurações Gerais
 export const saveGeneralSettings = async (data: any) => {
@@ -103,5 +103,122 @@ export const getFooterSettings = async () => {
   } catch (error) {
     console.error('Erro ao buscar configurações do footer:', error);
     return null;
+  }
+};
+
+// Feedbacks
+export const saveFeedback = async (data: any) => {
+  try {
+    const feedbacksRef = collection(db, 'feedbacks');
+    const docRef = await addDoc(feedbacksRef, {
+      ...data,
+      createdAt: new Date()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Erro ao salvar feedback:', error);
+    return null;
+  }
+};
+
+export const getFeedbacks = async () => {
+  try {
+    const feedbacksRef = collection(db, 'feedbacks');
+    const snapshot = await getDocs(feedbacksRef);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar feedbacks:', error);
+    return [];
+  }
+};
+
+export const deleteFeedback = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'feedbacks', id));
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar feedback:', error);
+    return false;
+  }
+};
+
+// Ofertas Especiais
+export const saveSpecialOffer = async (data: any) => {
+  try {
+    const offersRef = collection(db, 'special_offers');
+    const docRef = await addDoc(offersRef, {
+      ...data,
+      createdAt: new Date()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Erro ao salvar oferta especial:', error);
+    return null;
+  }
+};
+
+export const getSpecialOffers = async () => {
+  try {
+    const offersRef = collection(db, 'special_offers');
+    const snapshot = await getDocs(offersRef);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar ofertas especiais:', error);
+    return [];
+  }
+};
+
+export const deleteSpecialOffer = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'special_offers', id));
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar oferta especial:', error);
+    return false;
+  }
+};
+
+// Reservas
+export const saveReservation = async (data: any) => {
+  try {
+    const reservationsRef = collection(db, 'reservations');
+    const docRef = await addDoc(reservationsRef, {
+      ...data,
+      createdAt: new Date()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Erro ao salvar reserva:', error);
+    return null;
+  }
+};
+
+export const getReservations = async () => {
+  try {
+    const reservationsRef = collection(db, 'reservations');
+    const snapshot = await getDocs(reservationsRef);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar reservas:', error);
+    return [];
+  }
+};
+
+export const deleteReservation = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'reservations', id));
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar reserva:', error);
+    return false;
   }
 };

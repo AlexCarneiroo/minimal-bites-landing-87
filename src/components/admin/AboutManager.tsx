@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { saveAboutSettings, getAboutSettings } from '@/lib/firebase-operations';
 
 interface AboutContent {
   id: string;
@@ -33,11 +34,7 @@ export default function AboutManager() {
 
   const fetchAboutContent = async () => {
     try {
-      const response = await fetch('/api/about');
-      if (!response.ok) {
-        throw new Error('Erro ao buscar conteúdo');
-      }
-      const data = await response.json();
+      const data = await getAboutSettings();
       if (data) {
         setAboutContent({
           id: data.id || '',
@@ -68,26 +65,16 @@ export default function AboutManager() {
     setIsSaving(true);
     
     try {
-      const response = await fetch('/api/about', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(aboutContent),
-      });
+      const success = await saveAboutSettings(aboutContent);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erro ao salvar conteúdo');
+      if (success) {
+        toast({
+          title: "Conteúdo salvo",
+          description: "O conteúdo sobre foi salvo com sucesso",
+        });
+      } else {
+        throw new Error('Erro ao salvar');
       }
-
-      const data = await response.json();
-      setAboutContent({ ...data });
-
-      toast({
-        title: "Conteúdo salvo",
-        description: "O conteúdo sobre foi salvo com sucesso",
-      });
     } catch (error) {
       toast({
         title: "Erro ao salvar",

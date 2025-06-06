@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { collection, getDocs, addDoc, doc, setDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { saveFooterSettings, getFooterSettings } from '@/lib/firebase-operations';
 
 interface FooterContent {
   id?: string;
@@ -37,16 +37,21 @@ export default function FooterManager() {
     socialMedia: {},
     copyright: ''
   });
-  const [footerId, setFooterId] = useState<string | null>(null);
 
   const fetchFooterContent = async () => {
     try {
-      const colRef = collection(db, 'footer');
-      const snapshot = await getDocs(colRef);
-      if (!snapshot.empty) {
-        const docData = snapshot.docs[0];
-        setFooterContent({ ...(docData.data() as FooterContent), id: docData.id });
-        setFooterId(docData.id);
+      const data = await getFooterSettings();
+      if (data) {
+        setFooterContent({
+          id: data.id || '',
+          logo: data.logo || '',
+          description: data.description || '',
+          address: data.address || '',
+          phone: data.phone || '',
+          email: data.email || '',
+          socialMedia: data.socialMedia || {},
+          copyright: data.copyright || ''
+        });
       }
     } catch (error) {
       console.error('Erro ao buscar conteúdo do rodapé:', error);
@@ -67,26 +72,16 @@ export default function FooterManager() {
     setIsSaving(true);
     
     try {
-      let docRef;
-      if (footerId) {
-        docRef = doc(db, 'footer', footerId);
-        await setDoc(docRef, {
-          ...footerContent,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-      } else {
-        docRef = await addDoc(collection(db, 'footer'), {
-          ...footerContent,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-        setFooterId(docRef.id);
-      }
+      const success = await saveFooterSettings(footerContent);
 
-      toast({
-        title: "Conteúdo salvo",
-        description: "O conteúdo do rodapé foi salvo com sucesso",
-      });
+      if (success) {
+        toast({
+          title: "Conteúdo salvo",
+          description: "O conteúdo do rodapé foi salvo com sucesso",
+        });
+      } else {
+        throw new Error('Erro ao salvar');
+      }
     } catch (error) {
       toast({
         title: "Erro ao salvar",
@@ -239,4 +234,4 @@ export default function FooterManager() {
       </form>
     </div>
   );
-} 
+}

@@ -1,3 +1,4 @@
+
 import { useState , useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { collection, getDocs, addDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { saveFeedback, getFeedbacks, deleteFeedback } from '@/lib/firebase-operations';
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Feedback {
@@ -41,47 +41,43 @@ export default function FeedbackManager({ enabled, onSave }: FeedbackManagerProp
     setIsLoading(true);
 
     try {
-      const feedbacksRef = collection(db, 'feedbacks');
-      
       if (editingFeedback?.id) {
-        // Atualizar feedback existente
-        const feedbackRef = doc(db, 'feedbacks', editingFeedback.id);
-        await updateDoc(feedbackRef, {
-          ...currentFeedback,
-          updatedAt: new Date()
-        });
+        // Para editar, vamos deletar o antigo e criar um novo
+        await deleteFeedback(editingFeedback.id);
+      }
+      
+      const feedbackId = await saveFeedback({
+        name: currentFeedback.name,
+        role: currentFeedback.role,
+        comment: currentFeedback.comment,
+        image: currentFeedback.image
+      });
+      
+      if (feedbackId) {
         toast({
-          title: "Feedback atualizado",
-          description: "O feedback foi atualizado com sucesso",
+          title: editingFeedback ? "Feedback atualizado" : "Feedback adicionado",
+          description: `O feedback foi ${editingFeedback ? 'atualizado' : 'adicionado'} com sucesso`,
+        });
+
+        // Limpar formulário e recarregar feedbacks
+        setCurrentFeedback({
+          id: '',
+          name: '',
+          role: '',
+          comment: '',
+          image: ''
+        });
+        setEditingFeedback(null);
+        await loadFeedbacks();
+        
+        // Atualizar o estado no componente pai
+        onSave({
+          enabled,
+          items: feedbacks
         });
       } else {
-        // Adicionar novo feedback
-        await addDoc(feedbacksRef, {
-          ...currentFeedback,
-          createdAt: new Date()
-        });
-        toast({
-          title: "Feedback adicionado",
-          description: "O feedback foi adicionado com sucesso",
-        });
+        throw new Error('Erro ao salvar feedback');
       }
-
-      // Limpar formulário e recarregar feedbacks
-      setCurrentFeedback({
-        id: '',
-        name: '',
-        role: '',
-        comment: '',
-        image: ''
-      });
-      setEditingFeedback(null);
-      await loadFeedbacks();
-      
-      // Atualizar o estado no componente pai
-      onSave({
-        enabled,
-        items: feedbacks
-      });
     } catch (error) {
       console.error('Erro ao salvar feedback:', error);
       toast({
@@ -96,21 +92,26 @@ export default function FeedbackManager({ enabled, onSave }: FeedbackManagerProp
 
   const handleEdit = (feedback: Feedback) => {
     setCurrentFeedback(feedback);
+    setEditingFeedback(feedback);
   };
 
   const handleDelete = async (id: string) => {
     try {
-      const updatedFeedbacks = feedbacks.filter(f => f.id !== id);
-      setFeedbacks(updatedFeedbacks);
-      await onSave({
-        enabled,
-        items: updatedFeedbacks
-      });
+      const success = await deleteFeedback(id);
+      if (success) {
+        await loadFeedbacks();
+        onSave({
+          enabled,
+          items: feedbacks.filter(f => f.id !== id)
+        });
 
-      toast({
-        title: "Feedback removido",
-        description: "O feedback foi removido com sucesso",
-      });
+        toast({
+          title: "Feedback removido",
+          description: "O feedback foi removido com sucesso",
+        });
+      } else {
+        throw new Error('Erro ao deletar feedback');
+      }
     } catch (error) {
       toast({
         title: "Erro ao remover",
@@ -122,16 +123,15 @@ export default function FeedbackManager({ enabled, onSave }: FeedbackManagerProp
 
   const loadFeedbacks = async () => {
     try {
-      const feedbacksCollection = collection(db, 'feedbacks');
-      const feedbackSnapshot = await getDocs(feedbacksCollection);
-      const feedbackList = feedbackSnapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name || '',
-        role: doc.data().role || '',
-        comment: doc.data().comment || '',
-        image: doc.data().image || ''
+      const feedbackList = await getFeedbacks();
+      const formattedFeedbacks = feedbackList.map(feedback => ({
+        id: feedback.id,
+        name: feedback.name || '',
+        role: feedback.role || '',
+        comment: feedback.comment || '',
+        image: feedback.image || ''
       }));
-      setFeedbacks(feedbackList);
+      setFeedbacks(formattedFeedbacks);
     } catch (error) {
       console.error('Erro ao buscar feedbacks:', error);
     }
@@ -356,4 +356,4 @@ export default function FeedbackManager({ enabled, onSave }: FeedbackManagerProp
       )}
     </div>
   );
-} 
+}
