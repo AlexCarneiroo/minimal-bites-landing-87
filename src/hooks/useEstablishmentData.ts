@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { getGeneralSettings } from '@/lib/firebase-operations';
 
 interface EstablishmentData {
   name: string;
@@ -12,6 +11,12 @@ interface EstablishmentData {
   logo: string;
   menuUrl?: string;
   mapsUrl?: string;
+  featuredProduct?: {
+    title: string;
+    description: string;
+    image: string;
+    year: string;
+  };
   schedule?: {
     weekdays: string;
     weekends: string;
@@ -32,14 +37,12 @@ export function useEstablishmentData() {
   useEffect(() => {
     const fetchEstablishmentData = async () => {
       try {
-        const settingsRef = doc(db, 'site_settings', 'site_settings');
-        const settingsDoc = await getDoc(settingsRef);
+        // Buscar dados do general_settings que contém os dados do estabelecimento
+        const generalSettings = await getGeneralSettings();
         
-        if (settingsDoc.exists()) {
-          const settings = settingsDoc.data();
-          if (settings.establishmentData) {
-            setData(settings.establishmentData as EstablishmentData);
-          }
+        if (generalSettings) {
+          setData(generalSettings as EstablishmentData);
+          console.log('Dados do estabelecimento carregados:', generalSettings);
         }
       } catch (error) {
         console.error('Erro ao buscar dados do estabelecimento:', error);

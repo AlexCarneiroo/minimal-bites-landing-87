@@ -3,11 +3,31 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChefHat } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 import ReservationDialog from './ReservationDialog';
 
 const Hero = () => {
   const { settings } = useSiteSettings();
+  const { data: establishmentData, loading } = useEstablishmentData();
   const primaryColor = settings?.primaryColor || '#0066cc';
+
+  // Usar dados do estabelecimento se disponíveis, senão usar dados padrão
+  const establishmentName = establishmentData?.name || settings?.establishmentData?.name || 'Paizam';
+  const heroImage = settings?.heroImage || establishmentData?.logo || "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800";
+
+  if (loading) {
+    return (
+      <section id="home" className="relative overflow-hidden">
+        <div className="bg-gradient-elegant text-white">
+          <div className="container mx-auto px-4 py-12 sm:py-20 md:py-32 max-w-7xl">
+            <div className="text-center">
+              <p className="text-gray-300">Carregando...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="home" className="relative overflow-hidden">
@@ -28,7 +48,7 @@ const Hero = () => {
               </Badge>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in break-words" style={{ animationDelay: "100ms" }}>
-                <span className="text-white">Paizam</span>
+                <span className="text-white">{establishmentName}</span>
               </h1>
               
               <div 
@@ -40,7 +60,7 @@ const Hero = () => {
               ></div>
               
               <p className="text-lg sm:text-xl text-gray-300 mb-6 lg:mb-8 max-w-md mx-auto lg:mx-0 animate-fade-in px-2 lg:px-0" style={{ animationDelay: "300ms" }}>
-                Lanches artesanais feitos com ingredientes frescos e muito carinho para você.
+                {establishmentData?.description || 'Lanches artesanais feitos com ingredientes frescos e muito carinho para você.'}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start px-4 lg:px-0">
@@ -64,6 +84,13 @@ const Hero = () => {
                     borderColor: primaryColor,
                     color: primaryColor
                   }}
+                  onClick={() => {
+                    if (establishmentData?.menuUrl) {
+                      window.open(establishmentData.menuUrl, '_blank');
+                    } else {
+                      document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                 >
                   Ver Menu
                 </Button>
@@ -80,13 +107,17 @@ const Hero = () => {
                 ></div>
                 <div className="bg-black p-3 lg:p-4 rounded-2xl shadow-2xl overflow-hidden relative">
                   <img 
-                    src={settings?.heroImage || "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800"} 
+                    src={heroImage} 
                     alt="Sabor Extraordinário" 
                     className="w-full h-auto rounded-lg object-cover aspect-[4/3] transition-transform duration-500"
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 lg:p-6">
-                    <h3 className="text-white text-lg lg:text-xl font-bold mb-1">Sabor Extraordinário</h3>
-                    <p className="text-gray-300 text-sm lg:text-base">Experimente nossa especialidade</p>
+                    <h3 className="text-white text-lg lg:text-xl font-bold mb-1">
+                      {establishmentData?.featuredProduct?.title || 'Sabor Extraordinário'}
+                    </h3>
+                    <p className="text-gray-300 text-sm lg:text-base">
+                      {establishmentData?.featuredProduct?.description || 'Experimente nossa especialidade'}
+                    </p>
                   </div>
                 </div>
                 <div className="absolute -bottom-4 -right-4 lg:-bottom-6 lg:-right-6">
@@ -96,7 +127,9 @@ const Hero = () => {
                   >
                     <div className="text-center">
                       <p className="font-bold text-white text-xs lg:text-sm xl:text-base">Desde</p>
-                      <p className="font-bold text-white text-xs lg:text-sm xl:text-base">2010</p>
+                      <p className="font-bold text-white text-xs lg:text-sm xl:text-base">
+                        {establishmentData?.featuredProduct?.year || '2010'}
+                      </p>
                     </div>
                   </div>
                 </div>

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Star, Coffee, Pizza, Sandwich, Salad } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { getSpecialOffers } from '@/lib/firebase-operations';
 
 const menuCategories = [
   {
@@ -30,13 +31,14 @@ const menuCategories = [
 
 interface Product {
   id: string;
-  name: string;
+  name?: string;
+  title?: string;
   description: string;
   price: number;
-  category: string;
-  image: string;
-  isSpecial: boolean;
   specialPrice?: number;
+  category?: string;
+  image: string;
+  isSpecial?: boolean;
 }
 
 const FeaturedItems = () => {
@@ -46,6 +48,10 @@ const FeaturedItems = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        // Primeiro, tentar buscar ofertas especiais
+        const specialOffers = await getSpecialOffers();
+        
+        // Depois, buscar produtos normais
         const productsRef = collection(db, 'products');
         const snapshot = await getDocs(productsRef);
         const productsList = snapshot.docs.map(doc => ({
@@ -53,8 +59,18 @@ const FeaturedItems = () => {
           ...doc.data()
         })) as Product[];
         
+        // Combinar ofertas especiais e produtos normais
+        const allProducts = [
+          ...specialOffers.map((offer: any) => ({
+            ...offer,
+            name: offer.title || offer.name,
+            isSpecial: true
+          })),
+          ...productsList
+        ];
+        
         // Mostrar apenas os primeiros 4 produtos para a seção de destaque
-        setProducts(productsList.slice(0, 4));
+        setProducts(allProducts.slice(0, 4));
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
         // Fallback para dados estáticos em caso de erro
@@ -155,11 +171,11 @@ const FeaturedItems = () => {
               <div className="relative h-40 sm:h-48 overflow-hidden">
                 <img 
                   src={item.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800'} 
-                  alt={item.name} 
+                  alt={item.name || item.title || 'Produto'} 
                   className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
                 />
                 <div className="absolute top-2 right-2 lg:top-3 lg:right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
-                  {item.category}
+                  {item.category || 'Produto'}
                 </div>
                 {item.isSpecial && (
                   <div className="absolute top-2 left-2 lg:top-3 lg:left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
@@ -169,7 +185,9 @@ const FeaturedItems = () => {
               </div>
               <CardContent className="p-4 lg:p-6">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-base lg:text-lg text-snackbar-dark pr-2">{item.name}</h3>
+                  <h3 className="font-bold text-base lg:text-lg text-snackbar-dark pr-2">
+                    {item.name || item.title || 'Produto'}
+                  </h3>
                   <div className="text-right">
                     {item.isSpecial && item.specialPrice ? (
                       <div>
