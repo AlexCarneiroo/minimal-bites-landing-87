@@ -1,33 +1,11 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Star, Coffee, Pizza, Sandwich, Salad } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { getSpecialOffers } from '@/lib/firebase-operations';
-
-const menuCategories = [
-  {
-    id: 1,
-    name: 'Hambúrgueres',
-    icon: <Sandwich className="text-snackbar-blue" />
-  },
-  {
-    id: 2,
-    name: 'Pizzas',
-    icon: <Pizza className="text-snackbar-blue" />
-  },
-  {
-    id: 3,
-    name: 'Bebidas',
-    icon: <Coffee className="text-snackbar-blue" />
-  },
-  {
-    id: 4,
-    name: 'Saladas',
-    icon: <Salad className="text-snackbar-blue" />
-  }
-];
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 interface Product {
   id: string;
@@ -41,17 +19,22 @@ interface Product {
   isSpecial?: boolean;
 }
 
+interface Category {
+  name: string;
+  count: number;
+}
+
 const FeaturedItems = () => {
+  const { settings } = useSiteSettings();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const primaryColor = settings?.primaryColor || '#0066cc';
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Primeiro, tentar buscar ofertas especiais
         const specialOffers = await getSpecialOffers();
-        
-        // Depois, buscar produtos normais
         const productsRef = collection(db, 'products');
         const snapshot = await getDocs(productsRef);
         const productsList = snapshot.docs.map(doc => ({
@@ -59,7 +42,6 @@ const FeaturedItems = () => {
           ...doc.data()
         })) as Product[];
         
-        // Combinar ofertas especiais e produtos normais
         const allProducts = [
           ...specialOffers.map((offer: any) => ({
             ...offer,
@@ -69,7 +51,19 @@ const FeaturedItems = () => {
           ...productsList
         ];
         
-        // Mostrar apenas os primeiros 4 produtos para a seção de destaque
+        // Contar categorias disponíveis
+        const categoryCount: { [key: string]: number } = {};
+        allProducts.forEach(product => {
+          const category = product.category || 'Outros';
+          categoryCount[category] = (categoryCount[category] || 0) + 1;
+        });
+        
+        const availableCategories = Object.entries(categoryCount).map(([name, count]) => ({
+          name,
+          count
+        }));
+        
+        setCategories(availableCategories);
         setProducts(allProducts.slice(0, 4));
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
@@ -112,6 +106,11 @@ const FeaturedItems = () => {
             isSpecial: false
           }
         ]);
+        setCategories([
+          { name: 'Hambúrgueres', count: 2 },
+          { name: 'Acompanhamentos', count: 1 },
+          { name: 'Bebidas', count: 1 }
+        ]);
       } finally {
         setLoading(false);
       }
@@ -146,7 +145,7 @@ const FeaturedItems = () => {
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-snackbar-dark mb-4">Menu de Destaque</h2>
           <div className="flex justify-center items-center gap-2 mb-4">
             <div className="h-[1px] w-8 lg:w-10 bg-snackbar-gray"></div>
-            <Star className="w-4 h-4 lg:w-5 lg:h-5 text-snackbar-blue" fill="currentColor" />
+            <Star className="w-4 h-4 lg:w-5 lg:h-5" style={{ color: primaryColor }} fill="currentColor" />
             <div className="h-[1px] w-8 lg:w-10 bg-snackbar-gray"></div>
           </div>
           <p className="text-snackbar-gray max-w-xl mx-auto px-4 lg:px-0">
@@ -155,12 +154,22 @@ const FeaturedItems = () => {
         </div>
         
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 mb-8 lg:mb-12 px-4">
-          {menuCategories.map((category) => (
-            <div key={category.id} className="text-center group">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white border border-snackbar-gray/30 flex items-center justify-center mb-2 group-hover:border-snackbar-blue transition-all">
-                {category.icon}
+          {categories.map((category, index) => (
+            <div key={index} className="text-center group">
+              <div 
+                className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white border border-snackbar-gray/30 flex items-center justify-center mb-2 group-hover:border-opacity-100 transition-all"
+                style={{ 
+                  borderColor: `${primaryColor}30`,
+                  backgroundColor: `${primaryColor}05`
+                }}
+              >
+                <div 
+                  className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-full"
+                  style={{ backgroundColor: primaryColor }}
+                ></div>
               </div>
               <span className="font-medium text-sm sm:text-base">{category.name}</span>
+              <span className="text-xs text-snackbar-gray block">({category.count})</span>
             </div>
           ))}
         </div>
@@ -178,7 +187,10 @@ const FeaturedItems = () => {
                   {item.category || 'Produto'}
                 </div>
                 {item.isSpecial && (
-                  <div className="absolute top-2 left-2 lg:top-3 lg:left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                  <div 
+                    className="absolute top-2 left-2 lg:top-3 lg:left-3 text-white px-2 py-1 rounded-full text-xs font-bold"
+                    style={{ backgroundColor: primaryColor }}
+                  >
                     OFERTA
                   </div>
                 )}
@@ -194,12 +206,12 @@ const FeaturedItems = () => {
                         <span className="text-xs text-snackbar-gray line-through block">
                           {formatPrice(item.price)}
                         </span>
-                        <span className="font-bold text-red-500 text-sm lg:text-base">
+                        <span className="font-bold text-sm lg:text-base" style={{ color: primaryColor }}>
                           {formatPrice(item.specialPrice)}
                         </span>
                       </div>
                     ) : (
-                      <span className="font-bold text-snackbar-blue text-sm lg:text-base">
+                      <span className="font-bold text-sm lg:text-base" style={{ color: primaryColor }}>
                         {formatPrice(item.price)}
                       </span>
                     )}
@@ -214,7 +226,13 @@ const FeaturedItems = () => {
         <div className="text-center mt-8 lg:mt-12">
           <a 
             href="#menu-full" 
-            className="inline-block bg-gradient-to-r from-snackbar-dark to-snackbar-blue bg-clip-text text-transparent border-b-2 border-snackbar-blue/50 font-medium hover:border-snackbar-dark/50 transition-colors"
+            className="inline-block bg-gradient-to-r from-snackbar-dark to-snackbar-blue bg-clip-text text-transparent border-b-2 font-medium hover:border-snackbar-dark/50 transition-colors"
+            style={{ 
+              borderColor: `${primaryColor}50`,
+              background: `linear-gradient(to right, ${primaryColor}, ${primaryColor}80)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
           >
             Ver menu completo
           </a>
