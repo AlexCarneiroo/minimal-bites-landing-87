@@ -1,21 +1,28 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-const images = [
+interface GalleryImage {
+  id: string;
+  url: string;
+}
+
+const fallbackImages = [
   {
-    id: 1,
+    id: '1',
     url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=1200',
     alt: 'Ambiente interno do restaurante'
   },
   {
-    id: 2,
+    id: '2',
     url: 'https://images.unsplash.com/photo-1513639776629-7b40dd08d4c6?auto=format&fit=crop&q=80&w=1200',
     alt: 'Balcão de atendimento'
   },
   {
-    id: 3,
+    id: '3',
     url: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?auto=format&fit=crop&q=80&w=1200',
     alt: 'Área externa do restaurante'
   }
@@ -23,6 +30,33 @@ const images = [
 
 const Gallery = () => {
   const [currentImage, setCurrentImage] = useState(0);
+  const [images, setImages] = useState(fallbackImages);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const galleryCollection = collection(db, 'conheca-nos');
+        const snapshot = await getDocs(galleryCollection);
+        const galleryImages = snapshot.docs.map(doc => ({
+          id: doc.id,
+          url: doc.data().url || '',
+          alt: `Conheça nosso espaço - Foto ${doc.id}`
+        }));
+
+        if (galleryImages.length > 0) {
+          setImages(galleryImages);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar imagens da galeria:', error);
+        // Manter imagens de fallback em caso de erro
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGalleryImages();
+  }, []);
 
   const nextImage = () => {
     setCurrentImage((prev) => (prev + 1) % images.length);
@@ -31,6 +65,18 @@ const Gallery = () => {
   const prevImage = () => {
     setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
   };
+
+  if (loading) {
+    return (
+      <section id="gallery" className="py-20 bg-snackbar-softgray">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-snackbar-gray">Carregando galeria...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="gallery" className="py-20 bg-snackbar-softgray">
@@ -51,7 +97,7 @@ const Gallery = () => {
           <div className="aspect-[16/9] overflow-hidden rounded-lg shadow-xl">
             <img 
               src={images[currentImage].url} 
-              alt={images[currentImage].alt}
+              alt={images[currentImage].alt || 'Conheça nosso espaço'}
               className="w-full h-full object-cover transition-all duration-500"
             />
           </div>
@@ -94,7 +140,7 @@ const Gallery = () => {
             <div key={image.id} className="overflow-hidden rounded-lg shadow-md">
               <img 
                 src={image.url} 
-                alt={image.alt} 
+                alt={image.alt || 'Conheça nosso espaço'} 
                 className="w-full h-48 object-cover hover:scale-110 transition-transform duration-300"
               />
             </div>

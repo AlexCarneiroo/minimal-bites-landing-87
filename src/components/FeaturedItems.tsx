@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Star } from 'lucide-react';
+import { Star, Utensils, Coffee, Cookie, Cake } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { getSpecialOffers } from '@/lib/firebase-operations';
@@ -22,7 +22,26 @@ interface Product {
 interface Category {
   name: string;
   count: number;
+  icon: JSX.Element;
 }
+
+const getCategoryIcon = (categoryName: string) => {
+  const name = categoryName.toLowerCase();
+  if (name.includes('hambúrguer') || name.includes('lanche') || name.includes('sanduíche')) {
+    return <Utensils className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />;
+  }
+  if (name.includes('bebida') || name.includes('drink') || name.includes('suco') || name.includes('refrigerante')) {
+    return <Coffee className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />;
+  }
+  if (name.includes('doce') || name.includes('sobremesa') || name.includes('açaí') || name.includes('milk')) {
+    return <Cake className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />;
+  }
+  if (name.includes('acompanhamento') || name.includes('batata') || name.includes('porção')) {
+    return <Cookie className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />;
+  }
+  // Default icon
+  return <Utensils className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />;
+};
 
 const FeaturedItems = () => {
   const { settings } = useSiteSettings();
@@ -60,7 +79,8 @@ const FeaturedItems = () => {
         
         const availableCategories = Object.entries(categoryCount).map(([name, count]) => ({
           name,
-          count
+          count,
+          icon: getCategoryIcon(name)
         }));
         
         setCategories(availableCategories);
@@ -107,9 +127,9 @@ const FeaturedItems = () => {
           }
         ]);
         setCategories([
-          { name: 'Hambúrgueres', count: 2 },
-          { name: 'Acompanhamentos', count: 1 },
-          { name: 'Bebidas', count: 1 }
+          { name: 'Hambúrgueres', count: 2, icon: getCategoryIcon('Hambúrgueres') },
+          { name: 'Acompanhamentos', count: 1, icon: getCategoryIcon('Acompanhamentos') },
+          { name: 'Bebidas', count: 1, icon: getCategoryIcon('Bebidas') }
         ]);
       } finally {
         setLoading(false);
@@ -163,10 +183,9 @@ const FeaturedItems = () => {
                   backgroundColor: `${primaryColor}05`
                 }}
               >
-                <div 
-                  className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-full"
-                  style={{ backgroundColor: primaryColor }}
-                ></div>
+                <div style={{ color: primaryColor }}>
+                  {category.icon}
+                </div>
               </div>
               <span className="font-medium text-sm sm:text-base">{category.name}</span>
               <span className="text-xs text-snackbar-gray block">({category.count})</span>
