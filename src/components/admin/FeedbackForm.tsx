@@ -18,7 +18,7 @@ interface Feedback {
 
 interface FeedbackFormProps {
   currentFeedback: Feedback;
-  setCurrentFeedback: (feedback: Feedback) => void;
+  setCurrentFeedback: React.Dispatch<React.SetStateAction<Feedback>>;
   editingFeedback: Feedback | null;
   setEditingFeedback: (feedback: Feedback | null) => void;
   onSubmit: (e: React.FormEvent) => void;
