@@ -9,6 +9,25 @@ export interface SiteSettings {
     featuredItems: boolean;
     testimonials: boolean;
   };
+  about?: {
+    title: string;
+    description: string;
+    images: string[];
+    spaceImages: string[];
+  };
+  feedbacks?: {
+    enabled: boolean;
+    items: any[];
+  };
+  specialOffers?: {
+    enabled: boolean;
+    items: any[];
+  };
+  footer?: {
+    copyright: string;
+    companyName: string;
+    additionalText: string;
+  };
 }
 
 export async function getSiteSettings(): Promise<SiteSettings | null> {
@@ -25,7 +44,11 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
       sectionVisibility: generalData?.sectionVisibility || {
         featuredItems: true,
         testimonials: true
-      }
+      },
+      about: generalData?.about,
+      feedbacks: generalData?.feedbacks,
+      specialOffers: generalData?.specialOffers,
+      footer: generalData?.footer
     };
   } catch (error) {
     console.error('Erro ao carregar configurações do site:', error);
