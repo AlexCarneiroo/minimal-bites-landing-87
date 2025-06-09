@@ -7,9 +7,7 @@ import {
   Facebook,
   Instagram,
   Youtube,
-  Linkedin,
-  Eye,
-  EyeOff
+  Linkedin
 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,7 +16,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { saveGeneralSettings, getGeneralSettings } from '@/lib/firebase-operations';
 
@@ -48,13 +45,6 @@ interface EstablishmentData {
     youtube: string;
     linkedin: string;
   };
-  sectionVisibility: {
-    specialOffers: boolean;
-    feedbacks: boolean;
-    gallery: boolean;
-    about: boolean;
-    delivery: boolean;
-  };
 }
 
 const defaultEstablishmentData: EstablishmentData = {
@@ -82,13 +72,6 @@ const defaultEstablishmentData: EstablishmentData = {
     instagram: '',
     youtube: '',
     linkedin: ''
-  },
-  sectionVisibility: {
-    specialOffers: true,
-    feedbacks: true,
-    gallery: true,
-    about: true,
-    delivery: true
   }
 };
 
@@ -96,13 +79,6 @@ export default function GeneralSettings() {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [establishmentData, setEstablishmentData] = useState<EstablishmentData>(defaultEstablishmentData);
-  const [sectionVisibility, setSectionVisibility] = useState({
-    specialOffers: true,
-    feedbacks: true,
-    gallery: true,
-    about: true,
-    delivery: true
-  });
 
   // Carregar dados do Firebase
   useEffect(() => {
@@ -111,9 +87,6 @@ export default function GeneralSettings() {
         const data = await getGeneralSettings();
         if (data) {
           setEstablishmentData({ ...defaultEstablishmentData, ...data });
-          if (data.sectionVisibility) {
-            setSectionVisibility({ ...sectionVisibility, ...data.sectionVisibility });
-          }
         }
       } catch (error) {
         console.error('Erro ao carregar configurações:', error);
@@ -175,24 +148,12 @@ export default function GeneralSettings() {
     }));
   };
 
-  const toggleSectionVisibility = (section: keyof typeof sectionVisibility) => {
-    setSectionVisibility(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     
     try {
-      const dataToSave = {
-        ...establishmentData,
-        sectionVisibility
-      };
-      
-      const success = await saveGeneralSettings(dataToSave);
+      const success = await saveGeneralSettings(establishmentData);
       
       if (success) {
         toast({
@@ -445,73 +406,6 @@ export default function GeneralSettings() {
                 value={safeValue(establishmentData.socialMedia.linkedin)}
                 onChange={(e) => updateSocialMedia('linkedin', e.target.value)}
                 placeholder="https://linkedin.com/seu-perfil"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Visibilidade das Seções</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
-                <Label htmlFor="specialOffers">Ofertas Especiais</Label>
-              </div>
-              <Switch
-                id="specialOffers"
-                checked={sectionVisibility.specialOffers}
-                onCheckedChange={() => toggleSectionVisibility('specialOffers')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
-                <Label htmlFor="feedbacks">Depoimentos/Feedbacks</Label>
-              </div>
-              <Switch
-                id="feedbacks"
-                checked={sectionVisibility.feedbacks}
-                onCheckedChange={() => toggleSectionVisibility('feedbacks')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
-                <Label htmlFor="gallery">Galeria (Conheça Nosso Espaço)</Label>
-              </div>
-              <Switch
-                id="gallery"
-                checked={sectionVisibility.gallery}
-                onCheckedChange={() => toggleSectionVisibility('gallery')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
-                <Label htmlFor="about">Sobre Nós</Label>
-              </div>
-              <Switch
-                id="about"
-                checked={sectionVisibility.about}
-                onCheckedChange={() => toggleSectionVisibility('about')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
-                <Label htmlFor="delivery">Delivery</Label>
-              </div>
-              <Switch
-                id="delivery"
-                checked={sectionVisibility.delivery}
-                onCheckedChange={() => toggleSectionVisibility('delivery')}
               />
             </div>
           </div>

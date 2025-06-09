@@ -1,153 +1,85 @@
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Clock, MapPin, Phone, Truck } from 'lucide-react';
-import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import { Truck, Package, Phone } from 'lucide-react';
+import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 
 const Delivery = () => {
-  const [cep, setCep] = useState('');
-  const { settings } = useSiteSettings();
-  const primaryColor = settings?.primaryColor || '#0066cc';
+  const { data: establishmentData, loading } = useEstablishmentData();
 
-  const handleCheckDelivery = () => {
-    // Implementar lógica de verificação de entrega
-    console.log('Verificando entrega para CEP:', cep);
+  // Dados padrão como fallback
+  const defaultData = {
+    phone: '(11) 9999-9999',
+    menuUrl: 'https://www.saborexpress.com.br'
   };
 
+  const deliveryData = {
+    phone: establishmentData?.phone || defaultData.phone,
+    menuUrl: establishmentData?.menuUrl || defaultData.menuUrl
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-black text-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-gray-300">Carregando informações de delivery...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="py-20 bg-snackbar-softgray">
+    <section className="py-20 bg-black text-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-4">Delivery</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Peça seu Delivery</h2>
           <div className="flex justify-center items-center gap-2 mb-4">
-            <div className="h-[1px] w-10 bg-snackbar-gray"></div>
-            <Truck className="w-5 h-5" style={{ color: primaryColor }} />
-            <div className="h-[1px] w-10 bg-snackbar-gray"></div>
+            <div className="h-[1px] w-10 bg-gray-600"></div>
+            <Truck className="w-5 h-5 text-blue-500" />
+            <div className="h-[1px] w-10 bg-gray-600"></div>
           </div>
-          <p className="text-snackbar-gray max-w-xl mx-auto">
-            Entregamos nossos deliciosos pratos no conforto da sua casa
+          <p className="text-gray-300 max-w-xl mx-auto">
+            Receba nossos deliciosos pratos no conforto da sua casa
           </p>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-snackbar-dark mb-4">Verifique se entregamos na sua região</h3>
-                <div className="flex gap-3">
-                  <Input
-                    placeholder="Digite seu CEP"
-                    value={cep}
-                    onChange={(e) => setCep(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={handleCheckDelivery}
-                    className="text-white font-medium"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    Verificar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="border-none shadow-md">
-                <CardContent className="p-4 text-center">
-                  <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: primaryColor }} />
-                  <h4 className="font-semibold text-snackbar-dark">Entrega Rápida</h4>
-                  <p className="text-sm text-snackbar-gray">25-35 minutos</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md">
-                <CardContent className="p-4 text-center">
-                  <MapPin className="w-8 h-8 mx-auto mb-2" style={{ color: primaryColor }} />
-                  <h4 className="font-semibold text-snackbar-dark">Raio de Entrega</h4>
-                  <p className="text-sm text-snackbar-gray">Até 5km</p>
-                </CardContent>
-              </Card>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 text-center">
+            <div className="bg-blue-600/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Phone className="w-6 h-6 text-blue-400" />
             </div>
-
-            <Card className="border-none shadow-md">
-              <CardContent className="p-6">
-                <h4 className="font-semibold text-snackbar-dark mb-3">Informações de Entrega</h4>
-                <div className="space-y-2 text-sm text-snackbar-gray">
-                  <p>• Taxa de entrega: R$ 3,00 a R$ 8,00</p>
-                  <p>• Pedido mínimo: R$ 25,00</p>
-                  <p>• Entrega gratuita acima de R$ 50,00</p>
-                  <p>• Formas de pagamento: Dinheiro, cartão e PIX</p>
-                </div>
-              </CardContent>
-            </Card>
+            <h3 className="text-xl font-bold mb-2">Telefone</h3>
+            <p className="text-gray-300 mb-4">{deliveryData.phone}</p>
+            <p className="text-sm text-gray-400">Atendimento rápido e prático</p>
           </div>
-
-          <div className="space-y-6">
-            <div className="text-center">
-              <img 
-                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&q=80&w=600" 
-                alt="Delivery" 
-                className="w-full max-w-md mx-auto rounded-lg shadow-lg"
-              />
+          
+          <div className="bg-blue-600 p-8 rounded-xl text-center transform scale-105 shadow-xl">
+            <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="w-6 h-6 text-white" />
             </div>
-
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-6 text-center">
-                <Phone className="w-8 h-8 mx-auto mb-4" style={{ color: primaryColor }} />
-                <h4 className="font-semibold text-snackbar-dark mb-2">Faça seu pedido</h4>
-                <p className="text-snackbar-gray mb-4">Ligue agora e receba em casa</p>
-                <Button 
-                  size="lg" 
-                  className="text-white font-semibold w-full"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  (11) 99999-9999
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Button 
-                variant="outline" 
-                className="h-12 font-medium border-2 transition-all duration-300"
-                style={{ 
-                  borderColor: primaryColor, 
-                  color: primaryColor 
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = primaryColor;
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = primaryColor;
-                }}
-              >
-                WhatsApp
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-12 font-medium border-2 transition-all duration-300"
-                style={{ 
-                  borderColor: primaryColor, 
-                  color: primaryColor 
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = primaryColor;
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = primaryColor;
-                }}
-              >
-                iFood
-              </Button>
-            </div>
+            <h3 className="text-xl font-bold mb-2">Aplicativo</h3>
+            <p className="text-white/80 mb-4">Baixe nosso app exclusivo</p>
+            <p className="text-sm text-white/70">Acompanhe seu pedido em tempo real</p>
           </div>
+          
+          <div className="bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 text-center">
+            <div className="bg-blue-600/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Truck className="w-6 h-6 text-blue-400" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Website</h3>
+            <p className="text-gray-300 mb-4">Cardápio Online</p>
+            <p className="text-sm text-gray-400">Faça seu pedido pelo nosso cardápio</p>
+          </div>
+        </div>
+        
+        <div className="text-center">
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-6"
+            onClick={() => window.open(deliveryData.menuUrl, '_blank')}
+          >
+            Acessar Cardápio
+          </Button>
         </div>
       </div>
     </section>
