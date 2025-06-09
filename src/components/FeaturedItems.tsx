@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, Utensils, Coffee, Cookie, Cake } from 'lucide-react';
@@ -39,7 +38,6 @@ const getCategoryIcon = (categoryName: string) => {
   if (name.includes('acompanhamento') || name.includes('batata') || name.includes('porção')) {
     return <Cookie className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />;
   }
-  // Default icon
   return <Utensils className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />;
 };
 
@@ -70,7 +68,6 @@ const FeaturedItems = () => {
           ...productsList
         ];
         
-        // Contar categorias disponíveis
         const categoryCount: { [key: string]: number } = {};
         allProducts.forEach(product => {
           const category = product.category || 'Outros';
@@ -87,7 +84,6 @@ const FeaturedItems = () => {
         setProducts(allProducts.slice(0, 4));
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
-        // Fallback para dados estáticos em caso de erro
         setProducts([
           {
             id: '1',

@@ -1,9 +1,12 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
+import { getAppearanceSettings, getGeneralSettings } from '@/lib/firebase-operations';
 
 interface SiteSettingsContextType {
   settings: SiteSettings | null;
   updateSettings: (newSettings: Partial<SiteSettings>) => Promise<void>;
+  refreshSettings: () => Promise<void>;
 }
 
 const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(undefined);
@@ -11,16 +14,37 @@ const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(u
 export function SiteSettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      const loadedSettings = await getSiteSettings();
-      if (loadedSettings) {
-        setSettings(loadedSettings);
-        // Aplicar a cor primária ao CSS
-        document.documentElement.style.setProperty('--primary', loadedSettings.primaryColor);
-      }
-    };
+  const loadSettings = async () => {
+    try {
+      // Carregar configurações de aparência e gerais do Firebase
+      const [appearanceData, generalData] = await Promise.all([
+        getAppearanceSettings(),
+        getGeneralSettings()
+      ]);
 
+      // Combinar as configurações
+      const combinedSettings: SiteSettings = {
+        primaryColor: appearanceData?.primaryColor || '#0066cc',
+        heroImage: appearanceData?.heroImage || '',
+        establishmentData: generalData || null,
+        sectionVisibility: generalData?.sectionVisibility || {
+          featuredItems: true,
+          testimonials: true
+        }
+      };
+
+      setSettings(combinedSettings);
+      
+      // Aplicar a cor primária ao CSS
+      if (combinedSettings.primaryColor) {
+        document.documentElement.style.setProperty('--primary', combinedSettings.primaryColor);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error);
+    }
+  };
+
+  useEffect(() => {
     loadSettings();
   }, []);
 
@@ -38,8 +62,12 @@ export function SiteSettingsProvider({ children }: { children: React.ReactNode }
     }
   };
 
+  const refreshSettings = async () => {
+    await loadSettings();
+  };
+
   return (
-    <SiteSettingsContext.Provider value={{ settings, updateSettings }}>
+    <SiteSettingsContext.Provider value={{ settings, updateSettings, refreshSettings }}>
       {children}
     </SiteSettingsContext.Provider>
   );
@@ -51,4 +79,4 @@ export function useSiteSettings() {
     throw new Error('useSiteSettings deve ser usado dentro de um SiteSettingsProvider');
   }
   return context;
-} 
+}

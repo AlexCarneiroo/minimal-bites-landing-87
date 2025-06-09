@@ -8,19 +8,25 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import Gallery from '@/components/Gallery';
 import Delivery from '@/components/Delivery';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const Index = () => {
+  const { settings } = useSiteSettings();
+  
+  const showFeaturedItems = settings?.sectionVisibility?.featuredItems !== false;
+  const showTestimonials = settings?.sectionVisibility?.testimonials !== false;
+
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <Navbar />
       <Hero />
-      <FeaturedItems />
+      {showFeaturedItems && <FeaturedItems />}
       <Gallery />
       <div id="delivery">
         <Delivery />
       </div>
       <About />
-      <Testimonials />
+      {showTestimonials && <Testimonials />}
       <Contact />
       <Footer />
     </div>

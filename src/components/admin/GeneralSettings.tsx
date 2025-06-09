@@ -7,7 +7,9 @@ import {
   Facebook,
   Instagram,
   Youtube,
-  Linkedin
+  Linkedin,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { saveGeneralSettings, getGeneralSettings } from '@/lib/firebase-operations';
 
@@ -45,6 +48,10 @@ interface EstablishmentData {
     youtube: string;
     linkedin: string;
   };
+  sectionVisibility: {
+    featuredItems: boolean;
+    testimonials: boolean;
+  };
 }
 
 const defaultEstablishmentData: EstablishmentData = {
@@ -72,6 +79,10 @@ const defaultEstablishmentData: EstablishmentData = {
     instagram: '',
     youtube: '',
     linkedin: ''
+  },
+  sectionVisibility: {
+    featuredItems: true,
+    testimonials: true
   }
 };
 
@@ -144,6 +155,16 @@ export default function GeneralSettings() {
       schedule: {
         ...prev.schedule,
         [period]: time
+      }
+    }));
+  };
+
+  const updateSectionVisibility = (section: string, visible: boolean) => {
+    setEstablishmentData(prev => ({
+      ...prev,
+      sectionVisibility: {
+        ...prev.sectionVisibility,
+        [section]: visible
       }
     }));
   };
@@ -321,6 +342,50 @@ export default function GeneralSettings() {
                   onChange={(url) => updateFeaturedProduct('image', url)}
                 />
               </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-bold mb-6">Visibilidade das Seções</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center space-x-3">
+                {establishmentData.sectionVisibility.featuredItems ? (
+                  <Eye className="h-5 w-5 text-green-600" />
+                ) : (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                )}
+                <div>
+                  <Label className="text-base font-medium">Menu de Destaque</Label>
+                  <p className="text-sm text-gray-500">Exibir seção de produtos em destaque</p>
+                </div>
+              </div>
+              <Switch
+                checked={establishmentData.sectionVisibility.featuredItems}
+                onCheckedChange={(checked) => updateSectionVisibility('featuredItems', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center space-x-3">
+                {establishmentData.sectionVisibility.testimonials ? (
+                  <Eye className="h-5 w-5 text-green-600" />
+                ) : (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                )}
+                <div>
+                  <Label className="text-base font-medium">O Que Dizem Nossos Clientes</Label>
+                  <p className="text-sm text-gray-500">Exibir seção de depoimentos</p>
+                </div>
+              </div>
+              <Switch
+                checked={establishmentData.sectionVisibility.testimonials}
+                onCheckedChange={(checked) => updateSectionVisibility('testimonials', checked)}
+              />
             </div>
           </div>
         </CardContent>
