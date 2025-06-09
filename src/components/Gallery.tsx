@@ -37,29 +37,33 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
-        console.log('Buscando imagens da galeria...');
+        console.log('Buscando imagens da galeria do Conheça Nosso Espaço...');
         const galleryCollection = collection(db, 'conheca-nos');
         const snapshot = await getDocs(galleryCollection);
         
-        console.log('Documentos encontrados:', snapshot.docs.length);
+        console.log('Documentos encontrados na galeria:', snapshot.docs.length);
         
-        const galleryImages = snapshot.docs.map(doc => {
-          const data = doc.data();
-          console.log('Documento:', doc.id, data);
-          return {
-            id: doc.id,
-            url: data.url || '',
-            alt: `Conheça nosso espaço - Foto ${doc.id}`
-          };
-        }).filter(img => img.url); // Filtrar apenas imagens com URL válida
+        if (snapshot.docs.length > 0) {
+          const galleryImages = snapshot.docs.map(doc => {
+            const data = doc.data();
+            console.log('Documento da galeria:', doc.id, data);
+            return {
+              id: doc.id,
+              url: data.url || '',
+              alt: `Conheça nosso espaço - Foto ${doc.id}`
+            };
+          }).filter(img => img.url && img.url.trim() !== ''); // Filtrar apenas imagens com URL válida
 
-        console.log('Imagens processadas:', galleryImages);
-
-        if (galleryImages.length > 0) {
-          setImages(galleryImages);
-          console.log('Imagens da galeria carregadas:', galleryImages.length);
+          console.log('Imagens processadas da galeria:', galleryImages);
+          
+          if (galleryImages.length > 0) {
+            setImages(galleryImages);
+            console.log('Imagens da galeria carregadas com sucesso:', galleryImages.length);
+          } else {
+            console.log('Nenhuma imagem válida encontrada, usando fallback');
+          }
         } else {
-          console.log('Nenhuma imagem encontrada, usando fallback');
+          console.log('Nenhum documento encontrado na coleção conheca-nos, usando fallback');
         }
       } catch (error) {
         console.error('Erro ao carregar imagens da galeria:', error);
