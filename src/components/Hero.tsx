@@ -66,11 +66,10 @@ const Hero = () => {
               <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start px-4 lg:px-0">
                 <ReservationDialog>
                   <Button 
-                    className="animate-fade-in w-full sm:w-auto"
+                    className="animate-fade-in w-full sm:w-auto text-white hover:opacity-90"
                     style={{ 
                       animationDelay: "400ms",
-                      backgroundColor: primaryColor,
-                      color: 'white'
+                      backgroundColor: primaryColor
                     }}
                   >
                     Fazer Reserva
@@ -78,7 +77,7 @@ const Hero = () => {
                 </ReservationDialog>
                 <Button 
                   variant="outline" 
-                  className="animate-fade-in w-full sm:w-auto"
+                  className="animate-fade-in w-full sm:w-auto bg-transparent hover:bg-white/10"
                   style={{ 
                     animationDelay: "400ms",
                     borderColor: primaryColor,
