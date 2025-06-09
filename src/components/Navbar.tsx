@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Utensils, Menu, X, Truck } from 'lucide-react';
@@ -55,12 +56,12 @@ const Navbar = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
-            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-white hover:text-blue-400 transition-all duration-300">Home</a>
-            <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="text-white hover:text-blue-400 transition-all duration-300">Menu</a>
-            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="text-white hover:text-blue-400 transition-all duration-300">Galeria</a>
-            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="text-white hover:text-blue-400 transition-all duration-300">Sobre</a>
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-white hover:text-blue-400 transition-all duration-300">Contato</a>
-            <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="text-white hover:text-blue-400 transition-all duration-300 flex items-center gap-1">
+            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Home</a>
+            <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Menu</a>
+            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Galeria</a>
+            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Sobre</a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Contato</a>
+            <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="text-white transition-all duration-300 flex items-center gap-1" style={{ ':hover': { color: primaryColor } }}>
               <Truck className="h-4 w-4" />
               Delivery
             </a>
@@ -68,7 +69,10 @@ const Navbar = () => {
           
           {/* Order Button - Desktop */}
           <div className="hidden md:flex items-center">
-            <Button className="bg-blue-600 text-white hover:bg-blue-700 rounded-full px-6">
+            <Button 
+              className="text-white hover:scale-105 transition-all duration-300 rounded-full px-6"
+              style={{ backgroundColor: primaryColor }}
+            >
               Fazer Pedido
             </Button>
           </div>
