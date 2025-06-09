@@ -23,12 +23,28 @@ const SpecialOffers = () => {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
+        console.log('Buscando ofertas especiais...');
         const offersRef = collection(db, 'special-offers');
         const snapshot = await getDocs(offersRef);
-        const offersList = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as SpecialOffer[];
+        
+        console.log('Ofertas encontradas:', snapshot.docs.length);
+        
+        const offersList = snapshot.docs.map(doc => {
+          const data = doc.data();
+          console.log('Oferta:', doc.id, data);
+          return {
+            id: doc.id,
+            name: data.name || '',
+            description: data.description || '',
+            regularPrice: data.regularPrice || 0,
+            promoPrice: data.promoPrice || undefined,
+            discount: data.discount || undefined,
+            label: data.label || undefined,
+            image: data.image || ''
+          };
+        }).filter(offer => offer.name && offer.description); // Filtrar ofertas válidas
+        
+        console.log('Ofertas processadas:', offersList);
         
         // Mostrar apenas as primeiras 3 ofertas
         setOffers(offersList.slice(0, 3));
@@ -120,47 +136,47 @@ const SpecialOffers = () => {
           </p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-6">
-          {offers.map((offer, index) => (
-            <div key={offer.id} className="md:w-1/3 bg-white rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:-translate-y-2">
-              <div className="relative">
-                <img 
-                  src={offer.image} 
-                  alt={offer.name} 
-                  className="w-full h-48 object-cover"
-                />
-                <div className={`absolute top-4 right-4 ${getBadgeColor(offer.label, offer.discount)} text-white px-3 py-1 rounded-full font-bold`}>
-                  {offer.discount || offer.label || 'OFERTA'}
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-snackbar-dark mb-2">{offer.name}</h3>
-                <p className="text-snackbar-gray mb-4">{offer.description}</p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    {offer.promoPrice ? (
-                      <>
-                        <span className="text-sm text-snackbar-gray line-through">
-                          {formatPrice(offer.regularPrice)}
-                        </span>
-                        <span className="text-xl font-bold text-snackbar-purple ml-2">
-                          {formatPrice(offer.promoPrice)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-xl font-bold text-snackbar-blue">
-                        {offer.label === '2x1' ? formatPrice(offer.regularPrice) : `A partir de ${formatPrice(offer.regularPrice)}`}
-                      </span>
-                    )}
+        {offers.length > 0 ? (
+          <div className="flex flex-col md:flex-row gap-6">
+            {offers.map((offer, index) => (
+              <div key={offer.id} className="md:w-1/3 bg-white rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:-translate-y-2">
+                <div className="relative">
+                  <img 
+                    src={offer.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=600'} 
+                    alt={offer.name} 
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className={`absolute top-4 right-4 ${getBadgeColor(offer.label, offer.discount)} text-white px-3 py-1 rounded-full font-bold`}>
+                    {offer.discount || offer.label || 'OFERTA'}
                   </div>
-                  <Button className={getButtonColor(index)}>Pedir</Button>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-snackbar-dark mb-2">{offer.name}</h3>
+                  <p className="text-snackbar-gray mb-4">{offer.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      {offer.promoPrice ? (
+                        <>
+                          <span className="text-sm text-snackbar-gray line-through">
+                            {formatPrice(offer.regularPrice)}
+                          </span>
+                          <span className="text-xl font-bold text-snackbar-purple ml-2">
+                            {formatPrice(offer.promoPrice)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xl font-bold text-snackbar-blue">
+                          {offer.label === '2x1' ? formatPrice(offer.regularPrice) : `A partir de ${formatPrice(offer.regularPrice)}`}
+                        </span>
+                      )}
+                    </div>
+                    <Button className={getButtonColor(index)}>Pedir</Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        
-        {offers.length === 0 && (
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-8">
             <p className="text-snackbar-gray">Nenhuma oferta especial disponível no momento.</p>
           </div>

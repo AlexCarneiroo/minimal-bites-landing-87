@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase';
 interface GalleryImage {
   id: string;
   url: string;
+  alt?: string;
 }
 
 const fallbackImages = [
@@ -30,26 +31,38 @@ const fallbackImages = [
 
 const Gallery = () => {
   const [currentImage, setCurrentImage] = useState(0);
-  const [images, setImages] = useState(fallbackImages);
+  const [images, setImages] = useState<GalleryImage[]>(fallbackImages);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
+        console.log('Buscando imagens da galeria...');
         const galleryCollection = collection(db, 'conheca-nos');
         const snapshot = await getDocs(galleryCollection);
-        const galleryImages = snapshot.docs.map(doc => ({
-          id: doc.id,
-          url: doc.data().url || '',
-          alt: `Conheça nosso espaço - Foto ${doc.id}`
-        }));
+        
+        console.log('Documentos encontrados:', snapshot.docs.length);
+        
+        const galleryImages = snapshot.docs.map(doc => {
+          const data = doc.data();
+          console.log('Documento:', doc.id, data);
+          return {
+            id: doc.id,
+            url: data.url || '',
+            alt: `Conheça nosso espaço - Foto ${doc.id}`
+          };
+        }).filter(img => img.url); // Filtrar apenas imagens com URL válida
+
+        console.log('Imagens processadas:', galleryImages);
 
         if (galleryImages.length > 0) {
           setImages(galleryImages);
+          console.log('Imagens da galeria carregadas:', galleryImages.length);
+        } else {
+          console.log('Nenhuma imagem encontrada, usando fallback');
         }
       } catch (error) {
         console.error('Erro ao carregar imagens da galeria:', error);
-        // Manter imagens de fallback em caso de erro
       } finally {
         setLoading(false);
       }
