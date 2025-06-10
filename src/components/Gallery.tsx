@@ -37,36 +37,44 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
-        console.log('Buscando imagens da galeria do Conheça Nosso Espaço...');
+        console.log('🔍 Buscando imagens da galeria do Conheça Nosso Espaço...');
         const galleryCollection = collection(db, 'conheca-nos');
         const snapshot = await getDocs(galleryCollection);
         
-        console.log('Documentos encontrados na galeria:', snapshot.docs.length);
+        console.log('📊 Documentos encontrados na galeria:', snapshot.docs.length);
         
         if (snapshot.docs.length > 0) {
           const galleryImages = snapshot.docs.map(doc => {
             const data = doc.data();
-            console.log('Documento da galeria:', doc.id, data);
+            console.log('📄 Documento da galeria:', doc.id, data);
             return {
               id: doc.id,
               url: data.url || '',
-              alt: `Conheça nosso espaço - Foto ${doc.id}`
+              alt: `Conheça nosso espaço - ${doc.id}`
             };
-          }).filter(img => img.url && img.url.trim() !== ''); // Filtrar apenas imagens com URL válida
+          }).filter(img => {
+            const isValid = img.url && img.url.trim() !== '';
+            console.log(`✅ Imagem ${img.id} é válida:`, isValid, 'URL:', img.url);
+            return isValid;
+          });
 
-          console.log('Imagens processadas da galeria:', galleryImages);
+          console.log('🖼️ Imagens processadas da galeria:', galleryImages);
           
           if (galleryImages.length > 0) {
             setImages(galleryImages);
-            console.log('Imagens da galeria carregadas com sucesso:', galleryImages.length);
+            setCurrentImage(0); // Reset para primeira imagem
+            console.log('✅ Imagens da galeria carregadas com sucesso:', galleryImages.length);
           } else {
-            console.log('Nenhuma imagem válida encontrada, usando fallback');
+            console.log('⚠️ Nenhuma imagem válida encontrada, usando fallback');
+            setImages(fallbackImages);
           }
         } else {
-          console.log('Nenhum documento encontrado na coleção conheca-nos, usando fallback');
+          console.log('⚠️ Nenhum documento encontrado na coleção conheca-nos, usando fallback');
+          setImages(fallbackImages);
         }
       } catch (error) {
-        console.error('Erro ao carregar imagens da galeria:', error);
+        console.error('❌ Erro ao carregar imagens da galeria:', error);
+        setImages(fallbackImages);
       } finally {
         setLoading(false);
       }
@@ -95,6 +103,9 @@ const Gallery = () => {
     );
   }
 
+  console.log('🎨 Renderizando Gallery com:', images.length, 'imagens. Imagem atual:', currentImage);
+  console.log('🖼️ Imagem atual sendo exibida:', images[currentImage]);
+
   return (
     <section id="gallery" className="py-20 bg-snackbar-softgray">
       <div className="container mx-auto px-4">
@@ -110,59 +121,95 @@ const Gallery = () => {
           </p>
         </div>
         
-        <div className="relative max-w-5xl mx-auto">
-          <div className="aspect-[16/9] overflow-hidden rounded-lg shadow-xl">
-            <img 
-              src={images[currentImage].url} 
-              alt={images[currentImage].alt || 'Conheça nosso espaço'}
-              className="w-full h-full object-cover transition-all duration-500"
-            />
-          </div>
-          
-          <Button 
-            variant="outline" 
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white"
-            onClick={prevImage}
-          >
-            <ChevronLeft className="w-6 h-6" />
-            <span className="sr-only">Imagem anterior</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white"
-            onClick={nextImage}
-          >
-            <ChevronRight className="w-6 h-6" />
-            <span className="sr-only">Próxima imagem</span>
-          </Button>
-          
-          <div className="flex justify-center mt-4 gap-2">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentImage(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentImage ? 'bg-snackbar-purple w-8' : 'bg-snackbar-gray'
-                }`}
-              >
-                <span className="sr-only">Imagem {index + 1}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          {images.map((image) => (
-            <div key={image.id} className="overflow-hidden rounded-lg shadow-md">
-              <img 
-                src={image.url} 
-                alt={image.alt || 'Conheça nosso espaço'} 
-                className="w-full h-48 object-cover hover:scale-110 transition-transform duration-300"
-              />
+        {images.length > 0 && (
+          <>
+            <div className="relative max-w-5xl mx-auto">
+              <div className="aspect-[16/9] overflow-hidden rounded-lg shadow-xl">
+                <img 
+                  src={images[currentImage]?.url} 
+                  alt={images[currentImage]?.alt || 'Conheça nosso espaço'}
+                  className="w-full h-full object-cover transition-all duration-500"
+                  onError={(e) => {
+                    console.error('❌ Erro ao carregar imagem:', images[currentImage]?.url);
+                    e.currentTarget.src = fallbackImages[0].url;
+                  }}
+                  onLoad={() => {
+                    console.log('✅ Imagem carregada com sucesso:', images[currentImage]?.url);
+                  }}
+                />
+              </div>
+              
+              {images.length > 1 && (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white"
+                    onClick={prevImage}
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                    <span className="sr-only">Imagem anterior</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white"
+                    onClick={nextImage}
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                    <span className="sr-only">Próxima imagem</span>
+                  </Button>
+                </>
+              )}
+              
+              {images.length > 1 && (
+                <div className="flex justify-center mt-4 gap-2">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImage(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentImage ? 'bg-snackbar-purple w-8' : 'bg-snackbar-gray'
+                      }`}
+                    >
+                      <span className="sr-only">Imagem {index + 1}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+            
+            {images.length > 1 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                {images.map((image, index) => (
+                  <div 
+                    key={image.id} 
+                    className={`overflow-hidden rounded-lg shadow-md cursor-pointer transition-all ${
+                      index === currentImage ? 'ring-2 ring-snackbar-purple' : ''
+                    }`}
+                    onClick={() => setCurrentImage(index)}
+                  >
+                    <img 
+                      src={image.url} 
+                      alt={image.alt || 'Conheça nosso espaço'} 
+                      className="w-full h-48 object-cover hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        console.error('❌ Erro ao carregar thumbnail:', image.url);
+                        e.currentTarget.src = fallbackImages[0].url;
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+        
+        {images.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-snackbar-gray">Nenhuma imagem encontrada.</p>
+            <p className="text-sm text-snackbar-gray mt-2">Adicione imagens no painel administrativo.</p>
+          </div>
+        )}
       </div>
     </section>
   );
