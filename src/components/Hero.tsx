@@ -13,7 +13,10 @@ const Hero = () => {
 
   // Usar dados do estabelecimento se disponíveis, senão usar dados padrão
   const establishmentName = establishmentData?.name || settings?.establishmentData?.name || 'Paizam';
-  const heroImage = settings?.heroImage || establishmentData?.logo || "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800";
+  
+  // Para a imagem do produto em destaque, usar apenas os dados específicos do featured product
+  const featuredProductImage = establishmentData?.featuredProduct?.image || 
+    "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800";
 
   if (loading) {
     return (
@@ -106,8 +109,8 @@ const Hero = () => {
                 ></div>
                 <div className="bg-black p-3 lg:p-4 rounded-2xl shadow-2xl overflow-hidden relative">
                   <img 
-                    src={heroImage} 
-                    alt="Sabor Extraordinário" 
+                    src={featuredProductImage} 
+                    alt="Produto em Destaque" 
                     className="w-full h-auto rounded-lg object-cover aspect-[4/3] transition-transform duration-500"
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 lg:p-6">
