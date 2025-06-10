@@ -56,12 +56,64 @@ const Navbar = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
-            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Home</a>
-            <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Menu</a>
-            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Galeria</a>
-            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Sobre</a>
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Contato</a>
-            <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="text-white transition-all duration-300 flex items-center gap-1" style={{ ':hover': { color: primaryColor } }}>
+            <a 
+              href="#home" 
+              onClick={(e) => handleNavClick(e, 'home')} 
+              className="text-white transition-all duration-300 hover:opacity-80"
+              style={{ color: 'white' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+            >
+              Home
+            </a>
+            <a 
+              href="#menu" 
+              onClick={(e) => handleNavClick(e, 'menu')} 
+              className="text-white transition-all duration-300 hover:opacity-80"
+              style={{ color: 'white' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+            >
+              Menu
+            </a>
+            <a 
+              href="#gallery" 
+              onClick={(e) => handleNavClick(e, 'gallery')} 
+              className="text-white transition-all duration-300 hover:opacity-80"
+              style={{ color: 'white' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+            >
+              Galeria
+            </a>
+            <a 
+              href="#about" 
+              onClick={(e) => handleNavClick(e, 'about')} 
+              className="text-white transition-all duration-300 hover:opacity-80"
+              style={{ color: 'white' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+            >
+              Sobre
+            </a>
+            <a 
+              href="#contact" 
+              onClick={(e) => handleNavClick(e, 'contact')} 
+              className="text-white transition-all duration-300 hover:opacity-80"
+              style={{ color: 'white' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+            >
+              Contato
+            </a>
+            <a 
+              href="#delivery" 
+              onClick={(e) => handleNavClick(e, 'delivery')} 
+              className="text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
+              style={{ color: 'white' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+            >
               <Truck className="h-4 w-4" />
               Delivery
             </a>
@@ -90,12 +142,46 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden mt-4 space-y-4 pb-4">
-            <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="block text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Home</a>
-            <a href="#menu" onClick={(e) => handleNavClick(e, 'menu')} className="block text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Menu</a>
-            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="block text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Galeria</a>
-            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="block text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Sobre</a>
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="block text-white transition-all duration-300" style={{ ':hover': { color: primaryColor } }}>Contato</a>
-            <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="block text-white transition-all duration-300 flex items-center gap-1" style={{ ':hover': { color: primaryColor } }}>
+            <a 
+              href="#home" 
+              onClick={(e) => handleNavClick(e, 'home')} 
+              className="block text-white transition-all duration-300 hover:opacity-80"
+            >
+              Home
+            </a>
+            <a 
+              href="#menu" 
+              onClick={(e) => handleNavClick(e, 'menu')} 
+              className="block text-white transition-all duration-300 hover:opacity-80"
+            >
+              Menu
+            </a>
+            <a 
+              href="#gallery" 
+              onClick={(e) => handleNavClick(e, 'gallery')} 
+              className="block text-white transition-all duration-300 hover:opacity-80"
+            >
+              Galeria
+            </a>
+            <a 
+              href="#about" 
+              onClick={(e) => handleNavClick(e, 'about')} 
+              className="block text-white transition-all duration-300 hover:opacity-80"
+            >
+              Sobre
+            </a>
+            <a 
+              href="#contact" 
+              onClick={(e) => handleNavClick(e, 'contact')} 
+              className="block text-white transition-all duration-300 hover:opacity-80"
+            >
+              Contato
+            </a>
+            <a 
+              href="#delivery" 
+              onClick={(e) => handleNavClick(e, 'delivery')} 
+              className="block text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
+            >
               <Truck className="h-4 w-4" />
               Delivery
             </a>

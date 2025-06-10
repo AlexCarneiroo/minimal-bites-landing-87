@@ -17,6 +17,7 @@ import ReservationManager from '@/components/admin/ReservationManager';
 import SpecialOfferEditor from '@/components/SpecialOfferEditor';
 import FeedbackManager from '@/components/admin/FeedbackManager';
 import AboutSection from '@/components/admin/AboutSection';
+import FeaturedProductSettings from '@/components/admin/FeaturedProductSettings';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
@@ -221,10 +222,11 @@ const Admin = () => {
           transition={{ duration: 0.5 }}
         >
           <Tabs defaultValue="general" className="space-y-6">
-            <TabsList className="grid grid-cols-1 md:grid-cols-7 gap-2 p-1 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm">
+            <TabsList className="grid grid-cols-1 md:grid-cols-8 gap-2 p-1 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm">
               {[
                 { value: "general", label: "Geral" },
                 { value: "appearance", label: "Aparência" },
+                { value: "featured-product", label: "Produto" },
                 { value: "reservations", label: "Reservas" },
                 { value: "special-offers", label: "Ofertas" },
                 { value: "feedbacks", label: "Feedbacks" },
@@ -267,6 +269,28 @@ const Admin = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <AppearanceSettings />
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="featured-product">
+                <motion.div
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold">Produto em Destaque</h2>
+                    <motion.div
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <FeaturedProductSettings />
+                    </motion.div>
+                  </div>
                 </motion.div>
               </TabsContent>
 
