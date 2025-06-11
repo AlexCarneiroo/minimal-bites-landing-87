@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, Utensils, Coffee, Cookie, Cake } from 'lucide-react';
@@ -20,7 +21,6 @@ interface Product {
 
 interface Category {
   name: string;
-  count: number;
   icon: JSX.Element;
 }
 
@@ -68,15 +68,9 @@ const FeaturedItems = () => {
           ...productsList
         ];
         
-        const categoryCount: { [key: string]: number } = {};
-        allProducts.forEach(product => {
-          const category = product.category || 'Outros';
-          categoryCount[category] = (categoryCount[category] || 0) + 1;
-        });
-        
-        const availableCategories = Object.entries(categoryCount).map(([name, count]) => ({
+        const categoryNames = Array.from(new Set(allProducts.map(product => product.category || 'Outros')));
+        const availableCategories = categoryNames.map(name => ({
           name,
-          count,
           icon: getCategoryIcon(name)
         }));
         
@@ -123,9 +117,9 @@ const FeaturedItems = () => {
           }
         ]);
         setCategories([
-          { name: 'Hambúrgueres', count: 2, icon: getCategoryIcon('Hambúrgueres') },
-          { name: 'Acompanhamentos', count: 1, icon: getCategoryIcon('Acompanhamentos') },
-          { name: 'Bebidas', count: 1, icon: getCategoryIcon('Bebidas') }
+          { name: 'Hambúrgueres', icon: getCategoryIcon('Hambúrgueres') },
+          { name: 'Acompanhamentos', icon: getCategoryIcon('Acompanhamentos') },
+          { name: 'Bebidas', icon: getCategoryIcon('Bebidas') }
         ]);
       } finally {
         setLoading(false);
@@ -173,9 +167,9 @@ const FeaturedItems = () => {
           {categories.map((category, index) => (
             <div key={index} className="text-center group">
               <div 
-                className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white border border-snackbar-gray/30 flex items-center justify-center mb-2 group-hover:border-opacity-100 transition-all"
+                className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white border-2 flex items-center justify-center mb-2 group-hover:scale-110 transition-all duration-300"
                 style={{ 
-                  borderColor: `${primaryColor}30`,
+                  borderColor: primaryColor,
                   backgroundColor: `${primaryColor}05`
                 }}
               >
@@ -183,8 +177,9 @@ const FeaturedItems = () => {
                   {category.icon}
                 </div>
               </div>
-              <span className="font-medium text-sm sm:text-base">{category.name}</span>
-              <span className="text-xs text-snackbar-gray block">({category.count})</span>
+              <span className="font-medium text-sm sm:text-base" style={{ color: primaryColor }}>
+                {category.name}
+              </span>
             </div>
           ))}
         </div>
@@ -198,7 +193,10 @@ const FeaturedItems = () => {
                   alt={item.name || item.title || 'Produto'} 
                   className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
                 />
-                <div className="absolute top-2 right-2 lg:top-3 lg:right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
+                <div 
+                  className="absolute top-2 right-2 lg:top-3 lg:right-3 text-white px-2 py-1 rounded-full text-xs font-medium"
+                  style={{ backgroundColor: `${primaryColor}90` }}
+                >
                   {item.category || 'Produto'}
                 </div>
                 {item.isSpecial && (
@@ -241,12 +239,10 @@ const FeaturedItems = () => {
         <div className="text-center mt-8 lg:mt-12">
           <a 
             href="#menu-full" 
-            className="inline-block bg-gradient-to-r from-snackbar-dark to-snackbar-blue bg-clip-text text-transparent border-b-2 font-medium hover:border-snackbar-dark/50 transition-colors"
+            className="inline-block border-b-2 font-medium hover:opacity-80 transition-all duration-300"
             style={{ 
-              borderColor: `${primaryColor}50`,
-              background: `linear-gradient(to right, ${primaryColor}, ${primaryColor}80)`,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+              borderColor: primaryColor,
+              color: primaryColor
             }}
           >
             Ver menu completo
