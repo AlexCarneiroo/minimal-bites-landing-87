@@ -35,9 +35,12 @@ const About = () => {
   // Usar dados do banco ou fallback
   const title = aboutData.title || 'Sobre Nós';
   const description = aboutData.description || 'A Sabor Express nasceu da paixão por comida de qualidade e do desejo de oferecer lanches artesanais feitos com ingredientes frescos e selecionados. Desde 2010, nosso compromisso é proporcionar uma experiência única, com um ambiente acolhedor e um atendimento que faz você se sentir em casa.';
-  const mainImage = aboutData.images?.[0] || 'https://images.unsplash.com/photo-1513639776629-7b40dd08d4c6?auto=format&fit=crop&q=80&w=1200';
-  const secondaryImage = aboutData.images?.[1] || 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=500';
-  const galleryImages = aboutData.images?.slice(2, 5) || [
+  const images = aboutData.images || [];
+  
+  // Imagens com fallbacks
+  const mainImage = images[0] || 'https://images.unsplash.com/photo-1513639776629-7b40dd08d4c6?auto=format&fit=crop&q=80&w=1200';
+  const secondaryImage = images[1] || 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=500';
+  const galleryImages = images.slice(2) || [
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=400',
     'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=400',
     'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=400'
@@ -76,16 +79,19 @@ const About = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-3 gap-4 mt-16">
-              {galleryImages.map((image, index) => (
-                <img 
-                  key={index}
-                  src={image} 
-                  alt={`${establishmentName} - espaço ${index + 1}`} 
-                  className="rounded-lg shadow-sm h-24 object-cover w-full"
-                />
-              ))}
-            </div>
+            {/* Galeria de imagens - mostra todas as imagens disponíveis */}
+            {galleryImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-16">
+                {galleryImages.map((image, index) => (
+                  <img 
+                    key={index}
+                    src={image} 
+                    alt={`${establishmentName} - espaço ${index + 1}`} 
+                    className="rounded-lg shadow-sm h-24 object-cover w-full hover:scale-105 transition-transform duration-300"
+                  />
+                ))}
+              </div>
+            )}
           </div>
           
           <div className="md:w-1/2 mt-16 md:mt-0">
