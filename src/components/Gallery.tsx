@@ -31,7 +31,7 @@ const fallbackImages = [
 
 const Gallery = () => {
   const [currentImage, setCurrentImage] = useState(0);
-  const [images, setImages] = useState<GalleryImage[]>(fallbackImages);
+  const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,16 +53,16 @@ const Gallery = () => {
               alt: `Conheça nosso espaço - ${doc.id}`
             };
           }).filter(img => {
-            const isValid = img.url && img.url.trim() !== '';
-            console.log(`✅ Imagem ${img.id} é válida:`, isValid, 'URL:', img.url);
+            const isValid = img.url && img.url.trim() !== '' && img.url.startsWith('data:');
+            console.log(`✅ Imagem ${img.id} é válida:`, isValid, 'URL length:', img.url.length);
             return isValid;
           });
 
-          console.log('🖼️ Imagens processadas da galeria:', galleryImages);
+          console.log('🖼️ Imagens processadas da galeria:', galleryImages.length);
           
           if (galleryImages.length > 0) {
             setImages(galleryImages);
-            setCurrentImage(0); // Reset para primeira imagem
+            setCurrentImage(0);
             console.log('✅ Imagens da galeria carregadas com sucesso:', galleryImages.length);
           } else {
             console.log('⚠️ Nenhuma imagem válida encontrada, usando fallback');
@@ -96,7 +96,10 @@ const Gallery = () => {
       <section id="gallery" className="py-20 bg-snackbar-softgray">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <p className="text-snackbar-gray">Carregando galeria...</p>
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-300 rounded w-64 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -104,7 +107,6 @@ const Gallery = () => {
   }
 
   console.log('🎨 Renderizando Gallery com:', images.length, 'imagens. Imagem atual:', currentImage);
-  console.log('🖼️ Imagem atual sendo exibida:', images[currentImage]);
 
   return (
     <section id="gallery" className="py-20 bg-snackbar-softgray">
@@ -124,17 +126,20 @@ const Gallery = () => {
         {images.length > 0 && (
           <>
             <div className="relative max-w-5xl mx-auto">
-              <div className="aspect-[16/9] overflow-hidden rounded-lg shadow-xl">
+              <div className="aspect-[16/9] overflow-hidden rounded-lg shadow-xl bg-gray-100">
                 <img 
                   src={images[currentImage]?.url} 
                   alt={images[currentImage]?.alt || 'Conheça nosso espaço'}
                   className="w-full h-full object-cover transition-all duration-500"
                   onError={(e) => {
                     console.error('❌ Erro ao carregar imagem:', images[currentImage]?.url);
-                    e.currentTarget.src = fallbackImages[0].url;
+                    // Se a imagem falhar, usar fallback
+                    if (images[currentImage]?.url !== fallbackImages[0].url) {
+                      e.currentTarget.src = fallbackImages[0].url;
+                    }
                   }}
                   onLoad={() => {
-                    console.log('✅ Imagem carregada com sucesso:', images[currentImage]?.url);
+                    console.log('✅ Imagem carregada com sucesso:', images[currentImage]?.id);
                   }}
                 />
               </div>
@@ -143,7 +148,7 @@ const Gallery = () => {
                 <>
                   <Button 
                     variant="outline" 
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white shadow-lg"
                     onClick={prevImage}
                   >
                     <ChevronLeft className="w-6 h-6" />
@@ -152,7 +157,7 @@ const Gallery = () => {
                   
                   <Button 
                     variant="outline" 
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white shadow-lg"
                     onClick={nextImage}
                   >
                     <ChevronRight className="w-6 h-6" />
@@ -183,7 +188,7 @@ const Gallery = () => {
                 {images.map((image, index) => (
                   <div 
                     key={image.id} 
-                    className={`overflow-hidden rounded-lg shadow-md cursor-pointer transition-all ${
+                    className={`overflow-hidden rounded-lg shadow-md cursor-pointer transition-all hover:shadow-lg ${
                       index === currentImage ? 'ring-2 ring-snackbar-purple' : ''
                     }`}
                     onClick={() => setCurrentImage(index)}
@@ -191,10 +196,12 @@ const Gallery = () => {
                     <img 
                       src={image.url} 
                       alt={image.alt || 'Conheça nosso espaço'} 
-                      className="w-full h-48 object-cover hover:scale-110 transition-transform duration-300"
+                      className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
                         console.error('❌ Erro ao carregar thumbnail:', image.url);
-                        e.currentTarget.src = fallbackImages[0].url;
+                        if (image.url !== fallbackImages[0].url) {
+                          e.currentTarget.src = fallbackImages[0].url;
+                        }
                       }}
                     />
                   </div>
@@ -205,8 +212,9 @@ const Gallery = () => {
         )}
         
         {images.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-snackbar-gray">Nenhuma imagem encontrada.</p>
+          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+            <Image className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-snackbar-gray text-lg">Nenhuma imagem encontrada.</p>
             <p className="text-sm text-snackbar-gray mt-2">Adicione imagens no painel administrativo.</p>
           </div>
         )}
