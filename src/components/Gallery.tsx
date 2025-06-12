@@ -112,7 +112,7 @@ const Gallery = () => {
     <section id="gallery" className="py-20 bg-snackbar-softgray">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-4">Conheça Nosso Espaço</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-4">Conheça Nosso Espaço0000</h2>
           <div className="flex justify-center items-center gap-2 mb-4">
             <div className="h-[1px] w-10 bg-snackbar-gray"></div>
             <Image className="w-5 h-5 text-snackbar-purple" />

@@ -9,6 +9,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { settings } = useSiteSettings();
   const primaryColor = settings?.primaryColor || '#0066cc';
+  const nameEstabelecimento = settings?.establishmentData?.name || '';  
   
   useEffect(() => {
     const handleScroll = () => {
@@ -51,7 +52,7 @@ const Navbar = () => {
             <div style={{ backgroundColor: primaryColor }} className="p-2 rounded-lg">
               <Utensils className="w-6 h-6 text-white" />
             </div>
-            <span className="font-bold text-xl text-white">Paizam</span>
+            <span className="font-bold text-xl text-white">{nameEstabelecimento}</span>
           </div>
           
           {/* Desktop Navigation */}
@@ -180,7 +181,7 @@ const Navbar = () => {
             <a 
               href="#delivery" 
               onClick={(e) => handleNavClick(e, 'delivery')} 
-              className="block text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
+              className=" text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
             >
               <Truck className="h-4 w-4" />
               Delivery
