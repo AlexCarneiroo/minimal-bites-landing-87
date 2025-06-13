@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { getAboutSettings } from '@/lib/firebase-operations';
 
 interface GalleryImage {
   id: string;
@@ -37,21 +36,18 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
-        console.log('🔍 Buscando imagens da galeria do Conheça Nosso Espaço...');
-        const galleryCollection = collection(db, 'conheca-nos');
-        const snapshot = await getDocs(galleryCollection);
-        
-        console.log('📊 Documentos encontrados na galeria:', snapshot.docs.length);
-        
-        if (snapshot.docs.length > 0) {
-          const galleryImages = snapshot.docs.map(doc => {
-            const data = doc.data();
-            console.log('📄 Documento da galeria:', doc.id, data);
+        console.log('🔍 Buscando imagens da galeria do Conheça Nosso Espaço (about settings)...');
+        const data = await getAboutSettings();
+        console.log('📄 Dados obtidos do about:', data);
+        const spaceImages = Array.isArray(data?.spaceImages) ? data!.spaceImages : [];
+
+        if (spaceImages.length > 0) {
+          const galleryImages = spaceImages.map((url, index) => {
             return {
-              id: doc.id,
-              url: data.url || '',
-              alt: `Conheça nosso espaço - ${doc.id}`
-            };
+              id: String(index),
+              url: url || '',
+              alt: `Conheça nosso espaço - ${index + 1}`
+            } as GalleryImage;
           }).filter(img => {
             const isValid = img.url && img.url.trim() !== '' && img.url.startsWith('data:');
             console.log(`✅ Imagem ${img.id} é válida:`, isValid, 'URL length:', img.url.length);
@@ -59,7 +55,7 @@ const Gallery = () => {
           });
 
           console.log('🖼️ Imagens processadas da galeria:', galleryImages.length);
-          
+
           if (galleryImages.length > 0) {
             setImages(galleryImages);
             setCurrentImage(0);
@@ -69,7 +65,7 @@ const Gallery = () => {
             setImages(fallbackImages);
           }
         } else {
-          console.log('⚠️ Nenhum documento encontrado na coleção conheca-nos, usando fallback');
+          console.log('⚠️ Nenhuma imagem encontrada nas configurações, usando fallback');
           setImages(fallbackImages);
         }
       } catch (error) {
