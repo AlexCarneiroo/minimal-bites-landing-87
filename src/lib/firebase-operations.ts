@@ -82,18 +82,14 @@ export const getAboutSettings = async () => {
 
 // Configurações Footer
 export const saveFooterSettings = async (data: any) => {
-  try {
-    const docRef = doc(db, 'footer', 'main');
-    await setDoc(docRef, {
-      ...data,
-      updatedAt: new Date()
-    }, { merge: true });
-    return true;
-  } catch (error) {
-    console.error('Erro ao salvar configurações do footer:', error);
-    return false;
-  }
+  const docRef = doc(db, 'footer', 'main');
+  await setDoc(docRef, {
+    ...data,
+    updatedAt: new Date()
+  }, { merge: true });
+  return true;
 };
+
 
 export const getFooterSettings = async () => {
   try {

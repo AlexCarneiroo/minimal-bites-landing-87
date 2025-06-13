@@ -181,7 +181,7 @@ const Navbar = () => {
             <a 
               href="#delivery" 
               onClick={(e) => handleNavClick(e, 'delivery')} 
-              className=" text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
+              className="text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
             >
               <Truck className="h-4 w-4" />
               Delivery

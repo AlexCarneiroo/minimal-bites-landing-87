@@ -1,16 +1,14 @@
-
 import { MapPin, Phone, Mail } from 'lucide-react';
 import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 
 const Contact = () => {
   const { data: establishmentData, loading } = useEstablishmentData();
 
-  // Dados padrão como fallback
   const defaultData = {
-    address: 'Rua das Delicias, 123, Centro, São Paulo',
+    address: 'Rua das Delícias, 123, Centro, São Paulo',
     phone: '(11) 99999-9999',
     email: 'contato@saborexpress.com',
-    mapsUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117002.25399198493!2d-46.7030389!3d-23.5505199!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce448183a461d1%3A0x9ba94b08ff335bae!2zU8OjbyBQYXVsbywgU1A!5e0!3m2!1spt-BR!2sbr!4v1716414016561!5m2!1spt-BR!2sbr'
+    mapsUrl: `<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12943.622319559774!2d-46.4117453!3d-23.4585793!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce632bc1755ebb%3A0xa9284ae08e4ff979!2sBluefit%20Pimentas!5e1!3m2!1sen!2sbr!4v1749836018646!5m2!1sen!2sbr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
   };
 
   const contactData = {
@@ -41,8 +39,9 @@ const Contact = () => {
             Estamos ansiosos para ouvir você. Entre em contato conosco ou visite-nos pessoalmente!
           </p>
         </div>
-        
+
         <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+          {/* Coluna de contato */}
           <div className="md:w-1/2 lg:w-1/3">
             <div className="space-y-8">
               <div className="flex items-start space-x-4">
@@ -54,7 +53,7 @@ const Contact = () => {
                   <p className="text-snackbar-gray mt-2">{contactData.address}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-4 rounded-full shadow-md">
                   <Phone className="w-6 h-6 text-snackbar-blue" />
@@ -64,7 +63,7 @@ const Contact = () => {
                   <p className="text-snackbar-gray mt-2">{contactData.phone}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-4 rounded-full shadow-md">
                   <Mail className="w-6 h-6 text-snackbar-blue" />
@@ -76,19 +75,13 @@ const Contact = () => {
               </div>
             </div>
           </div>
-          
+
+          {/* Coluna com o mapa */}
           <div className="md:w-1/2 lg:w-1/2 mt-8 md:mt-0">
-            <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg">
-              <iframe 
-                src={contactData.mapsUrl}
-                width="100%" 
-                height="100%" 
-                style={{ border: 0 }} 
-                allowFullScreen 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
-            </div>
+            <div
+              className="aspect-video w-full rounded-lg overflow-hidden shadow-lg"
+              dangerouslySetInnerHTML={{ __html: contactData.mapsUrl }}
+            />
           </div>
         </div>
       </div>

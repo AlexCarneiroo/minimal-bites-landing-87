@@ -23,6 +23,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
 import FooterSettings from '@/components/admin/FooterSettings';
 import { Button } from "@/components/ui/button";
+import { saveFooterSettings, getFooterSettings } from '@/lib/firebase-operations';
+
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,6 +51,22 @@ const Admin = () => {
     companyName: 'Nome da Empresa',
     additionalText: 'Texto adicional do footer'
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getFooterSettings();
+      if (data) {
+        setFooterData(data as {
+          copyright: string;
+          companyName: string;
+          additionalText: string;
+        });
+      }
+    };
+
+    fetchData();
+  }, []);
+
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -113,7 +131,7 @@ const Admin = () => {
   const handleSave = async (section: string) => {
     try {
       const settings: Partial<SiteSettings> = {};
-      
+
       switch (section) {
         case 'about':
           settings.about = aboutData;
@@ -130,7 +148,7 @@ const Admin = () => {
       }
 
       await saveSiteSettings(settings);
-      
+
       toast({
         title: "Alterações salvas",
         description: `Seção ${section} atualizada com sucesso`,
@@ -155,9 +173,9 @@ const Admin = () => {
     handleSave('feedbacks');
   };
 
-  const handleUpdateAbout = (data: { 
-    title: string; 
-    description: string; 
+  const handleUpdateAbout = (data: {
+    title: string;
+    description: string;
     images: string[];
     spaceImages: string[];
   }) => {
@@ -168,7 +186,7 @@ const Admin = () => {
   const toggleSection = async (section: 'feedbacks' | 'special-offers') => {
     try {
       const settings: Partial<SiteSettings> = {};
-      
+
       if (section === 'feedbacks') {
         const newState = { ...feedbacks, enabled: !feedbacks.enabled };
         setFeedbacks(newState);
@@ -180,7 +198,7 @@ const Admin = () => {
       }
 
       await saveSiteSettings(settings);
-      
+
       toast({
         title: "Seção atualizada",
         description: `A seção foi ${settings[section]?.enabled ? 'habilitada' : 'desabilitada'} com sucesso`,
@@ -214,7 +232,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <AdminHeader onLogout={handleLogout} />
-      
+
       <main className="container mx-auto p-4 md:p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -246,7 +264,7 @@ const Admin = () => {
                 </TabsTrigger>
               ))}
             </TabsList>
-            
+
             <AnimatePresence mode="wait">
               <TabsContent value="general">
                 <motion.div
@@ -259,7 +277,7 @@ const Admin = () => {
                   <GeneralSettings />
                 </motion.div>
               </TabsContent>
-              
+
               <TabsContent value="appearance">
                 <motion.div
                   variants={tabVariants}
@@ -319,7 +337,7 @@ const Admin = () => {
                   </div>
                 </motion.div>
               </TabsContent>
-              
+
               <TabsContent value="special-offers">
                 <motion.div
                   variants={tabVariants}
@@ -352,7 +370,7 @@ const Admin = () => {
                     >
                       <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                         <CardContent className="p-6">
-                          <SpecialOfferEditor 
+                          <SpecialOfferEditor
                             enabled={specialOffers.enabled}
                             onSave={handleUpdateOffers}
                           />
@@ -362,7 +380,7 @@ const Admin = () => {
                   </div>
                 </motion.div>
               </TabsContent>
-              
+
               <TabsContent value="feedbacks">
                 <motion.div
                   variants={tabVariants}
@@ -395,9 +413,9 @@ const Admin = () => {
                     >
                       <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                         <CardContent className="p-6">
-                          <FeedbackManager 
+                          <FeedbackManager
                             enabled={feedbacks.enabled}
-                            onSave={handleUpdateFeedbacks} 
+                            onSave={handleUpdateFeedbacks}
                           />
                         </CardContent>
                       </Card>
@@ -405,7 +423,7 @@ const Admin = () => {
                   </div>
                 </motion.div>
               </TabsContent>
-              
+
               <TabsContent value="about">
                 <motion.div
                   variants={tabVariants}
@@ -437,7 +455,7 @@ const Admin = () => {
                   </div>
                 </motion.div>
               </TabsContent>
-              
+
               <TabsContent value="footer">
                 <motion.div
                   variants={tabVariants}
@@ -458,9 +476,11 @@ const Admin = () => {
                         <CardContent className="p-6">
                           <FooterSettings
                             footerData={footerData}
-                            onSave={(data) => {
-                              setFooterData(data);
-                              handleSave('footer');
+                            onSave={async (data) => {
+                              const success = await saveFooterSettings(data);
+                              if (!success) {
+                                setFooterData(data); // atualiza localmente se salvar no Firebase der certo
+                              }
                             }}
                           />
                         </CardContent>

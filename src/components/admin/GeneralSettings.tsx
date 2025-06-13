@@ -239,7 +239,7 @@ export default function GeneralSettings() {
                 <Label htmlFor="mapsUrl">Link do Google Maps</Label>
                 <Input
                   id="mapsUrl"
-                  type="url"
+                  type="text"
                   value={safeValue(establishmentData.mapsUrl)}
                   onChange={(e) => updateEstablishmentData('mapsUrl', e.target.value)}
                   placeholder="https://maps.google.com/..."
