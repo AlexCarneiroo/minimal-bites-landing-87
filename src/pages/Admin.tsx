@@ -229,50 +229,55 @@ const Admin = () => {
     return <AdminLogin onLogin={handleLogin} />;
   }
 
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
+
+  const tabs = [
+    { value: "general", label: "Geral", icon: LayoutDashboard },
+    { value: "appearance", label: "Aparência", icon: Palette },
+    { value: "featured-product", label: "Produto", icon: Star },
+    { value: "reservations", label: "Reservas", icon: Calendar },
+    { value: "special-offers", label: "Ofertas", icon: Tag },
+    { value: "feedbacks", label: "Feedbacks", icon: MessageCircle },
+    { value: "about", label: "Sobre", icon: Info },
+    { value: "footer", label: "Footer", icon: SquareKanban },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <AdminHeader onLogout={handleLogout} />
 
-      <main className="container mx-auto p-4 md:p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Tabs defaultValue="general" className="space-y-6">
-            <TabsList className="grid grid-cols-1 md:grid-cols-8 gap-2 p-1 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm">
-              {[
-                { value: "general", label: "Geral" },
-                { value: "appearance", label: "Aparência" },
-                { value: "featured-product", label: "Produto" },
-                { value: "reservations", label: "Reservas" },
-                { value: "special-offers", label: "Ofertas" },
-                { value: "feedbacks", label: "Feedbacks" },
-                { value: "about", label: "Sobre" },
-                { value: "footer", label: "Footer" }
-              ].map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className={cn(
-                    "data-[state=active]:bg-white data-[state=active]:text-primary",
-                    "data-[state=active]:shadow-sm transition-all duration-200",
-                    "hover:bg-white/50"
-                  )}
-                >
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="container mx-auto flex flex-col md:flex-row gap-6 py-6"
+        <TabsList className="flex md:flex-col w-full md:w-56 shrink-0 gap-2 overflow-x-auto md:overflow-visible p-4 bg-white/70 backdrop-blur-lg rounded-3xl shadow-xl">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all hover:bg-white/50 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:shadow-lg"
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+
+        <div className="flex-1">
 
             <AnimatePresence mode="wait">
               <TabsContent value="general">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl"
                 >
                   <GeneralSettings />
                 </motion.div>
@@ -280,11 +285,11 @@ const Admin = () => {
 
               <TabsContent value="appearance">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl"
                 >
                   <AppearanceSettings />
                 </motion.div>
@@ -292,201 +297,141 @@ const Admin = () => {
 
               <TabsContent value="featured-product">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold">Produto em Destaque</h2>
-                    <motion.div
-                      variants={cardVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      <FeaturedProductSettings />
-                    </motion.div>
-                  </div>
+                  <h2 className="text-2xl font-bold">Produto em Destaque</h2>
+                  <FeaturedProductSettings />
                 </motion.div>
               </TabsContent>
 
               <TabsContent value="reservations">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold">Gerenciar Reservas</h2>
-                    <motion.div
-                      variants={cardVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                        <CardContent className="p-6">
-                          <ReservationManager />
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </div>
+                  <h2 className="text-2xl font-bold">Gerenciar Reservas</h2>
+                  <Card className="bg-white/80 backdrop-blur-md">
+                    <CardContent className="p-4">
+                      <ReservationManager />
+                    </CardContent>
+                  </Card>
                 </motion.div>
               </TabsContent>
 
               <TabsContent value="special-offers">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h2 className="text-2xl font-bold">Gerenciar Produtos</h2>
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">Gerenciar Produtos</h2>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        variant={specialOffers.enabled ? "gradient" : "secondary"}
+                        onClick={() => toggleSection('special-offers')}
+                        className="text-white"
                       >
-                        <Button
-                          variant={specialOffers.enabled ? "default" : "secondary"}
-                          onClick={() => toggleSection('special-offers')}
-                          className="transition-all duration-200 bg-primary hover:bg-primary/90 text-white"
-                        >
-                          {specialOffers.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
-                        </Button>
-                      </motion.div>
-                    </div>
-                    <motion.div
-                      variants={cardVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                        <CardContent className="p-6">
-                          <SpecialOfferEditor
-                            enabled={specialOffers.enabled}
-                            onSave={handleUpdateOffers}
-                          />
-                        </CardContent>
-                      </Card>
+                        {specialOffers.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
+                      </Button>
                     </motion.div>
                   </div>
+                  <Card className="bg-white/80 backdrop-blur-md">
+                    <CardContent className="p-4">
+                      <SpecialOfferEditor
+                        enabled={specialOffers.enabled}
+                        onSave={handleUpdateOffers}
+                      />
+                    </CardContent>
+                  </Card>
                 </motion.div>
               </TabsContent>
 
               <TabsContent value="feedbacks">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h2 className="text-2xl font-bold">Gerenciar Feedbacks</h2>
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">Gerenciar Feedbacks</h2>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        variant={feedbacks.enabled ? "gradient" : "secondary"}
+                        onClick={() => toggleSection('feedbacks')}
+                        className="text-white"
                       >
-                        <Button
-                          variant={feedbacks.enabled ? "default" : "secondary"}
-                          onClick={() => toggleSection('feedbacks')}
-                          className="transition-all duration-200 bg-primary hover:bg-primary/90 text-white"
-                        >
-                          {feedbacks.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
-                        </Button>
-                      </motion.div>
-                    </div>
-                    <motion.div
-                      variants={cardVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                        <CardContent className="p-6">
-                          <FeedbackManager
-                            enabled={feedbacks.enabled}
-                            onSave={handleUpdateFeedbacks}
-                          />
-                        </CardContent>
-                      </Card>
+                        {feedbacks.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
+                      </Button>
                     </motion.div>
                   </div>
+                  <Card className="bg-white/80 backdrop-blur-md">
+                    <CardContent className="p-4">
+                      <FeedbackManager
+                        enabled={feedbacks.enabled}
+                        onSave={handleUpdateFeedbacks}
+                      />
+                    </CardContent>
+                  </Card>
                 </motion.div>
               </TabsContent>
 
               <TabsContent value="about">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold">Seção Sobre Nós</h2>
-                    <motion.div
-                      variants={cardVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                        <CardContent className="p-6">
-                          <AboutSection
-                            title={aboutData.title}
-                            description={aboutData.description}
-                            images={aboutData.images}
-                            spaceImages={aboutData.spaceImages}
-                            onSave={handleUpdateAbout}
-                          />
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </div>
+                  <h2 className="text-2xl font-bold">Seção Sobre Nós</h2>
+                  <Card className="bg-white/80 backdrop-blur-md">
+                    <CardContent className="p-4">
+                      <AboutSection
+                        title={aboutData.title}
+                        description={aboutData.description}
+                        images={aboutData.images}
+                        spaceImages={aboutData.spaceImages}
+                        onSave={handleUpdateAbout}
+                      />
+                    </CardContent>
+                  </Card>
                 </motion.div>
               </TabsContent>
 
               <TabsContent value="footer">
                 <motion.div
-                  variants={tabVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
+                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold">Configurações do Footer</h2>
-                    <motion.div
-                      variants={cardVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                        <CardContent className="p-6">
-                          <FooterSettings
-                            footerData={footerData}
-                            onSave={async (data) => {
-                              const success = await saveFooterSettings(data);
-                              if (!success) {
-                                setFooterData(data); // atualiza localmente se salvar no Firebase der certo
-                              }
-                            }}
-                          />
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </div>
+                  <h2 className="text-2xl font-bold">Configurações do Footer</h2>
+                  <Card className="bg-white/80 backdrop-blur-md">
+                    <CardContent className="p-4">
+                      <FooterSettings
+                        footerData={footerData}
+                        onSave={async (data) => {
+                          const success = await saveFooterSettings(data);
+                          if (!success) {
+                            setFooterData(data);
+                          }
+                        }}
+                      />
+                    </CardContent>
+                  </Card>
                 </motion.div>
               </TabsContent>
             </AnimatePresence>

@@ -31,13 +31,12 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
+      <Card className="w-full max-w-md overflow-hidden shadow-xl border-0">
+        <div className="h-2 bg-gradient-to-r from-blue-500 to-purple-500" />
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Painel Administrativo</CardTitle>
-          <CardDescription>
-            Faça login para acessar o painel de controle
-          </CardDescription>
+          <CardDescription>Faça login para acessar o painel de controle</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -52,7 +51,7 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
                   placeholder="Digite seu usuário"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 focus:ring-2 focus:ring-blue-500/50 transition-all"
                   required
                 />
               </div>
@@ -70,13 +69,13 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
                   placeholder="Digite sua senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 focus:ring-2 focus:ring-blue-500/50 transition-all"
                   required
                 />
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" variant="gradient" className="w-full text-white hover:brightness-110 active:scale-95 transition-transform">
               Entrar
             </Button>
             
