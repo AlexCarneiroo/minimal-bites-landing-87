@@ -58,5 +58,4 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
 
 export async function saveSiteSettings(settings: Partial<SiteSettings>): Promise<void> {
   // Esta função pode ser expandida se necessário para salvar configurações específicas
-  console.log('Configurações salvas:', settings);
 }

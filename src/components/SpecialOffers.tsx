@@ -23,15 +23,12 @@ const SpecialOffers = () => {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        console.log('Buscando ofertas especiais...');
         const offersRef = collection(db, 'special-offers');
         const snapshot = await getDocs(offersRef);
         
-        console.log('Ofertas encontradas:', snapshot.docs.length);
         
         const offersList = snapshot.docs.map(doc => {
           const data = doc.data();
-          console.log('Oferta:', doc.id, data);
           return {
             id: doc.id,
             name: data.name || '',
@@ -43,9 +40,7 @@ const SpecialOffers = () => {
             image: data.image || ''
           };
         }).filter(offer => offer.name && offer.description); // Filtrar ofertas válidas
-        
-        console.log('Ofertas processadas:', offersList);
-        
+                
         // Mostrar apenas as primeiras 3 ofertas
         setOffers(offersList.slice(0, 3));
       } catch (error) {

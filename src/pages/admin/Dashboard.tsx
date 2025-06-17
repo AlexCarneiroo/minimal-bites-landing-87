@@ -212,7 +212,6 @@ export default function Dashboard() {
                     <FeedbackManager 
                       enabled={true}
                       onSave={(feedbacks) => {
-                        console.log('Feedbacks atualizados:', feedbacks);
                       }} 
                     />
                   </CardContent>

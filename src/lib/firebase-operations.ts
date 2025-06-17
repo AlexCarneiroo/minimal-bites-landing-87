@@ -54,6 +54,7 @@ export const getAppearanceSettings = async () => {
   }
 };
 
+
 // Configurações Sobre
 export const saveAboutSettings = async (data: any) => {
   try {

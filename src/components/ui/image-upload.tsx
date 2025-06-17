@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button } from './button';
 import { Label } from './label';
+import { uploadImageToStorage } from '@/lib/upload';
 
 interface ImageUploadProps {
   value: string;
@@ -9,24 +10,33 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({ value, onChange, label = 'Imagem' }: ImageUploadProps) {
+  const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string>(value);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setPreview(result);
-        onChange(result);
-      };
-      reader.readAsDataURL(file);
+      setUploading(true);
+      try {
+        const url = await uploadImageToStorage(file);
+        setPreview(url);
+        onChange(url);
+      } catch (error) {
+        console.error('Erro ao fazer upload:', error);
+        alert('Erro ao fazer upload da imagem.');
+      }
+      setUploading(false);
     }
   };
 
   const handleClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleRemove = () => {
+    setPreview('');
+    onChange('');
   };
 
   return (
@@ -44,8 +54,9 @@ export function ImageUpload({ value, onChange, label = 'Imagem' }: ImageUploadPr
           type="button"
           variant="outline"
           onClick={handleClick}
+          disabled={uploading}
         >
-          Escolher Imagem
+          {uploading ? 'Enviando...' : 'Escolher Imagem'}
         </Button>
         {preview && (
           <div className="relative w-20 h-20">
@@ -59,10 +70,7 @@ export function ImageUpload({ value, onChange, label = 'Imagem' }: ImageUploadPr
               variant="destructive"
               size="sm"
               className="absolute -top-2 -right-2"
-              onClick={() => {
-                setPreview('');
-                onChange('');
-              }}
+              onClick={handleRemove}
             >
               ×
             </Button>
@@ -71,4 +79,4 @@ export function ImageUpload({ value, onChange, label = 'Imagem' }: ImageUploadPr
       </div>
     </div>
   );
-} 
+}

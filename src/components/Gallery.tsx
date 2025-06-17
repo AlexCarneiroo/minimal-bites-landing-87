@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ interface GalleryImage {
   alt?: string;
 }
 
-const fallbackImages = [
+const fallbackImages: GalleryImage[] = [
   {
     id: '1',
     url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=1200',
@@ -36,36 +35,26 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
-        console.log('🔍 Buscando imagens da galeria do Conheça Nosso Espaço (about settings)...');
         const data = await getAboutSettings();
-        console.log('📄 Dados obtidos do about:', data);
-        const spaceImages = Array.isArray(data?.spaceImages) ? data!.spaceImages : [];
+        const spaceImages = Array.isArray(data?.spaceImages) ? data.spaceImages : [];
 
         if (spaceImages.length > 0) {
-          const galleryImages = spaceImages.map((url, index) => {
-            return {
-              id: String(index),
-              url: url || '',
-              alt: `Conheça nosso espaço - ${index + 1}`
-            } as GalleryImage;
-          }).filter(img => {
-            const isValid = img.url && img.url.trim() !== '' && img.url.startsWith('data:');
-            console.log(`✅ Imagem ${img.id} é válida:`, isValid, 'URL length:', img.url.length);
+          const galleryImages = spaceImages.map((url, index) => ({
+            id: String(index),
+            url: url || '',
+            alt: `Conheça nosso espaço - ${index + 1}`
+          })).filter(img => {
+            const isValid = img.url && img.url.trim() !== '' && img.url.startsWith('http');
             return isValid;
           });
-
-          console.log('🖼️ Imagens processadas da galeria:', galleryImages.length);
 
           if (galleryImages.length > 0) {
             setImages(galleryImages);
             setCurrentImage(0);
-            console.log('✅ Imagens da galeria carregadas com sucesso:', galleryImages.length);
           } else {
-            console.log('⚠️ Nenhuma imagem válida encontrada, usando fallback');
             setImages(fallbackImages);
           }
         } else {
-          console.log('⚠️ Nenhuma imagem encontrada nas configurações, usando fallback');
           setImages(fallbackImages);
         }
       } catch (error) {
@@ -90,25 +79,19 @@ const Gallery = () => {
   if (loading) {
     return (
       <section id="gallery" className="py-20 bg-snackbar-softgray">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-300 rounded w-64 mx-auto mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
-            </div>
-          </div>
+        <div className="container mx-auto px-4 text-center animate-pulse">
+          <div className="h-8 bg-gray-300 rounded w-64 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
         </div>
       </section>
     );
   }
 
-  console.log('🎨 Renderizando Gallery com:', images.length, 'imagens. Imagem atual:', currentImage);
-
   return (
     <section id="gallery" className="py-20 bg-snackbar-softgray">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-4">Conheça Nosso Espaço0000</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-4">Conheça Nosso Espaço</h2>
           <div className="flex justify-center items-center gap-2 mb-4">
             <div className="h-[1px] w-10 bg-snackbar-gray"></div>
             <Image className="w-5 h-5 text-snackbar-purple" />
@@ -118,41 +101,34 @@ const Gallery = () => {
             Um ambiente aconchegante e elegante para você desfrutar dos melhores momentos
           </p>
         </div>
-        
-        {images.length > 0 && (
+
+        {images.length > 0 ? (
           <>
             <div className="relative max-w-5xl mx-auto">
               <div className="aspect-[16/9] overflow-hidden rounded-lg shadow-xl bg-gray-100">
-                <img 
-                  src={images[currentImage]?.url} 
+                <img
+                  src={images[currentImage]?.url}
                   alt={images[currentImage]?.alt || 'Conheça nosso espaço'}
                   className="w-full h-full object-cover transition-all duration-500"
                   onError={(e) => {
-                    console.error('❌ Erro ao carregar imagem:', images[currentImage]?.url);
-                    // Se a imagem falhar, usar fallback
-                    if (images[currentImage]?.url !== fallbackImages[0].url) {
-                      e.currentTarget.src = fallbackImages[0].url;
-                    }
-                  }}
-                  onLoad={() => {
-                    console.log('✅ Imagem carregada com sucesso:', images[currentImage]?.id);
+                    e.currentTarget.src = fallbackImages[0].url;
                   }}
                 />
               </div>
-              
+
               {images.length > 1 && (
                 <>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white shadow-lg"
                     onClick={prevImage}
                   >
                     <ChevronLeft className="w-6 h-6" />
                     <span className="sr-only">Imagem anterior</span>
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
+
+                  <Button
+                    variant="outline"
                     className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border-none rounded-full p-2 hover:bg-white shadow-lg"
                     onClick={nextImage}
                   >
@@ -161,7 +137,7 @@ const Gallery = () => {
                   </Button>
                 </>
               )}
-              
+
               {images.length > 1 && (
                 <div className="flex justify-center mt-4 gap-2">
                   {images.map((_, index) => (
@@ -178,36 +154,29 @@ const Gallery = () => {
                 </div>
               )}
             </div>
-            
-            {images.length > 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                {images.map((image, index) => (
-                  <div 
-                    key={image.id} 
-                    className={`overflow-hidden rounded-lg shadow-md cursor-pointer transition-all hover:shadow-lg ${
-                      index === currentImage ? 'ring-2 ring-snackbar-purple' : ''
-                    }`}
-                    onClick={() => setCurrentImage(index)}
-                  >
-                    <img 
-                      src={image.url} 
-                      alt={image.alt || 'Conheça nosso espaço'} 
-                      className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        console.error('❌ Erro ao carregar thumbnail:', image.url);
-                        if (image.url !== fallbackImages[0].url) {
-                          e.currentTarget.src = fallbackImages[0].url;
-                        }
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+              {images.map((image, index) => (
+                <div
+                  key={image.id}
+                  className={`overflow-hidden rounded-lg shadow-md cursor-pointer transition-all hover:shadow-lg ${
+                    index === currentImage ? 'ring-2 ring-snackbar-purple' : ''
+                  }`}
+                  onClick={() => setCurrentImage(index)}
+                >
+                  <img
+                    src={image.url}
+                    alt={image.alt || 'Conheça nosso espaço'}
+                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = fallbackImages[0].url;
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
           </>
-        )}
-        
-        {images.length === 0 && (
+        ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
             <Image className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-snackbar-gray text-lg">Nenhuma imagem encontrada.</p>

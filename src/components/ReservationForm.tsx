@@ -78,7 +78,6 @@ const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
 
 const onSubmit = async (data: FormValues) => {
   try {
-    console.log('Iniciando salvamento da reserva...', data); // Log para debug
 
     const reservationData = {
       name: data.name,
@@ -92,11 +91,8 @@ const onSubmit = async (data: FormValues) => {
       createdAt: Timestamp.now(),
     };
 
-    console.log('Dados formatados:', reservationData); // Log para debug
 
     const docRef = await addDoc(collection(db, 'reservations'), reservationData);
-    console.log('Documento criado com ID:', docRef.id); // Log para debug
-
     toast({
       title: 'Reserva realizada com sucesso!',
       description: `${data.name}, sua reserva para ${data.guests} no dia ${format(data.date, 'PP', { locale: pt })} às ${data.time} foi confirmada.`,

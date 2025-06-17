@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ export default function AboutSection({ title, description, images, spaceImages, 
     spaceImages: spaceImages || []
   });
 
-  // Carregar dados do Firebase
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,7 +47,6 @@ export default function AboutSection({ title, description, images, spaceImages, 
         console.error('Erro ao carregar dados sobre:', error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -59,7 +56,6 @@ export default function AboutSection({ title, description, images, spaceImages, 
     
     try {
       const success = await saveAboutSettings(formData);
-      
       if (success) {
         onSave(formData);
         toast({
@@ -82,10 +78,21 @@ export default function AboutSection({ title, description, images, spaceImages, 
   };
 
   const addImage = (type: 'images' | 'spaceImages') => {
-    setFormData(prev => ({
-      ...prev,
-      [type]: [...prev[type], '']
-    }));
+    setFormData(prev => {
+      const limit = type === 'images' ? 5 : 6;
+      if (prev[type].length >= limit) {
+        toast({
+          title: "Limite atingido",
+          description: `Máximo de ${limit} imagens permitido.`,
+          variant: "destructive",
+        });
+        return prev;
+      }
+      return {
+        ...prev,
+        [type]: [...prev[type], '']
+      };
+    });
   };
 
   const updateImage = (type: 'images' | 'spaceImages', index: number, url: string) => {
@@ -107,7 +114,6 @@ export default function AboutSection({ title, description, images, spaceImages, 
       <Card>
         <CardContent className="p-6">
           <h3 className="text-xl font-semibold mb-4">Informações Gerais</h3>
-          
           <div className="space-y-4">
             <div>
               <Label htmlFor="about-title">Título da Seção</Label>
@@ -118,7 +124,6 @@ export default function AboutSection({ title, description, images, spaceImages, 
                 placeholder="Título da seção sobre"
               />
             </div>
-
             <div>
               <Label htmlFor="about-description">Descrição</Label>
               <Textarea
@@ -135,33 +140,17 @@ export default function AboutSection({ title, description, images, spaceImages, 
 
       <Card>
         <CardContent className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Galeria de Imagens</h3>
-          
+          <h3 className="text-xl font-semibold mb-4">Galeria de Imagens ( Max 05 )</h3>
           <div className="space-y-4">
             {formData.images.map((image, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <div className="flex-1">
-                  <ImageUpload
-                    value={image}
-                    onChange={(url) => updateImage('images', index, url)}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => removeImage('images', index)}
-                >
+                <ImageUpload value={image} onChange={(url) => updateImage('images', index, url)} />
+                <Button type="button" variant="destructive" size="sm" onClick={() => removeImage('images', index)}>
                   Remover
                 </Button>
               </div>
             ))}
-            
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addImage('images')}
-            >
+            <Button type="button" variant="outline" onClick={() => addImage('images')}>
               Adicionar Imagem
             </Button>
           </div>
@@ -170,33 +159,17 @@ export default function AboutSection({ title, description, images, spaceImages, 
 
       <Card>
         <CardContent className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Conheça Nosso Espaço</h3>
-          
+          <h3 className="text-xl font-semibold mb-4">Conheça Nosso Espaço ( Max 06 )</h3>
           <div className="space-y-4">
             {formData.spaceImages.map((image, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <div className="flex-1">
-                  <ImageUpload
-                    value={image}
-                    onChange={(url) => updateImage('spaceImages', index, url)}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => removeImage('spaceImages', index)}
-                >
+                <ImageUpload value={image} onChange={(url) => updateImage('spaceImages', index, url)} />
+                <Button type="button" variant="destructive" size="sm" onClick={() => removeImage('spaceImages', index)}>
                   Remover
                 </Button>
               </div>
             ))}
-            
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addImage('spaceImages')}
-            >
+            <Button type="button" variant="outline" onClick={() => addImage('spaceImages')}>
               Adicionar Foto do Espaço
             </Button>
           </div>

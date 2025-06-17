@@ -8,7 +8,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { Image, Plus, Trash2, Camera } from 'lucide-react';
-
+import { getStorage, uploadString, getDownloadURL , ref } from 'firebase/storage';
 interface ConhecaFoto {
   id: string;
   url: string;
@@ -19,27 +19,25 @@ export default function ConhecaNosManager() {
   const [fotos, setFotos] = useState<ConhecaFoto[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [novaFoto, setNovaFoto] = useState<string>('');
+  const storage = getStorage();
 
   const fetchFotos = async () => {
     try {
-      console.log('Buscando fotos do Conheça Nosso Espaço...');
       const fotosCollection = collection(db, 'conheca-nos');
       const snapshot = await getDocs(fotosCollection);
-      console.log('Documentos encontrados:', snapshot.docs.length);
-      
+
       const fotosList = snapshot.docs.map(doc => ({
         id: doc.id,
         url: doc.data().url || ''
       }));
-      
-      console.log('Fotos carregadas:', fotosList);
+
       setFotos(fotosList);
     } catch (error) {
       console.error('Erro ao buscar fotos:', error);
-      toast({ 
-        title: 'Erro', 
-        description: 'Não foi possível carregar as fotos.', 
-        variant: 'destructive' 
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar as fotos.',
+        variant: 'destructive'
       });
     }
   };
@@ -49,63 +47,50 @@ export default function ConhecaNosManager() {
   }, []);
 
   const handleAddFoto = async () => {
-    if (!novaFoto) {
-      toast({ 
-        title: 'Erro', 
-        description: 'Por favor, adicione uma imagem.', 
-        variant: 'destructive' 
-      });
+    if (!novaFoto || typeof novaFoto !== 'string') {
+      toast({ title: 'Erro', description: 'Imagem inválida.', variant: 'destructive' });
       return;
     }
-    
+
     setIsSaving(true);
     try {
-      console.log('Adicionando nova foto:', novaFoto.length, 'caracteres');
-      const fotosCollection = collection(db, 'conheca-nos');
-      const docRef = await addDoc(fotosCollection, { 
-        url: novaFoto,
+      // Opcional: enviar para Storage
+      const imgRef = ref(storage, `conheca-nos/${Date.now()}`);
+      await uploadString(imgRef, novaFoto, 'data_url');
+      const url = await getDownloadURL(imgRef);
+
+      const docRef = await addDoc(collection(db, 'conheca-nos'), {
+        url,
         createdAt: new Date()
       });
-      
-      console.log('Foto adicionada com ID:', docRef.id);
-      
-      const novaFotoObj = { id: docRef.id, url: novaFoto };
-      setFotos(prev => [...prev, novaFotoObj]);
+      setFotos(prev => [...prev, { id: docRef.id, url }]);
       setNovaFoto('');
-      
-      toast({ 
-        title: 'Sucesso', 
-        description: 'Foto adicionada com sucesso!' 
-      });
+      toast({ title: 'Sucesso', description: 'Foto adicionada!' });
     } catch (error) {
       console.error('Erro ao adicionar foto:', error);
-      toast({ 
-        title: 'Erro', 
-        description: 'Não foi possível adicionar a foto.', 
-        variant: 'destructive' 
-      });
+      toast({ title: 'Erro', description: 'Não foi possível adicionar.', variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
   };
 
+
   const handleDeleteFoto = async (id: string) => {
     if (!confirm('Tem certeza que deseja remover esta foto?')) return;
-    
+
     try {
-      console.log('Removendo foto com ID:', id);
       await deleteDoc(doc(db, 'conheca-nos', id));
       setFotos(prev => prev.filter(f => f.id !== id));
-      toast({ 
-        title: 'Sucesso', 
-        description: 'Foto removida com sucesso!' 
+      toast({
+        title: 'Sucesso',
+        description: 'Foto removida com sucesso!'
       });
     } catch (error) {
       console.error('Erro ao remover foto:', error);
-      toast({ 
-        title: 'Erro', 
-        description: 'Não foi possível remover a foto.', 
-        variant: 'destructive' 
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível remover a foto.',
+        variant: 'destructive'
       });
     }
   };
@@ -118,7 +103,7 @@ export default function ConhecaNosManager() {
     >
       <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50">
         <CardHeader className="pb-6">
-          <motion.div 
+          <motion.div
             className="flex items-center gap-3"
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -137,9 +122,8 @@ export default function ConhecaNosManager() {
             </div>
           </motion.div>
         </CardHeader>
-        
         <CardContent className="space-y-8">
-          <motion.div 
+          <motion.div
             className="space-y-6"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -150,7 +134,7 @@ export default function ConhecaNosManager() {
                 <Plus className="w-5 h-5 text-blue-600" />
                 <h3 className="text-lg font-semibold text-slate-800">Adicionar Nova Foto</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="relative">
                   <ImageUpload
@@ -159,9 +143,9 @@ export default function ConhecaNosManager() {
                     label=""
                   />
                 </div>
-                
-                <Button 
-                  onClick={handleAddFoto} 
+
+                <Button
+                  onClick={handleAddFoto}
                   disabled={isSaving || !novaFoto}
                   className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
@@ -179,8 +163,8 @@ export default function ConhecaNosManager() {
               </div>
             </div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="space-y-4"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -192,21 +176,21 @@ export default function ConhecaNosManager() {
                 Galeria Atual ({fotos.length} {fotos.length === 1 ? 'foto' : 'fotos'})
               </h3>
             </div>
-            
+
             {fotos.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {fotos.map((foto, index) => (
-                  <motion.div 
-                    key={foto.id} 
+                  <motion.div
+                    key={foto.id}
                     className="relative group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 * index }}
                   >
                     <div className="aspect-square overflow-hidden">
-                      <img 
-                        src={foto.url} 
-                        alt="Foto Conheça Nosso Espaço" 
+                      <img
+                        src={foto.url}
+                        alt="Foto Conheça Nosso Espaço"
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>
@@ -226,7 +210,7 @@ export default function ConhecaNosManager() {
                 ))}
               </div>
             ) : (
-              <motion.div 
+              <motion.div
                 className="text-center py-12 bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl border-2 border-dashed border-slate-200"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

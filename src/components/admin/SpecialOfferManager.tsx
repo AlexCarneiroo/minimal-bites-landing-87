@@ -65,31 +65,25 @@ export default function SpecialOfferManager() {
     setIsSaving(true);
 
     try {
-      console.log('Iniciando salvamento da oferta...', currentOffer);
+      // Testar conexão com Firebase
+      if (!db) throw new Error('Conexão com o banco de dados não está disponível');
 
-      // Verificar se o Firebase está inicializado
-      if (!db) {
-        console.error('Firebase não está inicializado');
-        throw new Error('Conexão com o banco de dados não está disponível');
+      const offersCollection = collection(db, 'special-offers');
+
+      // Verificar limite de 4 ofertas se for uma nova
+      if (!currentOffer.id) {
+        const snapshot = await getDocs(offersCollection);
+        const offerCount = snapshot.size;
+
+        if (offerCount >= 4) {
+          throw new Error('Limite de 4 ofertas atingido. Exclua uma para adicionar outra.');
+        }
       }
 
-      // Testar conexão com o Firebase
-      try {
-        const testCollection = collection(db, 'test');
-        await addDoc(testCollection, { test: true });
-        console.log('Teste de conexão com Firebase bem sucedido');
-      } catch (error) {
-        console.error('Erro no teste de conexão com Firebase:', error);
-        throw new Error('Não foi possível conectar ao banco de dados');
-      }
-
-      // Validar dados antes de salvar
+      // Validar dados obrigatórios
       if (!currentOffer.name || !currentOffer.description || !currentOffer.regularPrice) {
         throw new Error('Por favor, preencha todos os campos obrigatórios');
       }
-
-      const offersCollection = collection(db, 'special-offers');
-      console.log('Referência da coleção criada');
 
       const dataToSave = {
         name: currentOffer.name.trim(),
@@ -103,32 +97,23 @@ export default function SpecialOfferManager() {
         updatedAt: serverTimestamp()
       };
 
-      console.log('Dados formatados para salvar:', dataToSave);
-
       let docRef;
+
       if (currentOffer.id) {
-        // Atualizar oferta existente
+        // Atualização
         const offerDoc = doc(db, 'special-offers', currentOffer.id);
         await setDoc(offerDoc, { ...dataToSave, updatedAt: serverTimestamp() }, { merge: true });
         docRef = { id: currentOffer.id };
-        console.log('Oferta atualizada com ID:', currentOffer.id);
       } else {
-        // Criar nova oferta
-        try {
-          docRef = await addDoc(offersCollection, dataToSave);
-          console.log('Nova oferta criada com ID:', docRef.id);
-        } catch (error) {
-          console.error('Erro ao criar documento:', error);
-          throw new Error('Falha ao criar nova oferta no banco de dados');
-        }
+        // Criação
+        docRef = await addDoc(offersCollection, dataToSave);
       }
 
-      // Verificar se o documento foi realmente criado/atualizado
       if (!docRef.id) {
         throw new Error('Falha ao salvar a oferta no banco de dados');
       }
 
-      // Atualizar o estado local
+      // Atualizar estado local
       if (currentOffer.id) {
         setOffers(prev => prev.map(offer =>
           offer.id === currentOffer.id ? { ...dataToSave, id: currentOffer.id } : offer
@@ -137,7 +122,7 @@ export default function SpecialOfferManager() {
         setOffers(prev => [...prev, { ...dataToSave, id: docRef.id }]);
       }
 
-      // Limpar o formulário
+      // Resetar formulário
       setCurrentOffer({
         id: '',
         name: '',
@@ -154,26 +139,23 @@ export default function SpecialOfferManager() {
         description: "A oferta foi salva com sucesso",
       });
 
-      // Recarregar as ofertas após salvar
       await fetchOffers();
     } catch (error) {
-      console.error("Erro detalhado ao salvar oferta:", error);
-      
-      // Mensagem de erro mais específica
-      let errorMessage = 'Não foi possível salvar a oferta';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
+      console.error("Erro ao salvar oferta:", error);
 
       toast({
         title: "Erro ao salvar",
-        description: errorMessage,
+        description:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível salvar a oferta",
         variant: "destructive",
       });
     } finally {
       setIsSaving(false);
     }
   };
+
 
 
   const handleEdit = (offer: SpecialOffer) => {

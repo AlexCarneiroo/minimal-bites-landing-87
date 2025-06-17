@@ -120,7 +120,6 @@ export default function FeedbackManager({ enabled, onSave }: FeedbackManagerProp
   const loadFeedbacks = async () => {
     try {
       const feedbackList = await getFeedbacks();
-      console.log('Raw feedback data:', feedbackList);
       
       const formattedFeedbacks = feedbackList.map((feedback: any) => ({
         id: feedback.id || '',
@@ -130,7 +129,6 @@ export default function FeedbackManager({ enabled, onSave }: FeedbackManagerProp
         image: feedback.image || ''
       }));
       
-      console.log('Formatted feedbacks:', formattedFeedbacks);
       setFeedbacks(formattedFeedbacks);
     } catch (error) {
       console.error('Erro ao buscar feedbacks:', error);

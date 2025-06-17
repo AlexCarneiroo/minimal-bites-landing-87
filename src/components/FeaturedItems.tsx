@@ -236,7 +236,7 @@ const FeaturedItems = () => {
           ))}
         </div>
         
-        <div className="text-center mt-8 lg:mt-12">
+{/*         <div className="text-center mt-8 lg:mt-12">
           <a 
             href="#menu-full" 
             className="inline-block border-b-2 font-medium hover:opacity-80 transition-all duration-300"
@@ -247,7 +247,7 @@ const FeaturedItems = () => {
           >
             Ver menu completo
           </a>
-        </div>
+        </div> */}
       </div>
     </section>
   );

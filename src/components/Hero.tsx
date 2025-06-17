@@ -11,8 +11,10 @@ const Hero = () => {
   const { data: establishmentData, loading } = useEstablishmentData();
   const primaryColor = settings?.primaryColor || '#0066cc';
 
+  const typeEstabelecimento = establishmentData?.type || 'Outro';
+  
   // Usar dados do estabelecimento se disponíveis, senão usar dados padrão
-  const establishmentName = establishmentData?.name || settings?.establishmentData?.name || 'Paizam';
+  const establishmentName = establishmentData?.name || settings?.establishmentData?.name || '';
   
   // Para a imagem do produto em destaque, usar apenas os dados específicos do featured product
   const featuredProductImage = establishmentData?.featuredProduct?.image || 
@@ -47,7 +49,7 @@ const Hero = () => {
                 }}
               >
                 <ChefHat className="h-4 w-4" style={{ color: primaryColor }} />
-                <span className="font-medium">Culinária Premium</span>
+                <span className="font-medium">{typeEstabelecimento}</span>
               </Badge>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in break-words" style={{ animationDelay: "100ms" }}>

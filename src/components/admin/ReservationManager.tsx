@@ -63,7 +63,6 @@ export default function ReservationManager() {
       const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => {
         const d = doc.data();
-        console.log('Dados brutos do Firebase:', d); // Debug
 
         // Garantir que todos os campos sejam strings ou números
         const reservation: Reservation = {
@@ -79,7 +78,6 @@ export default function ReservationManager() {
           createdAt: formatDate(d.createdAt)
         };
 
-        console.log('Dados formatados:', reservation); // Debug
         return reservation;
       });
       setReservations(data);

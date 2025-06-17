@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  Mail, 
-  Phone, 
+import {
+  Clock,
+  Mail,
+  Phone,
   MapPin,
   Facebook,
   Instagram,
@@ -11,6 +11,14 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -23,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { saveGeneralSettings, getGeneralSettings } from '@/lib/firebase-operations';
 
 interface EstablishmentData {
+  type?: string; // 👈 novo campo
   name: string;
   description: string;
   address: string;
@@ -55,6 +64,7 @@ interface EstablishmentData {
 }
 
 const defaultEstablishmentData: EstablishmentData = {
+  type: '', // 👈 novo campo
   name: '',
   description: '',
   address: '',
@@ -172,10 +182,10 @@ export default function GeneralSettings() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     try {
       const success = await saveGeneralSettings(establishmentData);
-      
+
       if (success) {
         toast({
           title: "Configurações salvas",
@@ -201,7 +211,7 @@ export default function GeneralSettings() {
       <Card>
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold mb-6">Informações do Estabelecimento</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
@@ -245,6 +255,26 @@ export default function GeneralSettings() {
                   placeholder="https://maps.google.com/..."
                 />
               </div>
+              <div>
+                <Label htmlFor="type">Tipo de Estabelecimento</Label>
+                <Select
+                  value={establishmentData.type || ""}
+                  onValueChange={(value) => updateEstablishmentData("type", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Lanchonete">Lanchonete</SelectItem>
+                    <SelectItem value="Restaurante">Restaurante</SelectItem>
+                    <SelectItem value="Pizzaria">Pizzaria</SelectItem>
+                    <SelectItem value="Cafeteria">Cafeteria</SelectItem>
+                    <SelectItem value="Sorveteria">Sorveteria</SelectItem>
+                    <SelectItem value="Outro">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
             </div>
 
             <div className="space-y-4">
@@ -295,7 +325,7 @@ export default function GeneralSettings() {
       <Card>
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold mb-6">Produto em Destaque</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
@@ -350,7 +380,7 @@ export default function GeneralSettings() {
       <Card>
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold mb-6">Visibilidade das Seções</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="flex items-center space-x-3">
@@ -394,7 +424,7 @@ export default function GeneralSettings() {
       <Card>
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold mb-6">Horário de Funcionamento</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <Label htmlFor="weekdays">Dias de Semana</Label>
@@ -432,7 +462,7 @@ export default function GeneralSettings() {
       <Card>
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold mb-6">Redes Sociais</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Label htmlFor="facebook">Facebook</Label>
@@ -478,9 +508,9 @@ export default function GeneralSettings() {
       </Card>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isSaving}>
+        <button type="submit" disabled={isSaving}>
           {isSaving ? "Salvando..." : "Salvar Alterações"}
-        </Button>
+        </button>
       </div>
     </form>
   );

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { getGeneralSettings } from '@/lib/firebase-operations';
 
 interface EstablishmentData {
+  type?: string;
   name: string;
   description: string;
   address: string;
@@ -42,7 +43,6 @@ export function useEstablishmentData() {
         
         if (generalSettings) {
           setData(generalSettings as EstablishmentData);
-          console.log('Dados do estabelecimento carregados:', generalSettings);
         }
       } catch (error) {
         console.error('Erro ao buscar dados do estabelecimento:', error);
