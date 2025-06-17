@@ -9,9 +9,14 @@ import Footer from '@/components/Footer';
 import Gallery from '@/components/Gallery';
 import Delivery from '@/components/Delivery';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const Index = () => {
-  const { settings } = useSiteSettings();
+  const { settings, loading } = useSiteSettings();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
   
   const showFeaturedItems = settings?.sectionVisibility?.featuredItems !== false;
   const showTestimonials = settings?.sectionVisibility?.testimonials !== false;

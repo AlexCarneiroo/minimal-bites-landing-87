@@ -5,6 +5,7 @@ import { getAppearanceSettings, getGeneralSettings } from '@/lib/firebase-operat
 
 interface SiteSettingsContextType {
   settings: SiteSettings | null;
+  loading: boolean;
   updateSettings: (newSettings: Partial<SiteSettings>) => Promise<void>;
   refreshSettings: () => Promise<void>;
 }
@@ -13,9 +14,11 @@ const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(u
 
 export function SiteSettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadSettings = async () => {
     try {
+      setLoading(true);
       // Carregar configurações de aparência e gerais do Firebase
       const [appearanceData, generalData] = await Promise.all([
         getAppearanceSettings(),
@@ -39,8 +42,10 @@ export function SiteSettingsProvider({ children }: { children: React.ReactNode }
       if (combinedSettings.primaryColor) {
         document.documentElement.style.setProperty('--primary', combinedSettings.primaryColor);
       }
+      setLoading(false);
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);
+      setLoading(false);
     }
   };
 
@@ -67,7 +72,7 @@ export function SiteSettingsProvider({ children }: { children: React.ReactNode }
   };
 
   return (
-    <SiteSettingsContext.Provider value={{ settings, updateSettings, refreshSettings }}>
+    <SiteSettingsContext.Provider value={{ settings, loading, updateSettings, refreshSettings }}>
       {children}
     </SiteSettingsContext.Provider>
   );
