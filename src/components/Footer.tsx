@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Utensils, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { getFooterSettings, getGeneralSettings } from '@/lib/firebase-operations';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 interface FooterData {
   logo?: string;
@@ -21,6 +22,9 @@ interface FooterData {
 const Footer = () => {
   const [footerData, setFooterData] = useState<FooterData>({});
   const [generalData, setGeneralData] = useState<any>({});
+
+  const { settings } = useSiteSettings();
+  const primariColor = settings?.primaryColor || '';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,7 +69,7 @@ const Footer = () => {
             ) : (
               <Utensils className="w-6 h-6 text-white" />
             )}
-            <span className="font-bold text-xl">{displayName}</span>
+            <span className="font-bold text-xl" style={{ color: primariColor }}>{displayName}</span>
           </div>
 
           {displayDescription && (

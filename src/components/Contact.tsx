@@ -1,9 +1,11 @@
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail, Star } from 'lucide-react';
 import { useEstablishmentData } from '@/hooks/useEstablishmentData';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const Contact = () => {
   const { data: establishmentData, loading } = useEstablishmentData();
-
+  const { settings } = useSiteSettings();
+  const primaryColor = settings?.primaryColor || '';
   const defaultData = {
     address: 'Rua das Delícias, 123, Centro, São Paulo',
     phone: '(11) 99999-9999',
@@ -35,6 +37,15 @@ const Contact = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-4">Entre em Contato</h2>
+          <div className="flex justify-center items-center gap-2 mb-4">
+            <div className="h-[1px] w-10 bg-snackbar-gray"></div>
+            <Star
+              className="w-5 h-5"
+              style={{ color: primaryColor }}
+              fill="currentColor"
+            />
+            <div className="h-[1px] w-10 bg-snackbar-gray"></div>
+          </div>{" "}
           <p className="text-snackbar-gray max-w-xl mx-auto">
             Estamos ansiosos para ouvir você. Entre em contato conosco ou visite-nos pessoalmente!
           </p>
@@ -46,7 +57,7 @@ const Contact = () => {
             <div className="space-y-8">
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-4 rounded-full shadow-md">
-                  <MapPin className="w-6 h-6 text-snackbar-blue" />
+                  <MapPin className="w-6 h-6 " style={{ color: primaryColor }} />
                 </div>
                 <div>
                   <h4 className="font-medium text-snackbar-dark text-xl">Endereço</h4>
@@ -56,7 +67,7 @@ const Contact = () => {
 
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-4 rounded-full shadow-md">
-                  <Phone className="w-6 h-6 text-snackbar-blue" />
+                  <Phone className="w-6 h-6 " style={{ color: primaryColor }} />
                 </div>
                 <div>
                   <h4 className="font-medium text-snackbar-dark text-xl">Telefone</h4>
@@ -66,7 +77,7 @@ const Contact = () => {
 
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-4 rounded-full shadow-md">
-                  <Mail className="w-6 h-6 text-snackbar-blue" />
+                  <Mail className="w-6 h-6" style={{ color: primaryColor }} />
                 </div>
                 <div>
                   <h4 className="font-medium text-snackbar-dark text-xl">Email</h4>
