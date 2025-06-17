@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -198,12 +197,10 @@ const Admin = () => {
   const tabs = [
     { value: "general", label: "Geral", icon: LayoutDashboard },
     { value: "appearance", label: "Aparência", icon: Palette },
-    { value: "featured-product", label: "Produto", icon: Star },
     { value: "reservations", label: "Reservas", icon: Calendar },
     { value: "special-offers", label: "Ofertas", icon: Tag },
     { value: "feedbacks", label: "Feedbacks", icon: MessageCircle },
     { value: "about", label: "Sobre", icon: Info },
-    { value: "gallery", label: "Galeria", icon: Camera },
   ];
 
   return (
@@ -219,7 +216,7 @@ const Admin = () => {
             transition={{ duration: 0.6 }}
             className="mb-8"
           >
-            <TabsList className="grid w-full grid-cols-8 gap-2 p-2 bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 h-auto">
+            <TabsList className="grid w-full grid-cols-6 gap-2 p-2 bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 h-auto">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -260,19 +257,6 @@ const Admin = () => {
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl"
                 >
                   <AppearanceSettings />
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="featured-product">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
-                >
-                  <h2 className="text-2xl font-bold">Produto em Destaque</h2>
-                  <FeaturedProductSettings />
                 </motion.div>
               </TabsContent>
 
@@ -373,23 +357,6 @@ const Admin = () => {
                         spaceImages={aboutData.spaceImages}
                         onSave={handleUpdateAbout}
                       />
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="gallery">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
-                >
-                  <h2 className="text-2xl font-bold">Galeria de Imagens</h2>
-                  <Card className="bg-white/80 backdrop-blur-md">
-                    <CardContent className="p-4">
-                      <ConhecaNosManager />
                     </CardContent>
                   </Card>
                 </motion.div>
