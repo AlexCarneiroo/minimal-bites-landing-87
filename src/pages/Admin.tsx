@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -15,7 +16,7 @@ import {
   Tag, 
   MessageCircle, 
   Info, 
-  SquareKanban 
+  Camera 
 } from "lucide-react";
 import AdminLogin from '@/components/AdminLogin';
 import AdminHeader from '@/components/admin/AdminHeader';
@@ -26,12 +27,11 @@ import SpecialOfferEditor from '@/components/SpecialOfferEditor';
 import FeedbackManager from '@/components/admin/FeedbackManager';
 import AboutSection from '@/components/admin/AboutSection';
 import FeaturedProductSettings from '@/components/admin/FeaturedProductSettings';
+import ConhecaNosManager from '@/components/admin/ConhecaNosManager';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
-import FooterSettings from '@/components/admin/FooterSettings';
 import { Button } from "@/components/ui/button";
-import { saveFooterSettings, getFooterSettings } from '@/lib/firebase-operations';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,27 +54,6 @@ const Admin = () => {
     spaceImages: []
   });
 
-  const [footerData, setFooterData] = useState({
-    copyright: '© 2024 Todos os direitos reservados.',
-    companyName: 'Nome da Empresa',
-    additionalText: 'Texto adicional do footer'
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getFooterSettings();
-      if (data) {
-        setFooterData(data as {
-          copyright: string;
-          companyName: string;
-          additionalText: string;
-        });
-      }
-    };
-
-    fetchData();
-  }, []);
-
   useEffect(() => {
     const loadSettings = async () => {
       const settings = await getSiteSettings();
@@ -92,11 +71,6 @@ const Admin = () => {
         // Carregar ofertas especiais
         if (settings.specialOffers) {
           setSpecialOffers(settings.specialOffers);
-        }
-
-        // Carregar dados do footer
-        if (settings.footer) {
-          setFooterData(settings.footer);
         }
       }
     };
@@ -148,9 +122,6 @@ const Admin = () => {
           break;
         case 'special-offers':
           settings.specialOffers = specialOffers;
-          break;
-        case 'footer':
-          settings.footer = footerData;
           break;
       }
 
@@ -232,7 +203,7 @@ const Admin = () => {
     { value: "special-offers", label: "Ofertas", icon: Tag },
     { value: "feedbacks", label: "Feedbacks", icon: MessageCircle },
     { value: "about", label: "Sobre", icon: Info },
-    { value: "footer", label: "Footer", icon: SquareKanban },
+    { value: "gallery", label: "Galeria", icon: Camera },
   ];
 
   return (
@@ -407,7 +378,7 @@ const Admin = () => {
                 </motion.div>
               </TabsContent>
 
-              <TabsContent value="footer">
+              <TabsContent value="gallery">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -415,18 +386,10 @@ const Admin = () => {
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <h2 className="text-2xl font-bold">Configurações do Footer</h2>
+                  <h2 className="text-2xl font-bold">Galeria de Imagens</h2>
                   <Card className="bg-white/80 backdrop-blur-md">
                     <CardContent className="p-4">
-                      <FooterSettings
-                        footerData={footerData}
-                        onSave={async (data) => {
-                          const success = await saveFooterSettings(data);
-                          if (success) {
-                            setFooterData(data);
-                          }
-                        }}
-                      />
+                      <ConhecaNosManager />
                     </CardContent>
                   </Card>
                 </motion.div>

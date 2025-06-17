@@ -1,7 +1,9 @@
+
 import { useState, useRef } from 'react';
 import { Button } from './button';
 import { Label } from './label';
 import { uploadImageToStorage } from '@/lib/upload';
+import { Upload, X, Image } from 'lucide-react';
 
 interface ImageUploadProps {
   value: string;
@@ -34,15 +36,20 @@ export function ImageUpload({ value, onChange, label = 'Imagem' }: ImageUploadPr
     fileInputRef.current?.click();
   };
 
-  const handleRemove = () => {
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setPreview('');
     onChange('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <div className="flex items-center space-x-4">
+    <div className="space-y-3">
+      {label && <Label className="text-sm font-medium text-gray-700">{label}</Label>}
+      
+      <div className="flex flex-col space-y-3">
         <input
           type="file"
           ref={fileInputRef}
@@ -50,32 +57,49 @@ export function ImageUpload({ value, onChange, label = 'Imagem' }: ImageUploadPr
           accept="image/*"
           className="hidden"
         />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleClick}
-          disabled={uploading}
-        >
-          {uploading ? 'Enviando...' : 'Escolher Imagem'}
-        </Button>
-        {preview && (
-          <div className="relative w-20 h-20">
+        
+        {!preview ? (
+          <div 
+            onClick={handleClick}
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors"
+          >
+            <Image className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-600 mb-1">
+              {uploading ? 'Enviando...' : 'Clique para escolher uma imagem'}
+            </p>
+            <p className="text-xs text-gray-500">
+              PNG, JPG, GIF até 10MB
+            </p>
+          </div>
+        ) : (
+          <div className="relative inline-block">
             <img
               src={preview}
               alt="Preview"
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-32 object-cover rounded-lg border border-gray-200"
             />
             <Button
               type="button"
               variant="destructive"
               size="sm"
-              className="absolute -top-2 -right-2"
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0 bg-red-500 hover:bg-red-600"
               onClick={handleRemove}
             >
-              ×
+              <X className="w-3 h-3" />
             </Button>
           </div>
         )}
+        
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleClick}
+          disabled={uploading}
+          className="w-full"
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          {uploading ? 'Enviando...' : preview ? 'Trocar Imagem' : 'Escolher Imagem'}
+        </Button>
       </div>
     </div>
   );

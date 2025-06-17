@@ -13,7 +13,7 @@ const Checkbox = React.forwardRef<
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      "peer h-5 w-5 shrink-0 rounded-lg border-2 border-gray-300 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-primary/80 data-[state=checked]:text-white data-[state=checked]:border-primary transition-all duration-300 hover:border-primary/50 hover:shadow-md data-[state=checked]:shadow-lg relative overflow-hidden group",
+      "peer h-5 w-5 shrink-0 rounded-lg border-2 border-gray-300 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white data-[state=checked]:border-blue-500 transition-all duration-200 hover:border-blue-400 cursor-pointer",
       className
     )}
     {...props}
@@ -24,12 +24,11 @@ const Checkbox = React.forwardRef<
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
-        transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+        transition={{ duration: 0.2, type: "spring", stiffness: 200 }}
       >
-        <Check className="h-4 w-4 drop-shadow-sm" />
+        <Check className="h-3 w-3" />
       </motion.div>
     </CheckboxPrimitive.Indicator>
-    <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
   </CheckboxPrimitive.Root>
 ))
 Checkbox.displayName = CheckboxPrimitive.Root.displayName
