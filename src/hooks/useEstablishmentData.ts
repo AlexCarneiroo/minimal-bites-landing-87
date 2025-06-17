@@ -1,6 +1,5 @@
 
-import { useState, useEffect } from 'react';
-import { getGeneralSettings } from '@/lib/firebase-operations';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 interface EstablishmentData {
   type?: string;
@@ -32,27 +31,8 @@ interface EstablishmentData {
 }
 
 export function useEstablishmentData() {
-  const [data, setData] = useState<EstablishmentData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchEstablishmentData = async () => {
-      try {
-        // Buscar dados do general_settings que contém os dados do estabelecimento
-        const generalSettings = await getGeneralSettings();
-        
-        if (generalSettings) {
-          setData(generalSettings as EstablishmentData);
-        }
-      } catch (error) {
-        console.error('Erro ao buscar dados do estabelecimento:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEstablishmentData();
-  }, []);
+  const { settings, loading } = useSiteSettings();
+  const data = settings?.establishmentData ?? null;
 
   return { data, loading };
 }
