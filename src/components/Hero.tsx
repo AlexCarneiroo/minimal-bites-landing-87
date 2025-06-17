@@ -20,20 +20,6 @@ const Hero = () => {
   const featuredProductImage = establishmentData?.featuredProduct?.image || 
     "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800";
 
-  if (loading) {
-    return (
-      <section id="home" className="relative overflow-hidden">
-        <div className="bg-gradient-elegant text-white">
-          <div className="container mx-auto px-4 py-12 sm:py-20 md:py-32 max-w-7xl">
-            <div className="text-center">
-              <p className="text-gray-300">Carregando...</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section id="home" className="relative overflow-hidden">
       <div className="bg-gradient-elegant text-white">

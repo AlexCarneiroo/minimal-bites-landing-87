@@ -11,14 +11,19 @@ interface ColorPickerProps {
 
 const ColorPicker = ({ color, onChange, onSave }: ColorPickerProps) => {
   const [currentColor, setCurrentColor] = useState(color);
-  
+
   // Paleta de cores predefinidas
   const presetColors = [
-    '#0066cc', '#cc0000', '#009900', '#ff9900', 
+    '#0066cc', '#cc0000', '#009900', '#ff9900',
     '#9900cc', '#000000', '#ff6600', '#0099cc',
-    '#663399', '#339933', '#cc6600', '#3366ff'
+    '#663399', '#339933', '#cc6600', '#3366ff',
+    '#ff3366', '#33cccc', '#666666', '#993300',
+    '#003366', '#cc33ff', '#33cc33', '#ffcc00',
+    '#660000', '#006600', '#003300', '#330066',
+    '#ff0033', '#00cccc', '#9999ff', '#ff99cc'
   ];
-  
+
+
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentColor(e.target.value);
     onChange(e.target.value);
@@ -28,12 +33,12 @@ const ColorPicker = ({ color, onChange, onSave }: ColorPickerProps) => {
     setCurrentColor(presetColor);
     onChange(presetColor);
   };
-  
+
   // Sincronizar estado interno com prop externa
   useEffect(() => {
     setCurrentColor(color);
   }, [color]);
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -60,7 +65,7 @@ const ColorPicker = ({ color, onChange, onSave }: ColorPickerProps) => {
           Aplicar
         </Button>
       </div>
-      
+
       <div>
         <p className="text-sm text-gray-500 mb-2">Cores predefinidas</p>
         <div className="flex flex-wrap gap-2">
@@ -80,7 +85,7 @@ const ColorPicker = ({ color, onChange, onSave }: ColorPickerProps) => {
           ))}
         </div>
       </div>
-      
+
       <div className="mt-4">
         <p className="text-sm font-medium mb-2">Prévia</p>
         <div className="flex flex-col gap-2">
