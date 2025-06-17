@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -241,34 +240,39 @@ const Admin = () => {
       <AdminHeader onLogout={handleLogout} />
 
       <div className="container mx-auto p-6">
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex flex-col md:flex-row gap-6"
-        >
-          <TabsList className="flex md:flex-col w-full md:w-56 shrink-0 gap-2 overflow-x-auto md:overflow-visible p-4 bg-white/70 backdrop-blur-lg rounded-3xl shadow-xl">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all hover:bg-white/50 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:shadow-lg"
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {/* Menu horizontal no topo */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8"
+          >
+            <TabsList className="grid w-full grid-cols-8 gap-2 p-2 bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 h-auto">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl font-medium transition-all duration-300 hover:bg-blue-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-xs">{tab.label}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </motion.div>
 
-          <div className="flex-1">
+          {/* Conteúdo das abas */}
+          <div className="w-full">
             <AnimatePresence mode="wait">
               <TabsContent value="general">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl"
                 >
@@ -278,9 +282,9 @@ const Admin = () => {
 
               <TabsContent value="appearance">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl"
                 >
@@ -290,9 +294,9 @@ const Admin = () => {
 
               <TabsContent value="featured-product">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
@@ -303,9 +307,9 @@ const Admin = () => {
 
               <TabsContent value="reservations">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
@@ -320,9 +324,9 @@ const Admin = () => {
 
               <TabsContent value="special-offers">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
@@ -351,9 +355,9 @@ const Admin = () => {
 
               <TabsContent value="feedbacks">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
@@ -382,9 +386,9 @@ const Admin = () => {
 
               <TabsContent value="about">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
@@ -405,9 +409,9 @@ const Admin = () => {
 
               <TabsContent value="footer">
                 <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
