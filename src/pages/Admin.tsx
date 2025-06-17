@@ -8,7 +8,16 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { 
+  LayoutDashboard, 
+  Palette, 
+  Star, 
+  Calendar, 
+  Tag, 
+  MessageCircle, 
+  Info, 
+  SquareKanban 
+} from "lucide-react";
 import AdminLogin from '@/components/AdminLogin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import GeneralSettings from '@/components/admin/GeneralSettings';
@@ -25,9 +34,9 @@ import FooterSettings from '@/components/admin/FooterSettings';
 import { Button } from "@/components/ui/button";
 import { saveFooterSettings, getFooterSettings } from '@/lib/firebase-operations';
 
-
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeTab, setActiveTab] = useState("general");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -66,7 +75,6 @@ const Admin = () => {
 
     fetchData();
   }, []);
-
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -213,22 +221,6 @@ const Admin = () => {
     }
   };
 
-  const tabVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.95 }
-  };
-
-  if (!isAuthenticated) {
-    return <AdminLogin onLogin={handleLogin} />;
-  }
-
   if (!isAuthenticated) {
     return <AdminLogin onLogin={handleLogin} />;
   }
@@ -248,28 +240,29 @@ const Admin = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <AdminHeader onLogout={handleLogout} />
 
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="container mx-auto flex flex-col md:flex-row gap-6 py-6"
-        <TabsList className="flex md:flex-col w-full md:w-56 shrink-0 gap-2 overflow-x-auto md:overflow-visible p-4 bg-white/70 backdrop-blur-lg rounded-3xl shadow-xl">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all hover:bg-white/50 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:shadow-lg"
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+      <div className="container mx-auto p-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex flex-col md:flex-row gap-6"
+        >
+          <TabsList className="flex md:flex-col w-full md:w-56 shrink-0 gap-2 overflow-x-auto md:overflow-visible p-4 bg-white/70 backdrop-blur-lg rounded-3xl shadow-xl">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all hover:bg-white/50 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:shadow-lg"
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
 
-        <div className="flex-1">
-
+          <div className="flex-1">
             <AnimatePresence mode="wait">
               <TabsContent value="general">
                 <motion.div
@@ -425,7 +418,7 @@ const Admin = () => {
                         footerData={footerData}
                         onSave={async (data) => {
                           const success = await saveFooterSettings(data);
-                          if (!success) {
+                          if (success) {
                             setFooterData(data);
                           }
                         }}
@@ -435,9 +428,9 @@ const Admin = () => {
                 </motion.div>
               </TabsContent>
             </AnimatePresence>
-          </Tabs>
-        </motion.div>
-      </main>
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 };
