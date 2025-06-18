@@ -56,15 +56,15 @@ const Hero = () => {
               
               <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start px-4 lg:px-0">
                 <ReservationDialog>
-                  <Button 
-                    className="animate-fade-in w-full sm:w-auto text-white hover:opacity-90"
+                  <button 
+                    className="animate-fade-in rounded-xl px-6 py-[10px] w-full sm:w-auto text-white hover:opacity-90"
                     style={{ 
                       animationDelay: "400ms",
                       backgroundColor: primaryColor
                     }}
                   >
                     Fazer Reserva
-                  </Button>
+                  </button>
                 </ReservationDialog>
                 <Button 
                   variant="outline" 

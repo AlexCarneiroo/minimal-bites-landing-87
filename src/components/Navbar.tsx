@@ -125,14 +125,13 @@ const Navbar = () => {
 
           {/* Order Button - Desktop */}
           <div className="hidden md:flex items-center">
-            <Button
-              className="text-white rounded-full px-6 hover:opacity-90"
+            <button
+              className="text-white rounded-full px-6 py-[10px] hover:opacity-90"
               style={{ backgroundColor: primaryColor }}
               onClick={() => window.open(menuUrl, '_blank')}
-
             >
               Fazer Pedido
-            </Button>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}

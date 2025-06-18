@@ -83,13 +83,13 @@ const Delivery = () => {
         </div>
         
         <div className="text-center">
-          <Button 
-            className="text-white text-lg px-10 py-6 hover:opacity-90"
+          <button 
+            className="text-white rounded-xl text-lg px-10 py-[10px] hover:opacity-90"
             style={{ backgroundColor: primaryColor }}
             onClick={() => window.open(deliveryData.menuUrl, '_blank')}
           >
             Acessar Cardápio
-          </Button>
+          </button>
         </div>
       </div>
     </section>
