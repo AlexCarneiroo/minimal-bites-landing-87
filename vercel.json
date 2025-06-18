@@ -4,5 +4,17 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "/" }
-  ]
+  ],
+  "config": {
+    "framework": "vite",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "installCommand": "npm install",
+    "rewrites": [
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ]
+  }
 }
