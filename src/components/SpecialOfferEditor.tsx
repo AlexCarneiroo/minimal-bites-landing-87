@@ -89,7 +89,6 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
 
   useEffect(() => {
-    console.log('SpecialOfferEditor mounted, enabled:', enabled);
     if (enabled) {
       fetchProducts();
     }

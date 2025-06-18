@@ -40,7 +40,6 @@ export default function SpecialOfferManager() {
     try {
       const offersCollection = collection(db, 'products');
       const snapshot = await getDocs(offersCollection);
-      console.log('Snapshot:', snapshot.docs);
       const offersList = snapshot.docs.map(doc => ({
         id: doc.id,
         name: doc.data().name || '',
@@ -51,7 +50,6 @@ export default function SpecialOfferManager() {
         label: doc.data().label || null,
         image: doc.data().image || ''
       }));
-      console.log('Offers list:', offersList);
       setOffers(offersList);
     } catch (error) {
       console.error('Erro ao buscar ofertas:', error);
