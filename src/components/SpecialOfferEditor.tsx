@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,14 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { useRealtimeData } from "@/hooks/useRealtimeData";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { getSpecialOffers } from "@/lib/firebase-operations";
 import {
   Dialog,
   DialogContent,
@@ -36,11 +28,6 @@ interface Product {
   updatedAt?: Date;
 }
 
-const CATEGORIES = [
-  'Hambúrguer', 'Pizza', 'Bebida', 'Sorvete',
-  'Porção', 'Sobremesa', 'Combo', 'Outros'
-];
-
 interface SpecialOfferEditorProps {
   enabled: boolean;
   onSave: (data: any) => void;
@@ -48,7 +35,9 @@ interface SpecialOfferEditorProps {
 
 export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEditorProps) {
   const { toast } = useToast();
-  const { data: products, loading, error } = useRealtimeData<Product>('special_offers');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -64,10 +53,43 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
     image: ''
   });
 
+  // Função para buscar produtos usando a mesma lógica do FeaturedItems
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      console.log('Buscando ofertas especiais...');
+      const specialOffers = await getSpecialOffers();
+      console.log('Ofertas encontradas:', specialOffers);
+      
+      const productsData = specialOffers.map((offer: any) => ({
+        id: offer.id,
+        name: offer.name || offer.title,
+        description: offer.description,
+        regularPrice: offer.regularPrice || offer.price,
+        promoPrice: offer.promoPrice || offer.specialPrice,
+        discount: offer.discount,
+        label: offer.label,
+        image: offer.image,
+        createdAt: offer.createdAt,
+        updatedAt: offer.updatedAt
+      }));
+      
+      setProducts(productsData);
+      setError(null);
+    } catch (error) {
+      console.error('Erro ao buscar produtos:', error);
+      setError('Erro ao carregar produtos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     console.log('SpecialOfferEditor mounted, enabled:', enabled);
-    console.log('Products loaded:', products);
-  }, [enabled, products]);
+    if (enabled) {
+      fetchProducts();
+    }
+  }, [enabled]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,6 +136,9 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
       const result = await response.json();
       console.log('Product saved:', result);
+
+      // Recarregar os produtos após salvar
+      await fetchProducts();
 
       setFormData({
         name: '',
@@ -175,6 +200,9 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
         title: "Produto excluído",
         description: "O produto foi excluído com sucesso",
       });
+
+      // Recarregar os produtos após excluir
+      await fetchProducts();
       setDeleteTarget(null);
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
@@ -208,6 +236,9 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
     return (
       <div className="text-center py-8">
         <p className="text-destructive">Erro ao carregar produtos: {error}</p>
+        <Button onClick={fetchProducts} className="mt-4">
+          Tentar novamente
+        </Button>
       </div>
     );
   }
