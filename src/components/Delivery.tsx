@@ -9,7 +9,6 @@ const Delivery = () => {
   const { settings } = useSiteSettings();
   const primaryColor = settings?.primaryColor || '#0066cc';
 
-  // Dados padrão como fallback
   const defaultData = {
     phone: '(11) 9999-9999',
     menuUrl: 'https://www.saborexpress.com.br'
@@ -18,6 +17,14 @@ const Delivery = () => {
   const deliveryData = {
     phone: establishmentData?.phone || defaultData.phone,
     menuUrl: establishmentData?.menuUrl || defaultData.menuUrl
+  };
+
+  const handleMenuClick = () => {
+    try {
+      window.open(deliveryData.menuUrl, '_blank');
+    } catch (error) {
+      console.error('Erro ao abrir menu:', error);
+    }
   };
 
   if (loading) {
@@ -84,9 +91,9 @@ const Delivery = () => {
         
         <div className="text-center">
           <button 
-            className="text-white rounded-xl text-lg px-10 py-[10px] hover:opacity-90"
+            className="text-white rounded-xl text-lg px-10 py-[10px] hover:opacity-90 transition-opacity"
             style={{ backgroundColor: primaryColor }}
-            onClick={() => window.open(deliveryData.menuUrl, '_blank')}
+            onClick={handleMenuClick}
           >
             Acessar Cardápio
           </button>

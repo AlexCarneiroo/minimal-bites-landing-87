@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -14,8 +15,7 @@ import {
   Calendar, 
   Tag, 
   MessageCircle, 
-  Info, 
-  Camera 
+  Info 
 } from "lucide-react";
 import AdminLogin from '@/components/AdminLogin';
 import AdminHeader from '@/components/admin/AdminHeader';
@@ -25,11 +25,8 @@ import ReservationManager from '@/components/admin/ReservationManager';
 import SpecialOfferEditor from '@/components/SpecialOfferEditor';
 import FeedbackManager from '@/components/admin/FeedbackManager';
 import AboutSection from '@/components/admin/AboutSection';
-import FeaturedProductSettings from '@/components/admin/FeaturedProductSettings';
-import ConhecaNosManager from '@/components/admin/ConhecaNosManager';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
-import { getSiteSettings, saveSiteSettings, SiteSettings } from '@/lib/site-settings';
 import { Button } from "@/components/ui/button";
 
 const Admin = () => {
@@ -38,46 +35,6 @@ const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [specialOffers, setSpecialOffers] = useState({
-    enabled: true,
-    items: []
-  });
-  const [feedbacks, setFeedbacks] = useState({
-    enabled: true,
-    items: []
-  });
-  const [aboutData, setAboutData] = useState({
-    title: 'Sobre Nós',
-    description: 'Descrição da empresa',
-    images: [],
-    spaceImages: []
-  });
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      const settings = await getSiteSettings();
-      if (settings) {
-        // Carregar dados sobre
-        if (settings.about) {
-          setAboutData(settings.about);
-        }
-
-        // Carregar feedbacks
-        if (settings.feedbacks) {
-          setFeedbacks(settings.feedbacks);
-        }
-
-        // Carregar ofertas especiais
-        if (settings.specialOffers) {
-          setSpecialOffers(settings.specialOffers);
-        }
-      }
-    };
-
-    loadSettings();
-  }, []);
-
-  // Função simulando login
   const handleLogin = (username: string, password: string) => {
     if (username === 'admin' && password === 'admin') {
       setIsAuthenticated(true);
@@ -108,88 +65,6 @@ const Admin = () => {
     navigate('/');
   };
 
-  const handleSave = async (section: string) => {
-    try {
-      const settings: Partial<SiteSettings> = {};
-
-      switch (section) {
-        case 'about':
-          settings.about = aboutData;
-          break;
-        case 'feedbacks':
-          settings.feedbacks = feedbacks;
-          break;
-        case 'special-offers':
-          settings.specialOffers = specialOffers;
-          break;
-      }
-
-      await saveSiteSettings(settings);
-
-      toast({
-        title: "Alterações salvas",
-        description: `Seção ${section} atualizada com sucesso`,
-      });
-    } catch (error) {
-      console.error('Erro ao salvar:', error);
-      toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível salvar as alterações",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUpdateOffers = (newOffers: any) => {
-    setSpecialOffers(newOffers);
-    handleSave('special-offers');
-  };
-
-  const handleUpdateFeedbacks = (newFeedbacks: any) => {
-    setFeedbacks(newFeedbacks);
-    handleSave('feedbacks');
-  };
-
-  const handleUpdateAbout = (data: {
-    title: string;
-    description: string;
-    images: string[];
-    spaceImages: string[];
-  }) => {
-    setAboutData(data);
-    handleSave('about');
-  };
-
-  const toggleSection = async (section: 'feedbacks' | 'special-offers') => {
-    try {
-      const settings: Partial<SiteSettings> = {};
-
-      if (section === 'feedbacks') {
-        const newState = { ...feedbacks, enabled: !feedbacks.enabled };
-        setFeedbacks(newState);
-        settings.feedbacks = newState;
-      } else {
-        const newState = { ...specialOffers, enabled: !specialOffers.enabled };
-        setSpecialOffers(newState);
-        settings.specialOffers = newState;
-      }
-
-      await saveSiteSettings(settings);
-
-      toast({
-        title: "Seção atualizada",
-        description: `A seção foi ${settings[section]?.enabled ? 'habilitada' : 'desabilitada'} com sucesso`,
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar seção:', error);
-      toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar o estado da seção",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (!isAuthenticated) {
     return <AdminLogin onLogin={handleLogin} />;
   }
@@ -209,7 +84,6 @@ const Admin = () => {
 
       <div className="container mx-auto p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Menu horizontal no topo */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -233,7 +107,6 @@ const Admin = () => {
             </TabsList>
           </motion.div>
 
-          {/* Conteúdo das abas */}
           <div className="w-full">
             <AnimatePresence mode="wait">
               <TabsContent value="general">
@@ -285,23 +158,12 @@ const Admin = () => {
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold">Gerenciar Produtos</h2>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        variant={specialOffers.enabled ? "gradient" : "secondary"}
-                        onClick={() => toggleSection('special-offers')}
-                        className="text-white"
-                      >
-                        {specialOffers.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
-                      </Button>
-                    </motion.div>
-                  </div>
+                  <h2 className="text-2xl font-bold">Gerenciar Produtos</h2>
                   <Card className="bg-white/80 backdrop-blur-md">
                     <CardContent className="p-4">
                       <SpecialOfferEditor
-                        enabled={specialOffers.enabled}
-                        onSave={handleUpdateOffers}
+                        enabled={true}
+                        onSave={() => {}}
                       />
                     </CardContent>
                   </Card>
@@ -316,23 +178,12 @@ const Admin = () => {
                   transition={{ duration: 0.3 }}
                   className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl space-y-4"
                 >
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold">Gerenciar Feedbacks</h2>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        variant={feedbacks.enabled ? "gradient" : "secondary"}
-                        onClick={() => toggleSection('feedbacks')}
-                        className="text-white"
-                      >
-                        {feedbacks.enabled ? "Desabilitar Seção" : "Habilitar Seção"}
-                      </Button>
-                    </motion.div>
-                  </div>
+                  <h2 className="text-2xl font-bold">Gerenciar Feedbacks</h2>
                   <Card className="bg-white/80 backdrop-blur-md">
                     <CardContent className="p-4">
                       <FeedbackManager
-                        enabled={feedbacks.enabled}
-                        onSave={handleUpdateFeedbacks}
+                        enabled={true}
+                        onSave={() => {}}
                       />
                     </CardContent>
                   </Card>
@@ -351,11 +202,11 @@ const Admin = () => {
                   <Card className="bg-white/80 backdrop-blur-md">
                     <CardContent className="p-4">
                       <AboutSection
-                        title={aboutData.title}
-                        description={aboutData.description}
-                        images={aboutData.images}
-                        spaceImages={aboutData.spaceImages}
-                        onSave={handleUpdateAbout}
+                        title="Sobre Nós"
+                        description="Descrição da empresa"
+                        images={[]}
+                        spaceImages={[]}
+                        onSave={() => {}}
                       />
                     </CardContent>
                   </Card>

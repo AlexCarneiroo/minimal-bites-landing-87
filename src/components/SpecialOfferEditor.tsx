@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-
 import {
   Select,
   SelectContent,
@@ -21,17 +21,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { db } from '@/lib/firebase';
-import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  deleteDoc,
-  doc,
-  updateDoc
-} from 'firebase/firestore';
 
 interface Product {
   id?: string;
@@ -74,72 +63,74 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
   });
 
   useEffect(() => {
+    console.log('SpecialOfferEditor mounted, enabled:', enabled);
     loadProducts();
   }, []);
 
   const loadProducts = async () => {
-    const productsRef = collection(db, 'products');
-    const snapshot = await getDocs(productsRef);
-    const productsList = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Product[];
-    setProducts(productsList);
+    try {
+      console.log('Loading products...');
+      // Simulando carregamento de produtos
+      const mockProducts: Product[] = [
+        {
+          id: '1',
+          name: 'Hambúrguer Especial',
+          description: 'Delicioso hambúrguer com ingredientes especiais',
+          price: 25.99,
+          category: 'Hambúrguer',
+          image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800',
+          isSpecial: true,
+          specialPrice: 19.99
+        }
+      ];
+      setProducts(mockProducts);
+    } catch (error) {
+      console.error('Erro ao carregar produtos:', error);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-
     try {
-      const productsRef = collection(db, 'products');
-      if (!editingProduct?.id) {
-        const totalProductsSnap = await getDocs(productsRef);
-        if (totalProductsSnap.size >= 4) {
-          toast({
-            title: "Limite de produtos atingido",
-            description: "Você só pode cadastrar até 4 produtos.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
+      console.log('Submitting product:', formData);
+      
+      if (products.length >= 4 && !editingProduct?.id) {
+        toast({
+          title: "Limite de produtos atingido",
+          description: "Você só pode cadastrar até 4 produtos.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
       }
 
-
-      if (formData.isSpecial) {
-        const specialsQuery = query(productsRef, where("isSpecial", "==", true));
-        const snapshot = await getDocs(specialsQuery);
-        const specialCount = snapshot.docs.filter(doc => doc.id !== editingProduct?.id).length;
-
-        if (specialCount >= 4) {
-          toast({
-            title: "Limite de ofertas especiais atingido",
-            description: "Você só pode ter até 4 produtos com oferta especial ativa.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
+      const specialCount = products.filter(p => p.isSpecial && p.id !== editingProduct?.id).length;
+      if (formData.isSpecial && specialCount >= 4) {
+        toast({
+          title: "Limite de ofertas especiais atingido",
+          description: "Você só pode ter até 4 produtos com oferta especial ativa.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
       }
+
+      const newProduct = {
+        ...formData,
+        id: editingProduct?.id || Date.now().toString(),
+        createdAt: new Date()
+      };
 
       if (editingProduct?.id) {
-        const productRef = doc(db, 'products', editingProduct.id);
-        await updateDoc(productRef, {
-          ...formData,
-          updatedAt: new Date()
-        });
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? newProduct : p));
         toast({ title: "Produto atualizado", description: "O produto foi atualizado com sucesso" });
       } else {
-        await addDoc(productsRef, {
-          ...formData,
-          createdAt: new Date()
-        });
+        setProducts(prev => [...prev, newProduct]);
         toast({ title: "Produto adicionado", description: "O produto foi adicionado com sucesso" });
       }
 
-      await loadProducts();
       setFormData({
         name: '',
         description: '',
@@ -150,14 +141,8 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
         specialPrice: 0
       });
       setEditingProduct(null);
-
-      const freshProductsSnap = await getDocs(productsRef);
-      const freshProducts = freshProductsSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Product[];
-
-      onSave({ enabled, items: freshProducts });
+      
+      onSave({ enabled, items: products });
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
       toast({
@@ -178,13 +163,13 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    
     try {
-      await deleteDoc(doc(db, 'products', deleteTarget));
+      setProducts(prev => prev.filter(p => p.id !== deleteTarget));
       toast({
         title: "Produto excluído",
         description: "O produto foi excluído com sucesso",
       });
-      await loadProducts();
       setDeleteTarget(null);
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
@@ -251,7 +236,7 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                       type="number"
                       step="0.01"
                       value={formData.price}
-                      onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                     />
                   </div>
 
@@ -262,7 +247,7 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                       type="number"
                       step="0.01"
                       value={formData.specialPrice}
-                      onChange={(e) => setFormData(prev => ({ ...prev, specialPrice: parseFloat(e.target.value) }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, specialPrice: parseFloat(e.target.value) || 0 }))}
                     />
                   </div>
                 </div>
@@ -299,18 +284,22 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
                 <div className="flex justify-end space-x-2">
                   {editingProduct && (
-                    <Button type="button" variant="outline" onClick={() => {
-                      setEditingProduct(null);
-                      setFormData({
-                        name: '',
-                        description: '',
-                        price: 0,
-                        category: '',
-                        image: '',
-                        isSpecial: false,
-                        specialPrice: 0
-                      });
-                    }}>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => {
+                        setEditingProduct(null);
+                        setFormData({
+                          name: '',
+                          description: '',
+                          price: 0,
+                          category: '',
+                          image: '',
+                          isSpecial: false,
+                          specialPrice: 0
+                        });
+                      }}
+                    >
                       Cancelar Edição
                     </Button>
                   )}
@@ -330,9 +319,12 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                   <Card key={product.id} className="overflow-hidden">
                     <div className="aspect-video relative">
                       <img
-                        src={product.image || '/placeholder.png'}
+                        src={product.image || '/placeholder.svg'}
                         alt={product.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder.svg';
+                        }}
                       />
                       {product.isSpecial && (
                         <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">
@@ -360,8 +352,14 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                           )}
                         </div>
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>Editar</Button>
-                          <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(product.id || '')}>
+                          <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
+                            Editar
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            onClick={() => setDeleteTarget(product.id || '')}
+                          >
                             Excluir
                           </Button>
                         </div>
@@ -380,8 +378,12 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
               </DialogHeader>
               <p>Tem certeza que deseja excluir este produto? Esta ação não poderá ser desfeita.</p>
               <DialogFooter className="mt-4">
-                <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancelar</Button>
-                <Button variant="destructive" onClick={handleDelete}>Excluir</Button>
+                <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+                  Cancelar
+                </Button>
+                <Button variant="destructive" onClick={handleDelete}>
+                  Excluir
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
