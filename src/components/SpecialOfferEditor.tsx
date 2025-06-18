@@ -14,6 +14,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { collection, getDocs, doc, deleteDoc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
 
 interface Product {
   id?: string;
@@ -55,34 +58,35 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
   // Função para buscar produtos usando a mesma lógica do FeaturedItems
   const fetchProducts = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      console.log('Buscando ofertas especiais...');
-      const specialOffers = await getSpecialOffers();
-      console.log('Ofertas encontradas:', specialOffers);
-      
-      const productsData = specialOffers.map((offer: any) => ({
-        id: offer.id,
-        name: offer.name || offer.title,
-        description: offer.description,
-        regularPrice: offer.regularPrice || offer.price,
-        promoPrice: offer.promoPrice || offer.specialPrice,
-        discount: offer.discount,
-        label: offer.label,
-        image: offer.image,
-        createdAt: offer.createdAt,
-        updatedAt: offer.updatedAt
-      }));
-      
+      const productsCollection = collection(db, "products");
+      const snapshot = await getDocs(productsCollection);
+      const productsData: Product[] = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || "",
+          description: data.description || "",
+          regularPrice: data.regularPrice || 0,
+          promoPrice: data.promoPrice || 0,
+          discount: data.discount || "",
+          label: data.label || "",
+          image: data.image || "",
+          createdAt: data.createdAt ? data.createdAt.toDate?.() : undefined,
+          updatedAt: data.updatedAt ? data.updatedAt.toDate?.() : undefined,
+        };
+      });
       setProducts(productsData);
       setError(null);
     } catch (error) {
-      console.error('Erro ao buscar produtos:', error);
-      setError('Erro ao carregar produtos');
+      console.error("Erro ao buscar produtos:", error);
+      setError("Erro ao carregar produtos");
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     console.log('SpecialOfferEditor mounted, enabled:', enabled);
@@ -96,8 +100,6 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
     setIsLoading(true);
 
     try {
-      console.log('Submitting product:', formData);
-      
       if (products.length >= 4 && !editingProduct?.id) {
         toast({
           title: "Limite de produtos atingido",
@@ -115,47 +117,37 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
         promoPrice: formData.promoPrice ? Number(formData.promoPrice) : null,
         discount: formData.discount || null,
         label: formData.label || null,
-        image: formData.image || ''
+        image: formData.image || "",
+        updatedAt: serverTimestamp(),
+        ...(editingProduct ? {} : { createdAt: serverTimestamp() }),
       };
 
-      const response = await fetch('/api/special-offers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: editingProduct?.id,
-          ...productData
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao salvar produto');
+      if (editingProduct && editingProduct.id) {
+        // Atualiza produto existente
+        await setDoc(doc(db, "products", editingProduct.id), productData, { merge: true });
+      } else {
+        // Adiciona novo produto
+        await addDoc(collection(db, "products"), productData);
       }
 
-      const result = await response.json();
-      console.log('Product saved:', result);
-
-      // Recarregar os produtos após salvar
       await fetchProducts();
 
       setFormData({
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         regularPrice: 0,
         promoPrice: 0,
-        discount: '',
-        label: '',
-        image: ''
+        discount: "",
+        label: "",
+        image: "",
       });
       setEditingProduct(null);
-      
-      toast({ 
-        title: editingProduct ? "Produto atualizado" : "Produto adicionado", 
-        description: `O produto foi ${editingProduct ? 'atualizado' : 'adicionado'} com sucesso` 
+
+      toast({
+        title: editingProduct ? "Produto atualizado" : "Produto adicionado",
+        description: `O produto foi ${editingProduct ? "atualizado" : "adicionado"} com sucesso`
       });
-      
+
       onSave({ enabled, items: products });
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
@@ -168,6 +160,7 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
       setIsLoading(false);
     }
   };
+
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
@@ -185,24 +178,16 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    
-    try {
-      const response = await fetch(`/api/special-offers?id=${deleteTarget}`, {
-        method: 'DELETE',
-      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao excluir produto');
-      }
+    try {
+      await deleteDoc(doc(db, "products", deleteTarget));
 
       toast({
         title: "Produto excluído",
         description: "O produto foi excluído com sucesso",
       });
 
-      // Recarregar os produtos após excluir
-      await fetchProducts();
+      await fetchProducts(); // Atualiza a lista
       setDeleteTarget(null);
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
@@ -213,6 +198,7 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
       });
     }
   };
+
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -331,9 +317,9 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
                 <div className="flex justify-end space-x-2">
                   {editingProduct && (
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={() => {
                         setEditingProduct(null);
                         setFormData({
@@ -414,9 +400,9 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                             <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
                               Editar
                             </Button>
-                            <Button 
-                              variant="destructive" 
-                              size="sm" 
+                            <Button
+                              variant="destructive"
+                              size="sm"
                               onClick={() => setDeleteTarget(product.id || '')}
                             >
                               Excluir

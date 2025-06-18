@@ -38,8 +38,9 @@ export default function SpecialOfferManager() {
 
   const fetchOffers = async () => {
     try {
-      const offersCollection = collection(db, 'special-offers');
+      const offersCollection = collection(db, 'products');
       const snapshot = await getDocs(offersCollection);
+      console.log('Snapshot:', snapshot.docs);
       const offersList = snapshot.docs.map(doc => ({
         id: doc.id,
         name: doc.data().name || '',
@@ -50,11 +51,13 @@ export default function SpecialOfferManager() {
         label: doc.data().label || null,
         image: doc.data().image || ''
       }));
+      console.log('Offers list:', offersList);
       setOffers(offersList);
     } catch (error) {
       console.error('Erro ao buscar ofertas:', error);
     }
   };
+
 
   useEffect(() => {
     fetchOffers();
@@ -101,7 +104,7 @@ export default function SpecialOfferManager() {
 
       if (currentOffer.id) {
         // Atualização
-        const offerDoc = doc(db, 'special-offers', currentOffer.id);
+        const offerDoc = doc(db, 'products', currentOffer.id);
         await setDoc(offerDoc, { ...dataToSave, updatedAt: serverTimestamp() }, { merge: true });
         docRef = { id: currentOffer.id };
       } else {
@@ -166,7 +169,7 @@ export default function SpecialOfferManager() {
     if (!confirm('Tem certeza que deseja excluir esta oferta?')) return;
 
     try {
-      const offerDoc = doc(db, 'special-offers', offerId);
+      const offerDoc = doc(db, 'products', offerId);
       await deleteDoc(offerDoc);
 
       setOffers(prev => prev.filter(offer => offer.id !== offerId));
