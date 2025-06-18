@@ -118,7 +118,7 @@ export default function AppearanceSettings() {
           </motion.div>
 
           {/* Image Upload Section */}
-          <motion.div
+{/*           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
@@ -152,7 +152,7 @@ export default function AppearanceSettings() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </motion.div> */}
         </div>
 
         <motion.div 
@@ -166,9 +166,9 @@ export default function AppearanceSettings() {
             disabled={isSaving}
             variant="gradient"
             size="lg"
-            className="gap-2 px-8"
+            className="gap-2 px-2 py-3"
           >
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-5 h-5 " />
             {isSaving ? "Salvando Alterações..." : "Salvar Todas as Alterações"}
           </Button>
         </motion.div>

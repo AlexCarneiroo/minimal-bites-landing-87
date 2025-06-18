@@ -508,9 +508,9 @@ export default function GeneralSettings() {
       </Card>
 
       <div className="flex justify-end">
-        <button type="submit" disabled={isSaving}>
+        <Button type="submit" disabled={isSaving}>
           {isSaving ? "Salvando..." : "Salvar Alterações"}
-        </button>
+        </Button>
       </div>
     </form>
   );
