@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { useRealtimeData } from "@/hooks/useRealtimeData";
 import {
   Select,
   SelectContent,
@@ -26,12 +27,13 @@ interface Product {
   id?: string;
   name: string;
   description: string;
-  price: number;
-  category: string;
+  regularPrice: number;
+  promoPrice?: number;
+  discount?: string;
+  label?: string;
   image: string;
-  isSpecial: boolean;
-  specialPrice?: number;
   createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const CATEGORIES = [
@@ -46,7 +48,7 @@ interface SpecialOfferEditorProps {
 
 export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEditorProps) {
   const { toast } = useToast();
-  const [products, setProducts] = useState<Product[]>([]);
+  const { data: products, loading, error } = useRealtimeData<Product>('special_offers');
   const [isLoading, setIsLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -55,39 +57,17 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
   const [formData, setFormData] = useState<Product>({
     name: '',
     description: '',
-    price: 0,
-    category: '',
-    image: '',
-    isSpecial: false,
-    specialPrice: 0
+    regularPrice: 0,
+    promoPrice: 0,
+    discount: '',
+    label: '',
+    image: ''
   });
 
   useEffect(() => {
     console.log('SpecialOfferEditor mounted, enabled:', enabled);
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
-    try {
-      console.log('Loading products...');
-      // Simulando carregamento de produtos
-      const mockProducts: Product[] = [
-        {
-          id: '1',
-          name: 'Hambúrguer Especial',
-          description: 'Delicioso hambúrguer com ingredientes especiais',
-          price: 25.99,
-          category: 'Hambúrguer',
-          image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800',
-          isSpecial: true,
-          specialPrice: 19.99
-        }
-      ];
-      setProducts(mockProducts);
-    } catch (error) {
-      console.error('Erro ao carregar produtos:', error);
-    }
-  };
+    console.log('Products loaded:', products);
+  }, [enabled, products]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,48 +86,57 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
         return;
       }
 
-      const specialCount = products.filter(p => p.isSpecial && p.id !== editingProduct?.id).length;
-      if (formData.isSpecial && specialCount >= 4) {
-        toast({
-          title: "Limite de ofertas especiais atingido",
-          description: "Você só pode ter até 4 produtos com oferta especial ativa.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      const newProduct = {
-        ...formData,
-        id: editingProduct?.id || Date.now().toString(),
-        createdAt: new Date()
+      const productData = {
+        name: formData.name,
+        description: formData.description,
+        regularPrice: Number(formData.regularPrice),
+        promoPrice: formData.promoPrice ? Number(formData.promoPrice) : null,
+        discount: formData.discount || null,
+        label: formData.label || null,
+        image: formData.image || ''
       };
 
-      if (editingProduct?.id) {
-        setProducts(prev => prev.map(p => p.id === editingProduct.id ? newProduct : p));
-        toast({ title: "Produto atualizado", description: "O produto foi atualizado com sucesso" });
-      } else {
-        setProducts(prev => [...prev, newProduct]);
-        toast({ title: "Produto adicionado", description: "O produto foi adicionado com sucesso" });
+      const response = await fetch('/api/special-offers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: editingProduct?.id,
+          ...productData
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao salvar produto');
       }
+
+      const result = await response.json();
+      console.log('Product saved:', result);
 
       setFormData({
         name: '',
         description: '',
-        price: 0,
-        category: '',
-        image: '',
-        isSpecial: false,
-        specialPrice: 0
+        regularPrice: 0,
+        promoPrice: 0,
+        discount: '',
+        label: '',
+        image: ''
       });
       setEditingProduct(null);
+      
+      toast({ 
+        title: editingProduct ? "Produto atualizado" : "Produto adicionado", 
+        description: `O produto foi ${editingProduct ? 'atualizado' : 'adicionado'} com sucesso` 
+      });
       
       onSave({ enabled, items: products });
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
       toast({
         title: "Erro ao salvar",
-        description: "Não foi possível salvar o produto",
+        description: error instanceof Error ? error.message : "Não foi possível salvar o produto",
         variant: "destructive",
       });
     } finally {
@@ -157,7 +146,15 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
-    setFormData(product);
+    setFormData({
+      name: product.name,
+      description: product.description,
+      regularPrice: product.regularPrice,
+      promoPrice: product.promoPrice || 0,
+      discount: product.discount || '',
+      label: product.label || '',
+      image: product.image
+    });
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -165,7 +162,15 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
     if (!deleteTarget) return;
     
     try {
-      setProducts(prev => prev.filter(p => p.id !== deleteTarget));
+      const response = await fetch(`/api/special-offers?id=${deleteTarget}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao excluir produto');
+      }
+
       toast({
         title: "Produto excluído",
         description: "O produto foi excluído com sucesso",
@@ -175,7 +180,7 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
       console.error('Erro ao excluir produto:', error);
       toast({
         title: "Erro ao excluir",
-        description: "Não foi possível excluir o produto",
+        description: error instanceof Error ? error.message : "Não foi possível excluir o produto",
         variant: "destructive",
       });
     }
@@ -187,6 +192,25 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
       currency: 'BRL'
     }).format(price);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Carregando produtos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-destructive">Erro ao carregar produtos: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -211,43 +235,36 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                   </div>
 
                   <div>
-                    <Label htmlFor="category">Categoria</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="price">Preço Normal</Label>
+                    <Label htmlFor="regularPrice">Preço Regular</Label>
                     <Input
-                      id="price"
+                      id="regularPrice"
                       type="number"
                       step="0.01"
-                      value={formData.price}
-                      onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                      value={formData.regularPrice}
+                      onChange={(e) => setFormData(prev => ({ ...prev, regularPrice: parseFloat(e.target.value) || 0 }))}
+                      required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="specialPrice">Preço Especial</Label>
+                    <Label htmlFor="promoPrice">Preço Promocional</Label>
                     <Input
-                      id="specialPrice"
+                      id="promoPrice"
                       type="number"
                       step="0.01"
-                      value={formData.specialPrice}
-                      onChange={(e) => setFormData(prev => ({ ...prev, specialPrice: parseFloat(e.target.value) || 0 }))}
+                      value={formData.promoPrice}
+                      onChange={(e) => setFormData(prev => ({ ...prev, promoPrice: parseFloat(e.target.value) || 0 }))}
+                      placeholder="Opcional"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="discount">Desconto</Label>
+                    <Input
+                      id="discount"
+                      value={formData.discount}
+                      onChange={(e) => setFormData(prev => ({ ...prev, discount: e.target.value }))}
+                      placeholder="Ex: -20%"
                     />
                   </div>
                 </div>
@@ -264,22 +281,21 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                 </div>
 
                 <div>
+                  <Label htmlFor="label">Rótulo</Label>
+                  <Input
+                    id="label"
+                    value={formData.label}
+                    onChange={(e) => setFormData(prev => ({ ...prev, label: e.target.value }))}
+                    placeholder="Ex: NEW, 2x1"
+                  />
+                </div>
+
+                <div>
                   <Label>Imagem do Produto</Label>
                   <ImageUpload
                     value={formData.image}
                     onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
                   />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="isSpecial"
-                    checked={formData.isSpecial}
-                    onChange={(e) => setFormData(prev => ({ ...prev, isSpecial: e.target.checked }))}
-                    className="h-4 w-4 rounded border-gray-300"
-                  />
-                  <Label htmlFor="isSpecial">Este é um produto em oferta especial</Label>
                 </div>
 
                 <div className="flex justify-end space-x-2">
@@ -292,11 +308,11 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
                         setFormData({
                           name: '',
                           description: '',
-                          price: 0,
-                          category: '',
-                          image: '',
-                          isSpecial: false,
-                          specialPrice: 0
+                          regularPrice: 0,
+                          promoPrice: 0,
+                          discount: '',
+                          label: '',
+                          image: ''
                         });
                       }}
                     >
@@ -313,61 +329,74 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Produtos Cadastrados</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {products.map((product) => (
-                  <Card key={product.id} className="overflow-hidden">
-                    <div className="aspect-video relative">
-                      <img
-                        src={product.image || '/placeholder.svg'}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = '/placeholder.svg';
-                        }}
-                      />
-                      {product.isSpecial && (
-                        <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">
-                          Oferta Especial
-                        </div>
-                      )}
-                    </div>
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold text-lg">{product.name}</h4>
-                      <p className="text-sm text-gray-500 mb-2">{product.category}</p>
-                      <p className="text-sm mb-2 line-clamp-2">{product.description}</p>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          {product.isSpecial && product.specialPrice ? (
-                            <>
-                              <p className="text-sm line-through text-gray-500">
-                                {formatPrice(product.price)}
-                              </p>
-                              <p className="text-lg font-bold text-red-500">
-                                {formatPrice(product.specialPrice)}
-                              </p>
-                            </>
-                          ) : (
-                            <p className="text-lg font-bold">{formatPrice(product.price)}</p>
-                          )}
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
-                            Editar
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            size="sm" 
-                            onClick={() => setDeleteTarget(product.id || '')}
-                          >
-                            Excluir
-                          </Button>
-                        </div>
+              <h3 className="text-xl font-semibold mb-4">Produtos Cadastrados ({products.length}/4)</h3>
+              {products.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Nenhum produto cadastrado ainda.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {products.map((product) => (
+                    <Card key={product.id} className="overflow-hidden">
+                      <div className="aspect-video relative">
+                        <img
+                          src={product.image || '/placeholder.svg'}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder.svg';
+                          }}
+                        />
+                        {product.promoPrice && product.promoPrice < product.regularPrice && (
+                          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">
+                            Oferta Especial
+                          </div>
+                        )}
+                        {product.label && (
+                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-sm">
+                            {product.label}
+                          </div>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      <CardContent className="p-4">
+                        <h4 className="font-semibold text-lg">{product.name}</h4>
+                        <p className="text-sm mb-2 line-clamp-2">{product.description}</p>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            {product.promoPrice && product.promoPrice < product.regularPrice ? (
+                              <>
+                                <p className="text-sm line-through text-gray-500">
+                                  {formatPrice(product.regularPrice)}
+                                </p>
+                                <p className="text-lg font-bold text-red-500">
+                                  {formatPrice(product.promoPrice)}
+                                </p>
+                                {product.discount && (
+                                  <span className="text-sm text-primary">{product.discount}</span>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-lg font-bold">{formatPrice(product.regularPrice)}</p>
+                            )}
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
+                              Editar
+                            </Button>
+                            <Button 
+                              variant="destructive" 
+                              size="sm" 
+                              onClick={() => setDeleteTarget(product.id || '')}
+                            >
+                              Excluir
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
