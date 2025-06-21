@@ -5,7 +5,6 @@ import { Utensils, Menu, X, Truck } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 
-
 const Navbar = () => {
   const { data: establishmentData, loading } = useEstablishmentData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,6 +39,16 @@ const Navbar = () => {
     if (section) {
       window.scrollTo({
         top: section.offsetTop - 80, // Offset for navbar height
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleOrderClick = () => {
+    const deliverySection = document.getElementById('delivery');
+    if (deliverySection) {
+      window.scrollTo({
+        top: deliverySection.offsetTop - 80,
         behavior: 'smooth'
       });
     }
@@ -125,13 +134,16 @@ const Navbar = () => {
 
           {/* Order Button - Desktop */}
           <div className="hidden md:flex items-center">
-            <button
-              className="text-white rounded-full px-6 py-[10px] hover:opacity-90"
-              style={{ backgroundColor: primaryColor }}
-              onClick={() => window.open(menuUrl, '_blank')}
+            <Button
+              onClick={handleOrderClick}
+              className="bg-gradient-to-r text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-white/20"
+              style={{ 
+                backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}dd)`,
+                boxShadow: `0 4px 15px ${primaryColor}40`
+              }}
             >
               Fazer Pedido
-            </button>
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -190,6 +202,16 @@ const Navbar = () => {
               <Truck className="h-4 w-4" />
               Delivery
             </a>
+            <Button
+              onClick={handleOrderClick}
+              className="w-full bg-gradient-to-r text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/20 mt-4"
+              style={{ 
+                backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}dd)`,
+                boxShadow: `0 4px 15px ${primaryColor}40`
+              }}
+            >
+              Fazer Pedido
+            </Button>
           </div>
         )}
       </div>
