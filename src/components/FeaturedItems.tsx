@@ -43,8 +43,10 @@ const getCategoryIcon = (categoryName: string) => {
 
 const FeaturedItems = () => {
   const { settings } = useSiteSettings();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const primaryColor = settings?.primaryColor || '#0066cc';
 
@@ -59,7 +61,7 @@ const FeaturedItems = () => {
           ...doc.data()
         })) as Product[];
         
-        const allProducts = [
+        const allProductsData = [
           ...specialOffers.map((offer: any) => ({
             ...offer,
             name: offer.title || offer.name,
@@ -68,17 +70,18 @@ const FeaturedItems = () => {
           ...productsList
         ];
         
-        const categoryNames = Array.from(new Set(allProducts.map(product => product.category || 'Outros')));
+        const categoryNames = Array.from(new Set(allProductsData.map(product => product.category || 'Outros')));
         const availableCategories = categoryNames.map(name => ({
           name,
           icon: getCategoryIcon(name)
         }));
         
         setCategories(availableCategories);
-        setProducts(allProducts.slice(0, 4));
+        setAllProducts(allProductsData);
+        setFilteredProducts(allProductsData.slice(0, 4));
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
-        setProducts([
+        const defaultProducts = [
           {
             id: '1',
             name: 'Hambúrguer Artesanal',
@@ -115,7 +118,10 @@ const FeaturedItems = () => {
             category: 'Bebidas',
             isSpecial: false
           }
-        ]);
+        ];
+        
+        setAllProducts(defaultProducts);
+        setFilteredProducts(defaultProducts);
         setCategories([
           { name: 'Hambúrgueres', icon: getCategoryIcon('Hambúrgueres') },
           { name: 'Acompanhamentos', icon: getCategoryIcon('Acompanhamentos') },
@@ -128,6 +134,19 @@ const FeaturedItems = () => {
 
     fetchProducts();
   }, []);
+
+  const handleCategoryClick = (categoryName: string) => {
+    if (activeCategory === categoryName) {
+      // Se a categoria já está ativa, mostrar todos os produtos
+      setActiveCategory(null);
+      setFilteredProducts(allProducts.slice(0, 4));
+    } else {
+      // Filtrar produtos pela categoria selecionada
+      setActiveCategory(categoryName);
+      const filtered = allProducts.filter(product => product.category === categoryName);
+      setFilteredProducts(filtered);
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -165,19 +184,31 @@ const FeaturedItems = () => {
         
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 mb-8 lg:mb-12 px-4">
           {categories.map((category, index) => (
-            <div key={index} className="text-center group">
+            <div 
+              key={index} 
+              className="text-center group cursor-pointer"
+              onClick={() => handleCategoryClick(category.name)}
+            >
               <div 
-                className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white border-2 flex items-center justify-center mb-2 group-hover:scale-110 transition-all duration-300"
+                className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white border-2 flex items-center justify-center mb-2 group-hover:scale-110 transition-all duration-300 ${
+                  activeCategory === category.name ? 'scale-110' : ''
+                }`}
                 style={{ 
-                  borderColor: primaryColor,
-                  backgroundColor: `${primaryColor}05`
+                  borderColor: activeCategory === category.name ? primaryColor : primaryColor,
+                  backgroundColor: activeCategory === category.name ? primaryColor : `${primaryColor}05`,
+                  boxShadow: activeCategory === category.name ? `0 4px 15px ${primaryColor}40` : 'none'
                 }}
               >
-                <div style={{ color: primaryColor }}>
+                <div style={{ color: activeCategory === category.name ? 'white' : primaryColor }}>
                   {category.icon}
                 </div>
               </div>
-              <span className="font-medium text-sm sm:text-base" style={{ color: primaryColor }}>
+              <span 
+                className={`font-medium text-sm sm:text-base ${
+                  activeCategory === category.name ? 'font-bold' : ''
+                }`} 
+                style={{ color: primaryColor }}
+              >
                 {category.name}
               </span>
             </div>
@@ -185,7 +216,7 @@ const FeaturedItems = () => {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 px-4 lg:px-0">
-          {products.map(item => (
+          {filteredProducts.map(item => (
             <Card key={item.id} className="overflow-hidden border-none shadow-md hover:shadow-xl transition-all group w-full">
               <div className="relative h-40 sm:h-48 overflow-hidden">
                 <img 
@@ -236,18 +267,11 @@ const FeaturedItems = () => {
           ))}
         </div>
         
-{/*         <div className="text-center mt-8 lg:mt-12">
-          <a 
-            href="#menu-full" 
-            className="inline-block border-b-2 font-medium hover:opacity-80 transition-all duration-300"
-            style={{ 
-              borderColor: primaryColor,
-              color: primaryColor
-            }}
-          >
-            Ver menu completo
-          </a>
-        </div> */}
+        {activeCategory && filteredProducts.length === 0 && (
+          <div className="text-center mt-8">
+            <p className="text-snackbar-gray">Nenhum produto encontrado para esta categoria.</p>
+          </div>
+        )}
       </div>
     </section>
   );
