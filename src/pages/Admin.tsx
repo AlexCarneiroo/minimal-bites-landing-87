@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -49,15 +50,38 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    const result = await signOutOwner();
-    if (result.success) {
-      setIsAuthenticated(false);
+    try {
+      const result = await signOutOwner();
+      if (result.success) {
+        setIsAuthenticated(false);
+        toast({
+          title: "Logout realizado",
+          description: "Você foi desconectado com sucesso",
+        });
+        navigate('/');
+      } else {
+        toast({
+          title: "Erro no logout",
+          description: "Não foi possível realizar o logout",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erro no logout:', error);
       toast({
-        title: "Logout realizado",
-        description: "Você foi desconectado com sucesso",
+        title: "Erro no logout",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive",
       });
-      navigate('/');
     }
+  };
+
+  const handleSave = (data: any) => {
+    console.log('Dados salvos:', data);
+    toast({
+      title: "Sucesso",
+      description: "Configurações salvas com sucesso!",
+    });
   };
 
   if (loading) {
@@ -169,7 +193,7 @@ const Admin = () => {
                     <CardContent className="p-4">
                       <SpecialOfferEditor
                         enabled={true}
-                        onSave={() => {}}
+                        onSave={handleSave}
                       />
                     </CardContent>
                   </Card>
@@ -189,7 +213,7 @@ const Admin = () => {
                     <CardContent className="p-4">
                       <FeedbackManager
                         enabled={true}
-                        onSave={() => {}}
+                        onSave={handleSave}
                       />
                     </CardContent>
                   </Card>
@@ -212,7 +236,7 @@ const Admin = () => {
                         description="Descrição da empresa"
                         images={[]}
                         spaceImages={[]}
-                        onSave={() => {}}
+                        onSave={handleSave}
                       />
                     </CardContent>
                   </Card>

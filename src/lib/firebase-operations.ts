@@ -54,7 +54,6 @@ export const getAppearanceSettings = async () => {
   }
 };
 
-
 // Configurações Sobre
 export const saveAboutSettings = async (data: any) => {
   try {
@@ -83,14 +82,18 @@ export const getAboutSettings = async () => {
 
 // Configurações Footer
 export const saveFooterSettings = async (data: any) => {
-  const docRef = doc(db, 'footer', 'main');
-  await setDoc(docRef, {
-    ...data,
-    updatedAt: new Date()
-  }, { merge: true });
-  return true;
+  try {
+    const docRef = doc(db, 'footer', 'main');
+    await setDoc(docRef, {
+      ...data,
+      updatedAt: new Date()
+    }, { merge: true });
+    return true;
+  } catch (error) {
+    console.error('Erro ao salvar configurações do footer:', error);
+    return false;
+  }
 };
-
 
 export const getFooterSettings = async () => {
   try {
@@ -216,6 +219,45 @@ export const deleteReservation = async (id: string) => {
     return true;
   } catch (error) {
     console.error('Erro ao deletar reserva:', error);
+    return false;
+  }
+};
+
+// Produtos (usado pelo SpecialOfferEditor)
+export const saveProduct = async (data: any) => {
+  try {
+    const productsRef = collection(db, 'products');
+    const docRef = await addDoc(productsRef, {
+      ...data,
+      createdAt: new Date()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Erro ao salvar produto:', error);
+    return null;
+  }
+};
+
+export const getProducts = async () => {
+  try {
+    const productsRef = collection(db, 'products');
+    const snapshot = await getDocs(productsRef);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar produtos:', error);
+    return [];
+  }
+};
+
+export const deleteProduct = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'products', id));
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar produto:', error);
     return false;
   }
 };

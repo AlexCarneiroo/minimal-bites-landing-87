@@ -19,26 +19,6 @@ import {
   Star
 } from "lucide-react";
 
-interface Feedback {
-  id: string;
-  name: string;
-  photo: string;
-  message: string;
-  rating: number;
-  date: string;
-}
-
-interface SpecialOffer {
-  id: string;
-  name: string;
-  description: string;
-  regularPrice: number;
-  promoPrice: number;
-  discount: number;
-  label: string;
-  image: string;
-}
-
 export default function Dashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("feedback");
@@ -116,6 +96,14 @@ export default function Dashboard() {
       shadowColor: "shadow-slate-200"
     }
   ];
+
+  const handleSave = (data: any) => {
+    console.log('Dados salvos:', data);
+    toast({
+      title: "Sucesso",
+      description: "Configurações salvas com sucesso!",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/40 relative overflow-hidden">
@@ -211,8 +199,7 @@ export default function Dashboard() {
                   <CardContent className="p-8">
                     <FeedbackManager 
                       enabled={true}
-                      onSave={(feedbacks) => {
-                      }} 
+                      onSave={handleSave} 
                     />
                   </CardContent>
                 </Card>

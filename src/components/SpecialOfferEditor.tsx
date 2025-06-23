@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { getSpecialOffers } from "@/lib/firebase-operations";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { collection, getDocs, doc, deleteDoc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-
 
 interface Product {
   id?: string;
@@ -56,9 +55,13 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
     image: ''
   });
 
-  // Função para buscar produtos usando a mesma lógica do FeaturedItems
+  // Função para buscar produtos
   const fetchProducts = async () => {
+    if (!enabled) return;
+    
     setLoading(true);
+    setError(null);
+    
     try {
       const productsCollection = collection(db, "products");
       const snapshot = await getDocs(productsCollection);
@@ -78,24 +81,48 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
         };
       });
       setProducts(productsData);
-      setError(null);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
-      setError("Erro ao carregar produtos");
+      setError("Erro ao carregar produtos. Tente novamente.");
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os produtos",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-
   useEffect(() => {
-    if (enabled) {
-      fetchProducts();
-    }
+    fetchProducts();
   }, [enabled]);
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      regularPrice: 0,
+      promoPrice: 0,
+      discount: "",
+      label: "",
+      image: "",
+    });
+    setEditingProduct(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!enabled) {
+      toast({
+        title: "Erro",
+        description: "Esta seção está desabilitada",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -105,17 +132,25 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
           description: "Você só pode cadastrar até 4 produtos.",
           variant: "destructive",
         });
-        setIsLoading(false);
+        return;
+      }
+
+      if (!formData.name.trim() || !formData.description.trim() || formData.regularPrice <= 0) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Por favor, preencha todos os campos obrigatórios",
+          variant: "destructive",
+        });
         return;
       }
 
       const productData = {
-        name: formData.name,
-        description: formData.description,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
         regularPrice: Number(formData.regularPrice),
         promoPrice: formData.promoPrice ? Number(formData.promoPrice) : null,
-        discount: formData.discount || null,
-        label: formData.label || null,
+        discount: formData.discount?.trim() || null,
+        label: formData.label?.trim() || null,
         image: formData.image || "",
         updatedAt: serverTimestamp(),
         ...(editingProduct ? {} : { createdAt: serverTimestamp() }),
@@ -124,42 +159,33 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
       if (editingProduct && editingProduct.id) {
         // Atualiza produto existente
         await setDoc(doc(db, "products", editingProduct.id), productData, { merge: true });
+        toast({
+          title: "Produto atualizado",
+          description: "O produto foi atualizado com sucesso"
+        });
       } else {
         // Adiciona novo produto
         await addDoc(collection(db, "products"), productData);
+        toast({
+          title: "Produto adicionado",
+          description: "O produto foi adicionado com sucesso"
+        });
       }
 
       await fetchProducts();
-
-      setFormData({
-        name: "",
-        description: "",
-        regularPrice: 0,
-        promoPrice: 0,
-        discount: "",
-        label: "",
-        image: "",
-      });
-      setEditingProduct(null);
-
-      toast({
-        title: editingProduct ? "Produto atualizado" : "Produto adicionado",
-        description: `O produto foi ${editingProduct ? "atualizado" : "adicionado"} com sucesso`
-      });
-
+      resetForm();
       onSave({ enabled, items: products });
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
       toast({
         title: "Erro ao salvar",
-        description: error instanceof Error ? error.message : "Não foi possível salvar o produto",
+        description: "Não foi possível salvar o produto. Tente novamente.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
-
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
@@ -180,24 +206,21 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
     try {
       await deleteDoc(doc(db, "products", deleteTarget));
-
       toast({
         title: "Produto excluído",
         description: "O produto foi excluído com sucesso",
       });
-
-      await fetchProducts(); // Atualiza a lista
+      await fetchProducts();
       setDeleteTarget(null);
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
       toast({
         title: "Erro ao excluir",
-        description: error instanceof Error ? error.message : "Não foi possível excluir o produto",
+        description: "Não foi possível excluir o produto. Tente novamente.",
         variant: "destructive",
       });
     }
   };
-
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -205,6 +228,14 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
       currency: 'BRL'
     }).format(price);
   };
+
+  if (!enabled) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Esta seção está desabilitada</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -220,8 +251,8 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-destructive">Erro ao carregar produtos: {error}</p>
-        <Button onClick={fetchProducts} className="mt-4">
+        <p className="text-destructive mb-4">{error}</p>
+        <Button onClick={fetchProducts}>
           Tentar novamente
         </Button>
       </div>
@@ -230,214 +261,197 @@ export default function SpecialOfferEditor({ enabled, onSave }: SpecialOfferEdit
 
   return (
     <div className="space-y-6">
-      {enabled ? (
-        <>
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">
-                {editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}
-              </h3>
-              <form onSubmit={handleSubmit} ref={formRef} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Nome do Produto</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Nome do produto"
-                      required
-                    />
-                  </div>
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-xl font-semibold mb-4">
+            {editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}
+          </h3>
+          <form onSubmit={handleSubmit} ref={formRef} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Nome do Produto *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Nome do produto"
+                  required
+                />
+              </div>
 
-                  <div>
-                    <Label htmlFor="regularPrice">Preço Regular</Label>
-                    <Input
-                      id="regularPrice"
-                      type="number"
-                      step="0.01"
-                      value={formData.regularPrice}
-                      onChange={(e) => setFormData(prev => ({ ...prev, regularPrice: parseFloat(e.target.value) || 0 }))}
-                      required
-                    />
-                  </div>
+              <div>
+                <Label htmlFor="regularPrice">Preço Regular *</Label>
+                <Input
+                  id="regularPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.regularPrice}
+                  onChange={(e) => setFormData(prev => ({ ...prev, regularPrice: parseFloat(e.target.value) || 0 }))}
+                  required
+                />
+              </div>
 
-                  <div>
-                    <Label htmlFor="promoPrice">Preço Promocional</Label>
-                    <Input
-                      id="promoPrice"
-                      type="number"
-                      step="0.01"
-                      value={formData.promoPrice}
-                      onChange={(e) => setFormData(prev => ({ ...prev, promoPrice: parseFloat(e.target.value) || 0 }))}
-                      placeholder="Opcional"
-                    />
-                  </div>
+              <div>
+                <Label htmlFor="promoPrice">Preço Promocional</Label>
+                <Input
+                  id="promoPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.promoPrice}
+                  onChange={(e) => setFormData(prev => ({ ...prev, promoPrice: parseFloat(e.target.value) || 0 }))}
+                  placeholder="Opcional"
+                />
+              </div>
 
-                  <div>
-                    <Label htmlFor="discount">Desconto</Label>
-                    <Input
-                      id="discount"
-                      value={formData.discount}
-                      onChange={(e) => setFormData(prev => ({ ...prev, discount: e.target.value }))}
-                      placeholder="Ex: -20%"
-                    />
-                  </div>
-                </div>
+              <div>
+                <Label htmlFor="discount">Desconto</Label>
+                <Input
+                  id="discount"
+                  value={formData.discount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, discount: e.target.value }))}
+                  placeholder="Ex: -20%"
+                />
+              </div>
+            </div>
 
-                <div>
-                  <Label htmlFor="description">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    rows={4}
-                    required
-                  />
-                </div>
+            <div>
+              <Label htmlFor="description">Descrição *</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={4}
+                required
+              />
+            </div>
 
-                <div>
-                  <Label htmlFor="label">Rótulo</Label>
-                  <Input
-                    id="label"
-                    value={formData.label}
-                    onChange={(e) => setFormData(prev => ({ ...prev, label: e.target.value }))}
-                    placeholder="Ex: NEW, 2x1"
-                  />
-                </div>
+            <div>
+              <Label htmlFor="label">Rótulo</Label>
+              <Input
+                id="label"
+                value={formData.label}
+                onChange={(e) => setFormData(prev => ({ ...prev, label: e.target.value }))}
+                placeholder="Ex: NEW, 2x1"
+              />
+            </div>
 
-                <div>
-                  <Label>Imagem do Produto</Label>
-                  <ImageUpload
-                    value={formData.image}
-                    onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
-                  />
-                </div>
+            <div>
+              <Label>Imagem do Produto</Label>
+              <ImageUpload
+                value={formData.image}
+                onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+              />
+            </div>
 
-                <div className="flex justify-end space-x-2">
-                  {editingProduct && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setEditingProduct(null);
-                        setFormData({
-                          name: '',
-                          description: '',
-                          regularPrice: 0,
-                          promoPrice: 0,
-                          discount: '',
-                          label: '',
-                          image: ''
-                        });
+            <div className="flex justify-end space-x-2">
+              {editingProduct && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetForm}
+                >
+                  Cancelar Edição
+                </Button>
+              )}
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Salvando..." : editingProduct ? "Atualizar Produto" : "Adicionar Produto"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-xl font-semibold mb-4">Produtos Cadastrados ({products.length}/4)</h3>
+          {products.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Nenhum produto cadastrado ainda.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {products.map((product) => (
+                <Card key={product.id} className="overflow-hidden">
+                  <div className="aspect-video relative">
+                    <img
+                      src={product.image || '/placeholder.svg'}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder.svg';
                       }}
-                    >
-                      Cancelar Edição
-                    </Button>
-                  )}
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Salvando..." : editingProduct ? "Atualizar Produto" : "Adicionar Produto"}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Produtos Cadastrados ({products.length}/4)</h3>
-              {products.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Nenhum produto cadastrado ainda.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {products.map((product) => (
-                    <Card key={product.id} className="overflow-hidden">
-                      <div className="aspect-video relative">
-                        <img
-                          src={product.image || '/placeholder.svg'}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/placeholder.svg';
-                          }}
-                        />
-                        {product.promoPrice && product.promoPrice < product.regularPrice && (
-                          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">
-                            Oferta Especial
-                          </div>
-                        )}
-                        {product.label && (
-                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-sm">
-                            {product.label}
-                          </div>
+                    />
+                    {product.promoPrice && product.promoPrice < product.regularPrice && (
+                      <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">
+                        Oferta Especial
+                      </div>
+                    )}
+                    {product.label && (
+                      <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-sm">
+                        {product.label}
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold text-lg">{product.name}</h4>
+                    <p className="text-sm mb-2 line-clamp-2">{product.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        {product.promoPrice && product.promoPrice < product.regularPrice ? (
+                          <>
+                            <p className="text-sm line-through text-gray-500">
+                              {formatPrice(product.regularPrice)}
+                            </p>
+                            <p className="text-lg font-bold text-red-500">
+                              {formatPrice(product.promoPrice)}
+                            </p>
+                            {product.discount && (
+                              <span className="text-sm text-primary">{product.discount}</span>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-lg font-bold">{formatPrice(product.regularPrice)}</p>
                         )}
                       </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold text-lg">{product.name}</h4>
-                        <p className="text-sm mb-2 line-clamp-2">{product.description}</p>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            {product.promoPrice && product.promoPrice < product.regularPrice ? (
-                              <>
-                                <p className="text-sm line-through text-gray-500">
-                                  {formatPrice(product.regularPrice)}
-                                </p>
-                                <p className="text-lg font-bold text-red-500">
-                                  {formatPrice(product.promoPrice)}
-                                </p>
-                                {product.discount && (
-                                  <span className="text-sm text-primary">{product.discount}</span>
-                                )}
-                              </>
-                            ) : (
-                              <p className="text-lg font-bold">{formatPrice(product.regularPrice)}</p>
-                            )}
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
-                              Editar
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => setDeleteTarget(product.id || '')}
-                            >
-                              Excluir
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
+                          Editar
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setDeleteTarget(product.id || '')}
+                        >
+                          Excluir
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-          <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Excluir produto</DialogTitle>
-              </DialogHeader>
-              <p>Tem certeza que deseja excluir este produto? Esta ação não poderá ser desfeita.</p>
-              <DialogFooter className="mt-4">
-                <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-                  Cancelar
-                </Button>
-                <Button variant="destructive" onClick={handleDelete}>
-                  Excluir
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </>
-      ) : (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Esta seção está desabilitada</p>
-        </div>
-      )}
+      <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir produto</DialogTitle>
+          </DialogHeader>
+          <p>Tem certeza que deseja excluir este produto? Esta ação não poderá ser desfeita.</p>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

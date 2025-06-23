@@ -25,9 +25,15 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
 
   useEffect(() => {
     const checkOwner = async () => {
-      const exists = await checkOwnerExists();
-      setOwnerExists(exists);
-      setCheckingOwner(false);
+      try {
+        const exists = await checkOwnerExists();
+        setOwnerExists(exists);
+      } catch (error) {
+        console.error('Erro ao verificar proprietário:', error);
+        setOwnerExists(false);
+      } finally {
+        setCheckingOwner(false);
+      }
     };
     
     checkOwner();
@@ -47,23 +53,32 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
     
     setLoading(true);
     
-    const result = await signInOwner(username, password);
-    
-    if (result.success) {
-      toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo ao painel administrativo",
-      });
-      onLogin();
-    } else {
+    try {
+      const result = await signInOwner(username, password);
+      
+      if (result.success) {
+        toast({
+          title: "Login realizado com sucesso",
+          description: "Bem-vindo ao painel administrativo",
+        });
+        onLogin();
+      } else {
+        toast({
+          title: "Erro no login",
+          description: result.error || "Credenciais inválidas",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erro no login:', error);
       toast({
         title: "Erro no login",
-        description: result.error || "Credenciais inválidas",
+        description: "Ocorreu um erro inesperado. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleSetupComplete = () => {
