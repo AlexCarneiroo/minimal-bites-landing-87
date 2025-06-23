@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -27,43 +26,50 @@ import FeedbackManager from '@/components/admin/FeedbackManager';
 import AboutSection from '@/components/admin/AboutSection';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
-import { Button } from "@/components/ui/button";
+import { onAuthChange, signOutOwner } from '@/lib/firebase-auth';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = (username: string, password: string) => {
-    if (username === 'admin' && password === 'admin') {
-      setIsAuthenticated(true);
-      localStorage.setItem('admin_authenticated', 'true');
-      toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo ao painel administrativo",
-      });
-    } else {
-      toast({
-        title: "Erro no login",
-        description: "Credenciais inválidas",
-        variant: "destructive",
-      });
-    }
-  };
-
   useEffect(() => {
-    const auth = localStorage.getItem('admin_authenticated');
-    if (auth === 'true') {
-      setIsAuthenticated(true);
-    }
+    const unsubscribe = onAuthChange((user) => {
+      setIsAuthenticated(!!user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('admin_authenticated');
-    navigate('/');
+  const handleLogin = () => {
+    setIsAuthenticated(true);
   };
+
+  const handleLogout = async () => {
+    const result = await signOutOwner();
+    if (result.success) {
+      setIsAuthenticated(false);
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso",
+      });
+      navigate('/');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <AdminLogin onLogin={handleLogin} />;

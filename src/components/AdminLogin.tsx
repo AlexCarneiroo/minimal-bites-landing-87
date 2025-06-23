@@ -1,22 +1,39 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, User, Sparkles, Shield } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { checkOwnerExists, signInOwner } from '@/lib/firebase-auth';
+import OwnerSetup from './admin/OwnerSetup';
+import PasswordRecovery from './admin/PasswordRecovery';
 
 interface AdminLoginProps {
-  onLogin: (username: string, password: string) => void;
+  onLogin: () => void;
 }
 
 const AdminLogin = ({ onLogin }: AdminLoginProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [checkingOwner, setCheckingOwner] = useState(true);
+  const [ownerExists, setOwnerExists] = useState(false);
+  const [showRecovery, setShowRecovery] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const checkOwner = async () => {
+      const exists = await checkOwnerExists();
+      setOwnerExists(exists);
+      setCheckingOwner(false);
+    };
+    
+    checkOwner();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!username || !password) {
@@ -28,8 +45,49 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
       return;
     }
     
-    onLogin(username, password);
+    setLoading(true);
+    
+    const result = await signInOwner(username, password);
+    
+    if (result.success) {
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Bem-vindo ao painel administrativo",
+      });
+      onLogin();
+    } else {
+      toast({
+        title: "Erro no login",
+        description: result.error || "Credenciais inválidas",
+        variant: "destructive",
+      });
+    }
+    
+    setLoading(false);
   };
+
+  const handleSetupComplete = () => {
+    setOwnerExists(true);
+    toast({
+      title: "Configuração concluída!",
+      description: "Agora você pode fazer login com suas credenciais",
+    });
+  };
+
+  if (checkingOwner) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!ownerExists) {
+    return <OwnerSetup onSetupComplete={handleSetupComplete} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 relative overflow-hidden">
@@ -76,83 +134,88 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
           </CardHeader>
 
           <CardContent className="px-8 pb-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <motion.div 
-                className="space-y-2"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7, duration: 0.5 }}
-              >
-                <label htmlFor="username" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <User className="w-4 h-4 text-primary" />
-                  Usuário
-                </label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
-                  <Input
-                    id="username"
-                    placeholder="Digite seu usuário"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="pl-12 h-14 text-base"
-                    required
-                  />
-                </div>
-              </motion.div>
-
-              <motion.div 
-                className="space-y-2"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-              >
-                <label htmlFor="password" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-primary" />
-                  Senha
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Digite sua senha"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-12 h-14 text-base"
-                    required
-                  />
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9, duration: 0.5 }}
-              >
-                <Button 
-                  type="submit" 
-                  variant="gradient" 
-                  size="lg"
-                  className="w-full h-14 text-lg font-semibold gap-2"
+            {showRecovery ? (
+              <PasswordRecovery onBack={() => setShowRecovery(false)} />
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <motion.div 
+                  className="space-y-2"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7, duration: 0.5 }}
                 >
-                  <Sparkles className="w-5 h-5" />
-                  Entrar no Painel
-                </Button>
-              </motion.div>
-              
-              <motion.div 
-                className="text-center text-sm text-gray-500 bg-gray-50/80 backdrop-blur-sm p-4 rounded-xl border border-gray-100"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.1, duration: 0.5 }}
-              >
-                <p className="font-medium text-gray-600 mb-2">Para fins de teste, use:</p>
-                <div className="space-y-1">
-                  <p>Usuário: <strong className="text-primary">admin</strong></p>
-                  <p>Senha: <strong className="text-primary">admin</strong></p>
-                </div>
-              </motion.div>
-            </form>
+                  <label htmlFor="username" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <User className="w-4 h-4 text-primary" />
+                    Email
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
+                    <Input
+                      id="username"
+                      type="email"
+                      placeholder="Digite seu email"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="pl-12 h-14 text-base"
+                      required
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div 
+                  className="space-y-2"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                >
+                  <label htmlFor="password" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-primary" />
+                    Senha
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Digite sua senha"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-12 h-14 text-base"
+                      required
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9, duration: 0.5 }}
+                  className="space-y-3"
+                >
+                  <Button 
+                    type="submit" 
+                    className="w-full h-14 text-lg font-semibold gap-2"
+                    disabled={loading}
+                  >
+                    {loading ? "Entrando..." : (
+                      <>
+                        <Sparkles className="w-5 h-5" />
+                        Entrar no Painel
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setShowRecovery(true)}
+                    className="w-full text-sm text-gray-600 hover:text-primary"
+                  >
+                    Esqueceu sua senha?
+                  </Button>
+                </motion.div>
+              </form>
+            )}
           </CardContent>
         </Card>
       </motion.div>
