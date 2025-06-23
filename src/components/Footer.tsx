@@ -26,6 +26,7 @@ const Footer = () => {
 
   const { settings } = useSiteSettings();
   const primariColor = settings?.primaryColor || '';
+  const nameEstabelecimento = settings?.establishmentData?.name || 'Nome do Estabelecimento';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,12 +54,13 @@ const Footer = () => {
   const socialMedia = footerData?.socialMedia || generalData?.socialMedia || {};
   const copyright =
     footerData?.copyright ||
-    `© ${new Date().getFullYear()} Todos os direitos reservados.`;
+    `© Desenvolvido por ${new Date().getFullYear()}
+      © 2025 – Todos os direitos reservados. Transformando ideias em realidade digital.`;
 
   return (
     <footer className="bg-black text-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="container mx-auto px-4 ">
+        <div className="flex flex-col justify-center md:flex-row gap-12">
           {/* Lado Esquerdo - Informações da Empresa */}
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
@@ -73,7 +75,7 @@ const Footer = () => {
                   <Utensils className="w-6 h-6 text-white" />
                 </div>
               )}
-              <span className="font-bold text-2xl" style={{ color: primariColor }}>{displayName}</span>
+              <span className="font-bold text-2xl" style={{ color: primariColor }}>{nameEstabelecimento}</span>
             </div>
 
             {displayDescription && (
@@ -191,7 +193,9 @@ const Footer = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white transition-colors duration-300">
-            {copyright}
+            Desenvolvido por Logarithm
+            <br />
+             © 2025 – Todos os direitos reservados. Transformando ideias em realidade digital.
           </a>
         </div>
       </div>

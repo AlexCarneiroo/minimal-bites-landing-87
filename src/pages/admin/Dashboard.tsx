@@ -97,7 +97,6 @@ export default function Dashboard() {
   ];
 
   const handleSave = (data: any) => {
-    console.log('Dados salvos:', data);
     toast({
       title: "Sucesso",
       description: "Configurações salvas com sucesso!",

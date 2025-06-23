@@ -77,7 +77,6 @@ const Admin = () => {
   };
 
   const handleSave = (data: any) => {
-    console.log('Dados salvos:', data);
     toast({
       title: "Sucesso",
       description: "Configurações salvas com sucesso!",
@@ -86,9 +85,9 @@ const Admin = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-purple-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Carregando...</p>
         </div>
       </div>
