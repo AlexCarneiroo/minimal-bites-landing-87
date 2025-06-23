@@ -1,15 +1,19 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Utensils, Menu, X, Truck } from 'lucide-react';
+import { Utensils, Menu, X, Truck, Settings } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { useEstablishmentData } from '@/hooks/useEstablishmentData';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const { data: establishmentData, loading } = useEstablishmentData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { settings } = useSiteSettings();
+  const { isAdmin } = useAdminAuth();
+  const navigate = useNavigate();
   const primaryColor = settings?.primaryColor || '#0066cc';
   const nameEstabelecimento = settings?.establishmentData?.name || '';
   const menuUrl = establishmentData?.menuUrl || '';
@@ -52,6 +56,10 @@ const Navbar = () => {
         behavior: 'smooth'
       });
     }
+  };
+
+  const handleAdminClick = () => {
+    navigate('/admin');
   };
 
   return (
@@ -132,8 +140,18 @@ const Navbar = () => {
             </a>
           </div>
 
-          {/* Order Button - Desktop */}
-          <div className="hidden md:flex items-center">
+          {/* Order Button + Admin Button - Desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            {isAdmin && (
+              <Button
+                onClick={handleAdminClick}
+                variant="outline"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl transition-all duration-300 flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Admin
+              </Button>
+            )}
             <Button
               onClick={handleOrderClick}
               className="bg-gradient-to-r text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-white/20"
@@ -202,6 +220,16 @@ const Navbar = () => {
               <Truck className="h-4 w-4" />
               Delivery
             </a>
+            {isAdmin && (
+              <Button
+                onClick={handleAdminClick}
+                variant="outline"
+                className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl transition-all duration-300 flex items-center gap-2 justify-center mt-3"
+              >
+                <Settings className="h-4 w-4" />
+                Painel Admin
+              </Button>
+            )}
             <Button
               onClick={handleOrderClick}
               className="w-full bg-gradient-to-r text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/20 mt-4"
