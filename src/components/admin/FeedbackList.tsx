@@ -26,7 +26,7 @@ export default function FeedbackList({ feedbacks, onEdit, onDelete }: FeedbackLi
           <AnimatePresence mode="popLayout">
             {feedbacks.map((feedback, index) => (
               <FeedbackCard
-                key={feedback.id}
+                key={`feedback-${feedback.id || index}`}
                 feedback={feedback}
                 index={index}
                 onEdit={onEdit}

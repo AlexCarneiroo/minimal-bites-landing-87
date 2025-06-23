@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -152,7 +151,7 @@ export default function Dashboard() {
                 const Icon = tab.icon;
                 return (
                   <TabsTrigger 
-                    key={tab.value}
+                    key={`tab-${tab.value}`}
                     value={tab.value}
                     className={`
                       data-[state=active]:bg-gradient-to-r data-[state=active]:${tab.gradient} 

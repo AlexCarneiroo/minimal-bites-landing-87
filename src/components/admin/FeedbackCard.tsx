@@ -20,7 +20,7 @@ interface FeedbackCardProps {
 export default function FeedbackCard({ feedback, index, onEdit, onDelete }: FeedbackCardProps) {
   return (
     <motion.div
-      key={feedback.id}
+      key={`feedback-card-${feedback.id || index}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}

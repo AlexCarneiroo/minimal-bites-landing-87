@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,7 +55,6 @@ export default function SpecialOfferManager() {
     }
   };
 
-
   useEffect(() => {
     fetchOffers();
   }, []);
@@ -66,12 +64,10 @@ export default function SpecialOfferManager() {
     setIsSaving(true);
 
     try {
-      // Testar conexão com Firebase
       if (!db) throw new Error('Conexão com o banco de dados não está disponível');
 
       const offersCollection = collection(db, 'special-offers');
 
-      // Verificar limite de 4 ofertas se for uma nova
       if (!currentOffer.id) {
         const snapshot = await getDocs(offersCollection);
         const offerCount = snapshot.size;
@@ -81,7 +77,6 @@ export default function SpecialOfferManager() {
         }
       }
 
-      // Validar dados obrigatórios
       if (!currentOffer.name || !currentOffer.description || !currentOffer.regularPrice) {
         throw new Error('Por favor, preencha todos os campos obrigatórios');
       }
@@ -101,12 +96,10 @@ export default function SpecialOfferManager() {
       let docRef;
 
       if (currentOffer.id) {
-        // Atualização
         const offerDoc = doc(db, 'products', currentOffer.id);
         await setDoc(offerDoc, { ...dataToSave, updatedAt: serverTimestamp() }, { merge: true });
         docRef = { id: currentOffer.id };
       } else {
-        // Criação
         docRef = await addDoc(offersCollection, dataToSave);
       }
 
@@ -114,7 +107,6 @@ export default function SpecialOfferManager() {
         throw new Error('Falha ao salvar a oferta no banco de dados');
       }
 
-      // Atualizar estado local
       if (currentOffer.id) {
         setOffers(prev => prev.map(offer =>
           offer.id === currentOffer.id ? { ...dataToSave, id: currentOffer.id } : offer
@@ -123,7 +115,6 @@ export default function SpecialOfferManager() {
         setOffers(prev => [...prev, { ...dataToSave, id: docRef.id }]);
       }
 
-      // Resetar formulário
       setCurrentOffer({
         id: '',
         name: '',
@@ -156,8 +147,6 @@ export default function SpecialOfferManager() {
       setIsSaving(false);
     }
   };
-
-
 
   const handleEdit = (offer: SpecialOffer) => {
     setCurrentOffer(offer);
@@ -313,8 +302,8 @@ export default function SpecialOfferManager() {
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-4">Ofertas Cadastradas</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {offers.map(offer => (
-                <div key={offer.id} className="border rounded-lg overflow-hidden">
+              {offers.map((offer, index) => (
+                <div key={`offer-${offer.id || index}`} className="border rounded-lg overflow-hidden">
                   {offer.image && (
                     <img
                       src={offer.image}
@@ -378,4 +367,4 @@ export default function SpecialOfferManager() {
       )}
     </div>
   );
-} 
+}
