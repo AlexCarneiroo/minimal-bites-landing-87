@@ -23,18 +23,12 @@ const ReservationDialog = ({ children }: ReservationDialogProps) => {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">Reserva de Mesa</DialogTitle>
-          <DialogDescription className="text-center">
-            Preencha o formulário abaixo para fazer sua reserva em nosso restaurante.
-          </DialogDescription>
-        </DialogHeader>
+      {open && (
         <ReservationForm 
           onClose={() => setOpen(false)} 
           onSuccess={() => setOpen(false)} 
         />
-      </DialogContent>
+      )}
     </Dialog>
   );
 };

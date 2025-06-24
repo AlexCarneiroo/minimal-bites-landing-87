@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon } from "lucide-react";
@@ -91,165 +93,215 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Faça sua reserva</DialogTitle>
-          <DialogDescription>
-            Por favor, preencha todos os campos para solicitar uma reserva.
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-[500px] h-[90vh] max-h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 border-b">
+          <DialogTitle className="text-xl sm:text-2xl text-center">Reserva de Mesa</DialogTitle>
+          <DialogDescription className="text-center text-sm sm:text-base">
+            Preencha o formulário abaixo para fazer sua reserva em nosso restaurante.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome completo</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Seu nome completo" 
-                      {...field} 
-                      readOnly={isLoggedIn}
-                      className={isLoggedIn ? "bg-gray-50" : ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="seu@email.com" 
-                      {...field} 
-                      readOnly={isLoggedIn}
-                      className={isLoggedIn ? "bg-gray-50" : ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefone</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="tel" 
-                      placeholder="(11) 99999-9999" 
-                      {...field} 
-                      readOnly={isLoggedIn}
-                      className={isLoggedIn ? "bg-gray-50" : ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-between space-x-4">
+        
+        <ScrollArea className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
               <FormField
                 control={form.control}
-                name="date"
+                name="name"
                 render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Data</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3.5 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(new Date(field.value), "PPP")
-                            ) : (
-                              <span>Escolha uma data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={(date) => {
-                            setDate(date)
-                            field.onChange(date?.toLocaleDateString())
-                          }}
-                          disabled={(date) =>
-                            date < new Date()
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="time"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Horário</FormLabel>
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">Nome completo</FormLabel>
                     <FormControl>
-                      <Input type="time" placeholder="Escolha um horário" {...field} />
+                      <Input 
+                        placeholder="Seu nome completo" 
+                        {...field} 
+                        readOnly={isLoggedIn}
+                        className={cn(
+                          "text-sm sm:text-base",
+                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
+                        )}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs sm:text-sm" />
+                    {isLoggedIn && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Campo preenchido automaticamente
+                      </p>
+                    )}
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="guests"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número de convidados</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="1" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">Email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="seu@email.com" 
+                        {...field} 
+                        readOnly={isLoggedIn}
+                        className={cn(
+                          "text-sm sm:text-base",
+                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs sm:text-sm" />
+                    {isLoggedIn && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Campo preenchido automaticamente
+                      </p>
+                    )}
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mensagem (opcional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Alguma observação?" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Enviar reserva</Button>
-          </form>
-        </Form>
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">Telefone</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="tel" 
+                        placeholder="(11) 99999-9999" 
+                        {...field} 
+                        readOnly={isLoggedIn}
+                        className={cn(
+                          "text-sm sm:text-base",
+                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs sm:text-sm" />
+                    {isLoggedIn && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Campo preenchido automaticamente
+                      </p>
+                    )}
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex flex-col sm:flex-row justify-between gap-4 sm:space-x-4">
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel className="text-sm sm:text-base">Data</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal text-sm sm:text-base h-9 sm:h-10",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), "dd/MM/yyyy")
+                              ) : (
+                                <span>Escolha uma data</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={(date) => {
+                              setDate(date)
+                              field.onChange(date?.toLocaleDateString())
+                            }}
+                            disabled={(date) =>
+                              date < new Date()
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage className="text-xs sm:text-sm" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="time"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel className="text-sm sm:text-base">Horário</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="time" 
+                          placeholder="Escolha um horário" 
+                          {...field} 
+                          className="text-sm sm:text-base h-9 sm:h-10"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs sm:text-sm" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="guests"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">Número de convidados</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="1" 
+                        {...field} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        className="text-sm sm:text-base h-9 sm:h-10"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs sm:text-sm" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">Mensagem (opcional)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Alguma observação?" 
+                        {...field} 
+                        className="text-sm sm:text-base h-9 sm:h-10"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs sm:text-sm" />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="pt-4">
+                <Button 
+                  type="submit" 
+                  className="w-full text-sm sm:text-base h-10 sm:h-11"
+                >
+                  Enviar reserva
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
