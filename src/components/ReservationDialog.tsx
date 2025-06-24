@@ -30,7 +30,10 @@ const ReservationDialog = ({ children }: ReservationDialogProps) => {
             Preencha o formulário abaixo para fazer sua reserva em nosso restaurante.
           </DialogDescription>
         </DialogHeader>
-        <ReservationForm onSuccess={() => setOpen(false)} />
+        <ReservationForm 
+          onClose={() => setOpen(false)} 
+          onSuccess={() => setOpen(false)} 
+        />
       </DialogContent>
     </Dialog>
   );
