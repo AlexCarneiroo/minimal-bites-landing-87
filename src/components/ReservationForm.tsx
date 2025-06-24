@@ -1,301 +1,253 @@
 import { useState } from 'react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { CalendarIcon } from "lucide-react";
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from 'date-fns';
-import { pt } from 'date-fns/locale';
-import { CalendarIcon, Clock, User, Phone, Mail } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase'; // ajuste o path conforme necessário
-
-
-// Define form schema
-const formSchema = z.object({
-  name: z.string().min(3, { message: 'Nome deve ter pelo menos 3 caracteres' }),
-  email: z.string().email({ message: 'Email inválido' }),
-  phone: z.string().min(10, { message: 'Telefone inválido' }),
-  date: z.date({ required_error: 'Selecione uma data' }),
-  time: z.string({ required_error: 'Selecione um horário' }),
-  guests: z.string({ required_error: 'Selecione o número de pessoas' }),
-  specialRequests: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 
 interface ReservationFormProps {
-  onSuccess?: () => void;
+  onClose: () => void;
 }
 
-const ReservationForm = ({ onSuccess }: ReservationFormProps) => {
+const ReservationForm = ({ onClose }: ReservationFormProps) => {
+  const { customerData, isLoggedIn } = useCustomerAuth();
+  
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+
+  const FormSchema = z.object({
+    name: z.string().min(2, {
+      message: "Nome deve ter pelo menos 2 caracteres.",
+    }),
+    email: z.string().email({
+      message: "Por favor, insira um email válido.",
+    }),
+    phone: z.string().min(10, {
+      message: "Número de telefone deve ter pelo menos 10 dígitos.",
+    }),
+    date: z.string().min(1, {
+      message: "Por favor, selecione uma data.",
+    }),
+    time: z.string().min(1, {
+      message: "Por favor, selecione um horário.",
+    }),
+    guests: z.number().min(1, {
+      message: "Deve haver pelo menos 1 convidado.",
+    }),
+    message: z.string().optional(),
+  })
+
+  type FormData = z.infer<typeof FormSchema>
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      specialRequests: '',
+      name: isLoggedIn && customerData ? customerData.name : "",
+      email: isLoggedIn && customerData ? customerData.email : "",
+      phone: isLoggedIn && customerData ? customerData.phone : "",
+      date: "",
+      time: "",
+      guests: 1,
+      message: "",
     },
   });
 
-  // Generate time slots from 11:00 to 22:00
-  const timeSlots = Array.from({ length: 23 }, (_, i) => {
-    const hour = i + 11;
-    if (hour > 22) return null;
-    return `${hour}:00`;
-  }).filter(Boolean) as string[];
-
-  // Generate guest options from 1 to 10
-  const guestOptions = Array.from({ length: 10 }, (_, i) => ({
-    value: (i + 1).toString(),
-    label: `${i + 1} ${i === 0 ? 'pessoa' : 'pessoas'}`,
-  }));
-
-const onSubmit = async (data: FormValues) => {
-  try {
-
-    const reservationData = {
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      date: format(data.date, 'yyyy-MM-dd'),
-      time: data.time,
-      guests: Number(data.guests),
-      message: data.specialRequests || '',
-      status: 'pending',
-      createdAt: Timestamp.now(),
-    };
-
-
-    const docRef = await addDoc(collection(db, 'reservations'), reservationData);
-    toast({
-      title: 'Reserva realizada com sucesso!',
-      description: `${data.name}, sua reserva para ${data.guests} no dia ${format(data.date, 'PP', { locale: pt })} às ${data.time} foi confirmada.`,
-    });
-
-    if (onSuccess) onSuccess();
-    form.reset();
-  } catch (error) {
-    console.error("Erro detalhado ao salvar no Firebase:", error);
-    toast({
-      title: 'Erro ao salvar reserva',
-      description: 'Tente novamente mais tarde.',
-      variant: 'destructive',
-    });
-  }
-};
-
-
+  const onSubmit = async (data: FormData) => {
+    try {
+      await addDoc(collection(db, 'reservations'), {
+        ...data,
+        createdAt: serverTimestamp(),
+        status: 'pending'
+      });
+      toast({
+        title: "Reserva enviada!",
+        description: "Entraremos em contato em breve para confirmar sua reserva.",
+      })
+      onClose();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Oh não! Algo deu errado.",
+        description: "Houve um problema ao enviar sua reserva. Por favor, tente novamente.",
+      })
+    }
+  };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 rounded-lg bg-white">
-      <h2 className="text-2xl font-bold text-center mb-6">Faça sua Reserva</h2>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Name Field */}
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome completo</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-10" placeholder="Seu nome completo" {...field} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Email Field */}
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-10" placeholder="seu.email@exemplo.com" type="email" {...field} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Phone Field */}
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefone</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-10" placeholder="(00) 00000-0000" {...field} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Date Field */}
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Data</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PP", { locale: pt })
-                        ) : (
-                          <span>Escolha uma data</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) => {
-                        // Disable past dates
-                        return date < new Date(new Date().setHours(0, 0, 0, 0));
-                      }}
-                      initialFocus
-                      locale={pt}
-                      className={cn("p-3 pointer-events-auto")}
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Faça sua reserva</DialogTitle>
+          <DialogDescription>
+            Por favor, preencha todos os campos para solicitar uma reserva.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome completo</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Seu nome completo" 
+                      {...field} 
+                      readOnly={isLoggedIn}
+                      className={isLoggedIn ? "bg-gray-50" : ""}
                     />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Time Field */}
-          <FormField
-            control={form.control}
-            name="time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Horário</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center">
-                        <Clock className="mr-2 h-4 w-4" />
-                        <SelectValue placeholder="Selecione um horário" />
-                      </div>
-                    </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Guests Field */}
-          <FormField
-            control={form.control}
-            name="guests"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de pessoas</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <div className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        <SelectValue placeholder="Selecione o número de pessoas" />
-                      </div>
-                    </SelectTrigger>
+                    <Input 
+                      type="email" 
+                      placeholder="seu@email.com" 
+                      {...field} 
+                      readOnly={isLoggedIn}
+                      className={isLoggedIn ? "bg-gray-50" : ""}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {guestOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Special Requests */}
-          <FormField
-            control={form.control}
-            name="specialRequests"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Solicitações especiais (opcional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ex: Mesa perto da janela, aniversário, etc." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="tel" 
+                      placeholder="(11) 99999-9999" 
+                      {...field} 
+                      readOnly={isLoggedIn}
+                      className={isLoggedIn ? "bg-gray-50" : ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-            Confirmar Reserva
-          </Button>
-        </form>
-      </Form>
-    </div>
+            <div className="flex justify-between space-x-4">
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Data</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3.5 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(new Date(field.value), "PPP")
+                            ) : (
+                              <span>Escolha uma data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={(date) => {
+                            setDate(date)
+                            field.onChange(date?.toLocaleDateString())
+                          }}
+                          disabled={(date) =>
+                            date < new Date()
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Horário</FormLabel>
+                    <FormControl>
+                      <Input type="time" placeholder="Escolha um horário" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="guests"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Número de convidados</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="1" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mensagem (opcional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Alguma observação?" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit">Enviar reserva</Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

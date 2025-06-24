@@ -1,249 +1,178 @@
-
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Utensils, Menu, X, Truck, Settings } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Utensils, Menu, X, User, Settings } from 'lucide-react';
+import ReservationForm from './ReservationForm';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
-import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { useNavigate } from 'react-router-dom';
+import { useCustomerAuth } from '@/hooks/useCustomerAuth';
+import CustomerAuth from './CustomerAuth';
+import CustomerProfile from './CustomerProfile';
 
 const Navbar = () => {
-  const { data: establishmentData, loading } = useEstablishmentData();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
   const { settings } = useSiteSettings();
   const { isAdmin } = useAdminAuth();
-  const navigate = useNavigate();
-  const primaryColor = settings?.primaryColor || '#0066cc';
-  const nameEstabelecimento = settings?.establishmentData?.name || '';
-  const menuUrl = establishmentData?.menuUrl || '';
+  const { isLoggedIn, customerData } = useCustomerAuth();
+  const [showCustomerAuth, setShowCustomerAuth] = useState(false);
+  const [showCustomerProfile, setShowCustomerProfile] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleCustomerAuthSuccess = () => {
+    setShowCustomerAuth(false);
+    setShowCustomerProfile(true);
   };
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
-    e.preventDefault();
-    setIsMenuOpen(false);
-
-    const section = document.getElementById(sectionId);
-    if (section) {
-      window.scrollTo({
-        top: section.offsetTop - 80, // Offset for navbar height
-        behavior: 'smooth'
-      });
+  const handleCustomerButton = () => {
+    if (isLoggedIn) {
+      setShowCustomerProfile(true);
+    } else {
+      setShowCustomerAuth(true);
     }
   };
 
-  const handleOrderClick = () => {
-    const deliverySection = document.getElementById('delivery');
-    if (deliverySection) {
-      window.scrollTo({
-        top: deliverySection.offsetTop - 80,
-        behavior: 'smooth'
-      });
-    }
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleAdminClick = () => {
-    navigate('/admin');
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
+
+  const primariColor = settings?.primaryColor || '';
+  const nameEstabelecimento = settings?.establishmentData?.name || 'Nome do Estabelecimento';
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black text-white shadow-md py-2' : 'bg-black/90 backdrop-blur-sm text-white py-4'
-      }`}>
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center">
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div style={{ backgroundColor: primaryColor }} className="p-2 rounded-lg">
-              <Utensils className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-xl text-white">{nameEstabelecimento}</span>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
-            <a
-              href="#home"
-              onClick={(e) => handleNavClick(e, 'home')}
-              className="text-white transition-all duration-300 hover:opacity-80"
-              style={{ color: 'white' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-            >
-              Home
-            </a>
-            <a
-              href="#menu"
-              onClick={(e) => handleNavClick(e, 'menu')}
-              className="text-white transition-all duration-300 hover:opacity-80"
-              style={{ color: 'white' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-            >
-              Menu
-            </a>
-            <a
-              href="#gallery"
-              onClick={(e) => handleNavClick(e, 'gallery')}
-              className="text-white transition-all duration-300 hover:opacity-80"
-              style={{ color: 'white' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-            >
+          <Link to="/" className="flex items-center space-x-2">
+            {settings?.logo ? (
+              <img src={settings?.logo} alt="Logo" className="h-8 w-auto" />
+            ) : (
+              <div style={{ backgroundColor: primariColor }} className="p-2 rounded-lg">
+                <Utensils className="w-6 h-6 text-white" />
+              </div>
+            )}
+            <span className="font-bold text-lg md:text-2xl" style={{ color: primariColor }}>{nameEstabelecimento}</span>
+          </Link>
+          
+          <div className="hidden md:flex items-center space-x-8">
+            {/* Navigation links */}
+            <Link to="/" className="hover:text-gray-600 transition-colors duration-300">
+              Início
+            </Link>
+            <a href="#gallery" className="hover:text-gray-600 transition-colors duration-300">
               Galeria
             </a>
-            <a
-              href="#about"
-              onClick={(e) => handleNavClick(e, 'about')}
-              className="text-white transition-all duration-300 hover:opacity-80"
-              style={{ color: 'white' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-            >
+            <a href="#delivery" className="hover:text-gray-600 transition-colors duration-300">
+              Entrega
+            </a>
+            <a href="#about" className="hover:text-gray-600 transition-colors duration-300">
               Sobre
             </a>
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, 'contact')}
-              className="text-white transition-all duration-300 hover:opacity-80"
-              style={{ color: 'white' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-            >
+            <a href="#contact" className="hover:text-gray-600 transition-colors duration-300">
               Contato
             </a>
-            <a
-              href="#delivery"
-              onClick={(e) => handleNavClick(e, 'delivery')}
-              className="text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
-              style={{ color: 'white' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-            >
-              <Truck className="h-4 w-4" />
-              Delivery
-            </a>
+            <button onClick={() => setShowReservationDialog(true)} className="hover:text-gray-600 transition-colors duration-300">
+              Reservar
+            </button>
           </div>
 
-          {/* Order Button + Admin Button - Desktop */}
-          <div className="hidden md:flex items-center gap-3">
-            {isAdmin && (
-              <Button
-                onClick={handleAdminClick}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl transition-all duration-300 flex items-center gap-2"
-              >
-                <Settings className="h-4 w-4" />
-                Admin
-              </Button>
-            )}
+          <div className="flex items-center space-x-4">
+            {/* Botão Área do Cliente */}
             <Button
-              onClick={handleOrderClick}
-              className="bg-gradient-to-r text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-white/20"
-              style={{ 
-                backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}dd)`,
-                boxShadow: `0 4px 15px ${primaryColor}40`
-              }}
+              variant="outline"
+              onClick={handleCustomerButton}
+              className="hidden md:flex items-center gap-2"
             >
-              Fazer Pedido
+              <User className="w-4 h-4" />
+              {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
             </Button>
-          </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+            {/* Admin button */}
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="default" className="hidden md:flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Admin
+                </Button>
+              </Link>
+            )}
+
+            {/* Mobile menu button */}
+            <button onClick={toggleMobileMenu} className="md:hidden">
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-4 space-y-4 pb-4">
-            <a
-              href="#home"
-              onClick={(e) => handleNavClick(e, 'home')}
-              className="block text-white transition-all duration-300 hover:opacity-80"
-            >
-              Home
-            </a>
-            <a
-              href="#menu"
-              onClick={(e) => handleNavClick(e, 'menu')}
-              className="block text-white transition-all duration-300 hover:opacity-80"
-            >
-              Menu
-            </a>
-            <a
-              href="#gallery"
-              onClick={(e) => handleNavClick(e, 'gallery')}
-              className="block text-white transition-all duration-300 hover:opacity-80"
-            >
-              Galeria
-            </a>
-            <a
-              href="#about"
-              onClick={(e) => handleNavClick(e, 'about')}
-              className="block text-white transition-all duration-300 hover:opacity-80"
-            >
-              Sobre
-            </a>
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, 'contact')}
-              className="block text-white transition-all duration-300 hover:opacity-80"
-            >
-              Contato
-            </a>
-            <a
-              href="#delivery"
-              onClick={(e) => handleNavClick(e, 'delivery')}
-              className="text-white transition-all duration-300 hover:opacity-80 flex items-center gap-1"
-            >
-              <Truck className="h-4 w-4" />
-              Delivery
-            </a>
-            {isAdmin && (
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-t">
+            <div className="px-4 py-4 space-y-3">
+              {/* Mobile navigation links */}
+              <Link to="/" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+                Início
+              </Link>
+              <a href="#gallery" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+                Galeria
+              </a>
+              <a href="#delivery" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+                Entrega
+              </a>
+              <a href="#about" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+                Sobre
+              </a>
+              <a href="#contact" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+                Contato
+              </a>
+              <button onClick={() => {setShowReservationDialog(true); closeMobileMenu();}} className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full">
+                Reservar
+              </button>
+              
               <Button
-                onClick={handleAdminClick}
                 variant="outline"
-                className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl transition-all duration-300 flex items-center gap-2 justify-center mt-3"
+                onClick={handleCustomerButton}
+                className="w-full justify-start gap-2"
               >
-                <Settings className="h-4 w-4" />
-                Painel Admin
+                <User className="w-4 h-4" />
+                {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
               </Button>
-            )}
-            <Button
-              onClick={handleOrderClick}
-              className="w-full bg-gradient-to-r text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/20 mt-4"
-              style={{ 
-                backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}dd)`,
-                boxShadow: `0 4px 15px ${primaryColor}40`
-              }}
-            >
-              Fazer Pedido
-            </Button>
+
+              {/* Admin button in mobile */}
+              {isAdmin && (
+                <Link to="/admin" onClick={closeMobileMenu}>
+                  <Button variant="default" className="w-full justify-start gap-2">
+                    <Settings className="w-4 h-4" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
         )}
-      </div>
-    </nav>
+      </nav>
+
+      {/* Modais */}
+      <CustomerAuth
+        isOpen={showCustomerAuth}
+        onClose={() => setShowCustomerAuth(false)}
+        onSuccess={handleCustomerAuthSuccess}
+      />
+
+      <CustomerProfile
+        isOpen={showCustomerProfile}
+        onClose={() => setShowCustomerProfile(false)}
+      />
+
+      {/* Reservation dialog */}
+      <ReservationForm onClose={() => setShowReservationDialog(false)} />
+    </>
   );
 };
 
