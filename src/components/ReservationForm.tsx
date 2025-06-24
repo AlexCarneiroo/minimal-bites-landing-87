@@ -19,9 +19,10 @@ import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 
 interface ReservationFormProps {
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-const ReservationForm = ({ onClose }: ReservationFormProps) => {
+const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
   const { customerData, isLoggedIn } = useCustomerAuth();
   
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -76,6 +77,9 @@ const ReservationForm = ({ onClose }: ReservationFormProps) => {
         description: "Entraremos em contato em breve para confirmar sua reserva.",
       })
       onClose();
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       toast({
         variant: "destructive",

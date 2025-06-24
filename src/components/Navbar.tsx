@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Utensils, Menu, X, User, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import ReservationForm from './ReservationForm';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
@@ -40,6 +41,7 @@ const Navbar = () => {
 
   const primariColor = settings?.primaryColor || '';
   const nameEstabelecimento = settings?.establishmentData?.name || 'Nome do Estabelecimento';
+  const logoUrl = settings?.establishmentData?.logo || '';
 
   return (
     <>
@@ -47,8 +49,8 @@ const Navbar = () => {
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            {settings?.logo ? (
-              <img src={settings?.logo} alt="Logo" className="h-8 w-auto" />
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="h-8 w-auto" />
             ) : (
               <div style={{ backgroundColor: primariColor }} className="p-2 rounded-lg">
                 <Utensils className="w-6 h-6 text-white" />
@@ -171,7 +173,9 @@ const Navbar = () => {
       />
 
       {/* Reservation dialog */}
-      <ReservationForm onClose={() => setShowReservationDialog(false)} />
+      {showReservationDialog && (
+        <ReservationForm onClose={() => setShowReservationDialog(false)} />
+      )}
     </>
   );
 };
