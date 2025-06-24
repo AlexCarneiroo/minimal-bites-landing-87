@@ -114,17 +114,17 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto p-0">
+        <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center justify-between">
-            <span>Meu Perfil</span>
-            <div className="flex gap-2">
+            <span className="text-2xl font-bold">Meu Perfil</span>
+            <div className="flex gap-3">
               {isAdmin && (
                 <Button
                   variant="default"
                   size="sm"
                   onClick={handleAdminAccess}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Painel Admin
@@ -134,6 +134,7 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all duration-300"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sair
@@ -142,92 +143,127 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="px-6 pb-6 space-y-8">
           {/* Informações do Cliente */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
+          <Card className="border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <User className="w-5 h-5 text-blue-600" />
+                </div>
                 Informações Pessoais
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-gray-500" />
-                <span className="font-medium">Nome:</span>
-                <span>{customerData.name}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-gray-500" />
-                <span className="font-medium">Email:</span>
-                <span>{customerData.email}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-gray-500" />
-                <span className="font-medium">Telefone:</span>
-                <span>{customerData.phone}</span>
+            <CardContent className="pt-0">
+              <div className="grid gap-4">
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <User className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700 block mb-1">Nome:</span>
+                    <span className="text-gray-900 text-lg">{customerData.name}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <Mail className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700 block mb-1">Email:</span>
+                    <span className="text-gray-900 text-lg">{customerData.email}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="p-2 bg-purple-100 rounded-full">
+                    <Phone className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700 block mb-1">Telefone:</span>
+                    <span className="text-gray-900 text-lg">{customerData.phone}</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Reservas */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
+          <Card className="border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 bg-amber-100 rounded-full">
+                  <Calendar className="w-5 h-5 text-amber-600" />
+                </div>
                 Minhas Reservas
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className="text-gray-600">Carregando reservas...</p>
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-6"></div>
+                  <p className="text-gray-600 text-lg">Carregando reservas...</p>
                 </div>
               ) : reservations.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600">Você ainda não possui reservas</p>
+                <div className="text-center py-12">
+                  <div className="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                    <Calendar className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <p className="text-gray-600 text-lg font-medium mb-2">Nenhuma reserva encontrada</p>
+                  <p className="text-gray-500">Você ainda não possui reservas</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {reservations.map((reservation) => (
-                    <Card key={reservation.id} className="border-l-4 border-l-primary">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-gray-500" />
-                              <span className="font-medium">
-                                {reservation.date}
-                              </span>
+                    <Card key={reservation.id} className="border-l-4 border-l-primary bg-white shadow-md hover:shadow-lg transition-all duration-300">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="space-y-3 flex-1">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-blue-100 rounded-full">
+                                <Calendar className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-700 block">Data da Reserva</span>
+                                <span className="text-gray-900 text-lg">{reservation.date}</span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-gray-500" />
-                              <span>{reservation.time}</span>
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-green-100 rounded-full">
+                                <Clock className="w-4 h-4 text-green-600" />
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-700 block">Horário</span>
+                                <span className="text-gray-900 text-lg">{reservation.time}</span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-gray-500" />
-                              <span>
-                                {reservation.guests} {reservation.guests === 1 ? 'pessoa' : 'pessoas'}
-                              </span>
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-purple-100 rounded-full">
+                                <Users className="w-4 h-4 text-purple-600" />
+                              </div>
+                              <div>
+                                <span className="font-semibold text-gray-700 block">Número de Pessoas</span>
+                                <span className="text-gray-900 text-lg">
+                                  {reservation.guests} {reservation.guests === 1 ? 'pessoa' : 'pessoas'}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <Badge className={getStatusColor(reservation.status)}>
+                          <Badge className={`${getStatusColor(reservation.status)} px-4 py-2 text-sm font-semibold`}>
                             {getStatusLabel(reservation.status)}
                           </Badge>
                         </div>
                         
                         {reservation.message && (
-                          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-700">
-                              <strong>Observações:</strong> {reservation.message}
-                            </p>
+                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-200">
+                            <p className="text-sm font-semibold text-blue-800 mb-1">Observações:</p>
+                            <p className="text-blue-700">{reservation.message}</p>
                           </div>
                         )}
                         
-                        <div className="mt-3 text-xs text-gray-500">
-                          Reserva criada em: {formatDate(reservation.createdAt)}
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <p className="text-xs text-gray-500">
+                            Reserva criada em: {formatDate(reservation.createdAt)}
+                          </p>
                         </div>
                       </CardContent>
                     </Card>

@@ -90,7 +90,7 @@ export const signInCustomer = async (email: string, password: string) => {
     return { success: true, user: userCredential.user };
   } catch (error: any) {
     console.error('Erro no login:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: getErrorMessage(error.code) };
   }
 };
 
@@ -112,7 +112,7 @@ export const resetCustomerPassword = async (email: string) => {
     return { success: true };
   } catch (error: any) {
     console.error('Erro na recuperação de senha:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: getErrorMessage(error.code) };
   }
 };
 
