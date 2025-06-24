@@ -38,6 +38,17 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleSmoothScroll = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+    closeMobileMenu();
+  };
+
   const primariColor = settings?.primaryColor || '';
   const nameEstabelecimento = settings?.establishmentData?.name || 'Nome do Estabelecimento';
   const logoUrl = settings?.establishmentData?.logo || '';
@@ -63,20 +74,29 @@ const Navbar = () => {
             <Link to="/" className="hover:text-gray-600 transition-colors duration-300">
               Início
             </Link>
-            <a href="#gallery" className="hover:text-gray-600 transition-colors duration-300">
+            <button 
+              onClick={() => handleSmoothScroll('gallery')} 
+              className="hover:text-gray-600 transition-colors duration-300"
+            >
               Galeria
-            </a>
-            <a href="#delivery" className="hover:text-gray-600 transition-colors duration-300">
+            </button>
+            <button 
+              onClick={() => handleSmoothScroll('delivery')} 
+              className="hover:text-gray-600 transition-colors duration-300"
+            >
               Entrega
-            </a>
-            <a href="#about" className="hover:text-gray-600 transition-colors duration-300">
+            </button>
+            <button 
+              onClick={() => handleSmoothScroll('about')} 
+              className="hover:text-gray-600 transition-colors duration-300"
+            >
               Sobre
-            </a>
-            <a href="#contact" className="hover:text-gray-600 transition-colors duration-300">
+            </button>
+            <button 
+              onClick={() => handleSmoothScroll('contact')} 
+              className="hover:text-gray-600 transition-colors duration-300"
+            >
               Contato
-            </a>
-            <button onClick={() => setShowReservationDialog(true)} className="hover:text-gray-600 transition-colors duration-300">
-              Reservar
             </button>
           </div>
 
@@ -110,20 +130,29 @@ const Navbar = () => {
               <Link to="/" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
                 Início
               </Link>
-              <a href="#gallery" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+              <button 
+                onClick={() => handleSmoothScroll('gallery')} 
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+              >
                 Galeria
-              </a>
-              <a href="#delivery" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+              </button>
+              <button 
+                onClick={() => handleSmoothScroll('delivery')} 
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+              >
                 Entrega
-              </a>
-              <a href="#about" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+              </button>
+              <button 
+                onClick={() => handleSmoothScroll('about')} 
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+              >
                 Sobre
-              </a>
-              <a href="#contact" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+              </button>
+              <button 
+                onClick={() => handleSmoothScroll('contact')} 
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+              >
                 Contato
-              </a>
-              <button onClick={() => {setShowReservationDialog(true); closeMobileMenu();}} className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full">
-                Reservar
               </button>
               
               <Button

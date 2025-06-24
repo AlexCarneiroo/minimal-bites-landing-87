@@ -16,10 +16,11 @@ export const useAdminAuth = () => {
       
       if (user) {
         try {
-          // Verificar se o usuário é realmente o proprietário/admin
+          // Verificar se o usuário é admin através do campo isAdmin
           const userDoc = await getDoc(doc(db, 'users', user.uid));
-          const isOwner = userDoc.exists() && userDoc.data()?.role === 'owner';
-          setIsAdmin(isOwner);
+          const userData = userDoc.data();
+          const isUserAdmin = userData?.isAdmin === 1;
+          setIsAdmin(isUserAdmin);
         } catch (error) {
           console.error('Erro ao verificar permissões de admin:', error);
           setIsAdmin(false);

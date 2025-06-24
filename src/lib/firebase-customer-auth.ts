@@ -1,4 +1,3 @@
-
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -8,16 +7,16 @@ import {
   signOut,
   User
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
 const auth = getAuth();
 
 export interface CustomerData {
-  email: string;
   name: string;
+  email: string;
   phone: string;
-  createdAt: Date;
+  isAdmin?: number; // 1 for admin, 0 for regular user
 }
 
 export interface CustomerReservation {
@@ -34,23 +33,32 @@ export interface CustomerReservation {
 }
 
 // Registrar novo cliente
-export const registerCustomer = async (email: string, password: string, name: string, phone: string) => {
+export const registerCustomer = async (
+  email: string, 
+  password: string, 
+  name: string, 
+  phone: string
+): Promise<{ success: boolean; error?: string }> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    
-    const customerData: CustomerData = {
-      email,
+    const user = userCredential.user;
+
+    // Salvar dados do cliente no Firestore com isAdmin padrão como 0
+    await setDoc(doc(db, 'customers', user.uid), {
       name,
+      email,
       phone,
-      createdAt: new Date()
-    };
-    
-    await setDoc(doc(db, 'customers', userCredential.user.uid), customerData);
-    
-    return { success: true, user: userCredential.user };
+      isAdmin: 0, // Usuário comum por padrão
+      createdAt: serverTimestamp()
+    });
+
+    return { success: true };
   } catch (error: any) {
-    console.error('Erro no cadastro:', error);
-    return { success: false, error: error.message };
+    console.error('Erro no registro do cliente:', error);
+    return { 
+      success: false, 
+      error: getErrorMessage(error.code) 
+    };
   }
 };
 

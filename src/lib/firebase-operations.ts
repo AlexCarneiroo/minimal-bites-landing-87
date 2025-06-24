@@ -1,4 +1,3 @@
-
 import { db } from './firebase';
 import { collection, doc, setDoc, getDoc, getDocs, addDoc, deleteDoc } from 'firebase/firestore';
 
@@ -258,6 +257,36 @@ export const deleteProduct = async (id: string) => {
     return true;
   } catch (error) {
     console.error('Erro ao deletar produto:', error);
+    return false;
+  }
+};
+
+// Funções para gerenciar admins
+export const setUserAsAdmin = async (userId: string, isAdmin: boolean) => {
+  try {
+    const docRef = doc(db, 'customers', userId);
+    await setDoc(docRef, {
+      isAdmin: isAdmin ? 1 : 0,
+      updatedAt: new Date()
+    }, { merge: true });
+    return true;
+  } catch (error) {
+    console.error('Erro ao definir usuário como admin:', error);
+    return false;
+  }
+};
+
+export const getUserAdminStatus = async (userId: string) => {
+  try {
+    const docRef = doc(db, 'customers', userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      return userData.isAdmin === 1;
+    }
+    return false;
+  } catch (error) {
+    console.error('Erro ao verificar status de admin:', error);
     return false;
   }
 };
