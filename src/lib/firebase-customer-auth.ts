@@ -1,3 +1,4 @@
+
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -31,6 +32,26 @@ export interface CustomerReservation {
   status: 'pending' | 'confirmed' | 'cancelled';
   createdAt: any;
 }
+
+// Função para tratar mensagens de erro do Firebase
+const getErrorMessage = (errorCode: string): string => {
+  switch (errorCode) {
+    case 'auth/email-already-in-use':
+      return 'Este email já está sendo usado por outra conta';
+    case 'auth/weak-password':
+      return 'A senha deve ter pelo menos 6 caracteres';
+    case 'auth/invalid-email':
+      return 'Email inválido';
+    case 'auth/user-not-found':
+      return 'Usuário não encontrado';
+    case 'auth/wrong-password':
+      return 'Senha incorreta';
+    case 'auth/too-many-requests':
+      return 'Muitas tentativas. Tente novamente mais tarde';
+    default:
+      return 'Erro no processo de autenticação';
+  }
+};
 
 // Registrar novo cliente
 export const registerCustomer = async (
