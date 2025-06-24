@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Utensils, Menu, X, User, Settings } from 'lucide-react';
+import { Utensils, Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReservationForm from './ReservationForm';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
@@ -13,7 +13,6 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showReservationDialog, setShowReservationDialog] = useState(false);
   const { settings } = useSiteSettings();
-  const { isAdmin } = useAdminAuth();
   const { isLoggedIn, customerData } = useCustomerAuth();
   const [showCustomerAuth, setShowCustomerAuth] = useState(false);
   const [showCustomerProfile, setShowCustomerProfile] = useState(false);
@@ -92,16 +91,6 @@ const Navbar = () => {
               {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
             </Button>
 
-            {/* Admin button */}
-            {isAdmin && (
-              <Link to="/admin">
-                <Button variant="default" className="hidden md:flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Admin
-                </Button>
-              </Link>
-            )}
-
             {/* Mobile menu button */}
             <button onClick={toggleMobileMenu} className="md:hidden">
               {isMobileMenuOpen ? (
@@ -145,16 +134,6 @@ const Navbar = () => {
                 <User className="w-4 h-4" />
                 {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
               </Button>
-
-              {/* Admin button in mobile */}
-              {isAdmin && (
-                <Link to="/admin" onClick={closeMobileMenu}>
-                  <Button variant="default" className="w-full justify-start gap-2">
-                    <Settings className="w-4 h-4" />
-                    Admin
-                  </Button>
-                </Link>
-              )}
             </div>
           </div>
         )}
