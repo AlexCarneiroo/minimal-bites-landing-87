@@ -117,10 +117,12 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-[90vw] sm:max-w-[500px] h-[85vh] max-h-[85vh] p-0 overflow-hidden">
-        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 border-b">
-          <DialogTitle className="text-xl sm:text-2xl text-center">Reserva de Mesa</DialogTitle>
-          <DialogDescription className="text-center text-sm sm:text-base">
+      <DialogContent className="w-full max-w-[90vw] sm:max-w-[500px] h-[85vh] max-h-[85vh] p-0 overflow-hidden animate-scale-in">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
+          <DialogTitle className="text-xl sm:text-2xl text-center font-bold text-gray-800 animate-fade-in">
+            🍽️ Reserva de Mesa
+          </DialogTitle>
+          <DialogDescription className="text-center text-sm sm:text-base text-gray-600 animate-fade-in" style={{ animationDelay: "100ms" }}>
             Preencha o formulário abaixo para fazer sua reserva em nosso restaurante.
           </DialogDescription>
         </DialogHeader>
@@ -132,23 +134,23 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm sm:text-base">Nome completo</FormLabel>
+                  <FormItem className="animate-fade-in" style={{ animationDelay: "200ms" }}>
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Nome completo</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Seu nome completo" 
                         {...field} 
                         readOnly={isLoggedIn}
                         className={cn(
-                          "text-sm sm:text-base h-10 sm:h-11",
-                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
+                          "text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500",
+                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : "hover:shadow-md focus:shadow-lg"
                         )}
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
                     {isLoggedIn && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Campo preenchido automaticamente
+                      <p className="text-xs text-gray-500 mt-1 animate-pulse">
+                        ✓ Campo preenchido automaticamente
                       </p>
                     )}
                   </FormItem>
@@ -159,8 +161,8 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm sm:text-base">Email</FormLabel>
+                  <FormItem className="animate-fade-in" style={{ animationDelay: "300ms" }}>
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Email</FormLabel>
                     <FormControl>
                       <Input 
                         type="email" 
@@ -168,15 +170,15 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                         {...field} 
                         readOnly={isLoggedIn}
                         className={cn(
-                          "text-sm sm:text-base h-10 sm:h-11",
-                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
+                          "text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500",
+                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : "hover:shadow-md focus:shadow-lg"
                         )}
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
                     {isLoggedIn && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Campo preenchido automaticamente
+                      <p className="text-xs text-gray-500 mt-1 animate-pulse">
+                        ✓ Campo preenchido automaticamente
                       </p>
                     )}
                   </FormItem>
@@ -187,8 +189,8 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm sm:text-base">Telefone</FormLabel>
+                  <FormItem className="animate-fade-in" style={{ animationDelay: "400ms" }}>
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Telefone</FormLabel>
                     <FormControl>
                       <Input 
                         type="tel" 
@@ -196,48 +198,48 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                         {...field} 
                         readOnly={isLoggedIn}
                         className={cn(
-                          "text-sm sm:text-base h-10 sm:h-11",
-                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
+                          "text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500",
+                          isLoggedIn ? "bg-gray-50 cursor-not-allowed" : "hover:shadow-md focus:shadow-lg"
                         )}
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
                     {isLoggedIn && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Campo preenchido automaticamente
+                      <p className="text-xs text-gray-500 mt-1 animate-pulse">
+                        ✓ Campo preenchido automaticamente
                       </p>
                     )}
                   </FormItem>
                 )}
               />
 
-              <div className="flex flex-col sm:flex-row justify-between gap-4 sm:space-x-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-4 sm:space-x-4 animate-fade-in" style={{ animationDelay: "500ms" }}>
                 <FormField
                   control={form.control}
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <FormLabel className="text-sm sm:text-base">Data</FormLabel>
+                      <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Data</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-full pl-3 text-left font-normal text-sm sm:text-base h-10 sm:h-11",
+                                "w-full pl-3 text-left font-normal text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 hover:shadow-md",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
                               {field.value ? (
                                 formatDate(field.value) || "Data inválida"
                               ) : (
-                                <span>Escolha uma data</span>
+                                <span>📅 Escolha uma data</span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0 animate-scale-in" align="start">
                           <Calendar
                             mode="single"
                             selected={date}
@@ -267,13 +269,13 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                   name="time"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <FormLabel className="text-sm sm:text-base">Horário</FormLabel>
+                      <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Horário</FormLabel>
                       <FormControl>
                         <Input 
                           type="time" 
                           placeholder="Escolha um horário" 
                           {...field} 
-                          className="text-sm sm:text-base h-10 sm:h-11"
+                          className="text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500 hover:shadow-md focus:shadow-lg"
                         />
                       </FormControl>
                       <FormMessage className="text-xs sm:text-sm" />
@@ -286,15 +288,15 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                 control={form.control}
                 name="guests"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm sm:text-base">Número de convidados</FormLabel>
+                  <FormItem className="animate-fade-in" style={{ animationDelay: "600ms" }}>
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Número de convidados</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
                         placeholder="1" 
                         {...field} 
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                        className="text-sm sm:text-base h-10 sm:h-11"
+                        className="text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500 hover:shadow-md focus:shadow-lg"
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
@@ -306,13 +308,13 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                 control={form.control}
                 name="message"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm sm:text-base">Mensagem (opcional)</FormLabel>
+                  <FormItem className="animate-fade-in" style={{ animationDelay: "700ms" }}>
+                    <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Mensagem (opcional)</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="Alguma observação?" 
+                        placeholder="💬 Alguma observação?" 
                         {...field} 
-                        className="text-sm sm:text-base h-10 sm:h-11"
+                        className="text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500 hover:shadow-md focus:shadow-lg"
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
@@ -320,12 +322,12 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                 )}
               />
               
-              <div className="pt-4">
+              <div className="pt-4 animate-fade-in" style={{ animationDelay: "800ms" }}>
                 <Button 
                   type="submit" 
-                  className="w-full text-sm sm:text-base h-11 sm:h-12"
+                  className="w-full text-sm sm:text-base h-12 sm:h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl font-medium"
                 >
-                  Enviar reserva
+                  🎉 Enviar reserva
                 </Button>
               </div>
             </form>

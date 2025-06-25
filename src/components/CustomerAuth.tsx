@@ -156,24 +156,27 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-w-[90vw] w-full bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-w-[90vw] w-full bg-gradient-to-br from-white via-gray-50 to-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
         <DialogHeader className="text-center space-y-4 pb-6">
           <div 
-            className="w-16 h-16 rounded-full mx-auto flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: `${primaryColor}20` }}
+            className="w-20 h-20 rounded-full mx-auto flex items-center justify-center shadow-xl animate-fade-in transition-all duration-500 hover:scale-110"
+            style={{ 
+              background: `linear-gradient(135deg, ${primaryColor}20, ${primaryColor}10)`,
+              border: `2px solid ${primaryColor}30`
+            }}
           >
-            <User className="w-8 h-8" style={{ color: primaryColor }} />
+            <User className="w-10 h-10 animate-pulse" style={{ color: primaryColor }} />
           </div>
-          <DialogTitle className="text-2xl font-bold text-gray-800">
+          <DialogTitle className="text-3xl font-bold text-gray-800 animate-fade-in" style={{ animationDelay: "100ms" }}>
             Área do Cliente
           </DialogTitle>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 text-sm animate-fade-in" style={{ animationDelay: "200ms" }}>
             Acesse sua conta ou cadastre-se para continuar
           </p>
         </DialogHeader>
 
         {showReset ? (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in">
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">Recuperar Senha</h3>
               <p className="text-gray-600 text-sm">Digite seu email para receber as instruções</p>
@@ -182,15 +185,15 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
             <form onSubmit={handlePasswordReset} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="reset-email" className="text-gray-700 font-medium">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <div className="relative group">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                   <Input
                     id="reset-email"
                     type="email"
                     placeholder="Digite seu email"
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                    className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                     required
                   />
                 </div>
@@ -200,7 +203,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                 <Button 
                   type="submit" 
                   disabled={loading} 
-                  className="flex-1 h-12 rounded-xl text-white hover:opacity-90 transition-opacity"
+                  className="flex-1 h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {loading ? "Enviando..." : "Enviar"}
@@ -209,7 +212,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                   type="button" 
                   variant="outline" 
                   onClick={() => setShowReset(false)}
-                  className="flex-1 h-12 rounded-xl border-gray-300 hover:bg-gray-50 transition-colors"
+                  className="flex-1 h-14 rounded-xl border-2 border-gray-300 hover:bg-gray-50 transition-all duration-300 hover:scale-105 text-base font-medium"
                 >
                   Voltar
                 </Button>
@@ -217,11 +220,11 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
             </form>
           </div>
         ) : (
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
+          <Tabs defaultValue="login" className="w-full animate-fade-in" style={{ animationDelay: "300ms" }}>
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1 h-12">
               <TabsTrigger 
                 value="login" 
-                className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
+                className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300 text-base font-medium hover:scale-105"
                 style={{ 
                   color: primaryColor,
                   '--tw-ring-color': primaryColor 
@@ -231,7 +234,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
               </TabsTrigger>
               <TabsTrigger 
                 value="register" 
-                className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
+                className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300 text-base font-medium hover:scale-105"
                 style={{ 
                   color: primaryColor,
                   '--tw-ring-color': primaryColor 
@@ -244,40 +247,40 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
             <TabsContent value="login" className="space-y-6 pt-6">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email" className="text-gray-700 font-medium">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Label htmlFor="login-email" className="text-gray-700 font-medium text-base">Email</Label>
+                  <div className="relative group">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                     <Input
                       id="login-email"
                       type="email"
                       placeholder="Digite seu email"
                       value={loginForm.email}
                       onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
-                      className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-gray-700 font-medium">Senha</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Label htmlFor="login-password" className="text-gray-700 font-medium text-base">Senha</Label>
+                  <div className="relative group">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                     <Input
                       id="login-password"
                       type={showLoginPassword ? "text" : "password"}
                       placeholder="Digite sua senha"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                      className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="pl-12 pr-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-all duration-300 hover:scale-110"
                     >
-                      {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showLoginPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
@@ -285,7 +288,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                 <Button 
                   type="submit" 
                   disabled={loading} 
-                  className="w-full h-12 rounded-xl text-white hover:opacity-90 transition-opacity shadow-lg"
+                  className="w-full h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-xl text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {loading ? "Entrando..." : "Entrar"}
@@ -295,7 +298,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                   type="button" 
                   variant="ghost" 
                   onClick={() => setShowReset(true)}
-                  className="w-full text-sm hover:bg-gray-100 transition-colors"
+                  className="w-full text-base hover:bg-gray-100 transition-all duration-300 hover:scale-105"
                   style={{ color: primaryColor }}
                 >
                   Esqueceu sua senha?
@@ -306,95 +309,95 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
             <TabsContent value="register" className="space-y-6 pt-6">
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="register-name" className="text-gray-700 font-medium">Nome</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Label htmlFor="register-name" className="text-gray-700 font-medium text-base">Nome</Label>
+                  <div className="relative group">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                     <Input
                       id="register-name"
                       type="text"
                       placeholder="Digite seu nome"
                       value={registerForm.name}
                       onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
-                      className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="register-email" className="text-gray-700 font-medium">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Label htmlFor="register-email" className="text-gray-700 font-medium text-base">Email</Label>
+                  <div className="relative group">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                     <Input
                       id="register-email"
                       type="email"
                       placeholder="Digite seu email"
                       value={registerForm.email}
                       onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
-                      className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="register-phone" className="text-gray-700 font-medium">Telefone</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Label htmlFor="register-phone" className="text-gray-700 font-medium text-base">Telefone</Label>
+                  <div className="relative group">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                     <Input
                       id="register-phone"
                       type="tel"
                       placeholder="Digite seu telefone"
                       value={registerForm.phone}
                       onChange={(e) => setRegisterForm({...registerForm, phone: e.target.value})}
-                      className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="register-password" className="text-gray-700 font-medium">Senha</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Label htmlFor="register-password" className="text-gray-700 font-medium text-base">Senha</Label>
+                  <div className="relative group">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                     <Input
                       id="register-password"
                       type={showRegisterPassword ? "text" : "password"}
                       placeholder="Digite sua senha"
                       value={registerForm.password}
                       onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
-                      className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="pl-12 pr-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-all duration-300 hover:scale-110"
                     >
-                      {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showRegisterPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="register-confirm" className="text-gray-700 font-medium">Confirmar Senha</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Label htmlFor="register-confirm" className="text-gray-700 font-medium text-base">Confirmar Senha</Label>
+                  <div className="relative group">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-blue-500" />
                     <Input
                       id="register-confirm"
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirme sua senha"
                       value={registerForm.confirmPassword}
                       onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
-                      className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="pl-12 pr-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-all duration-300 hover:scale-110"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
@@ -402,7 +405,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                 <Button 
                   type="submit" 
                   disabled={loading} 
-                  className="w-full h-12 rounded-xl text-white hover:opacity-90 transition-opacity shadow-lg"
+                  className="w-full h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-xl text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {loading ? "Cadastrando..." : "Cadastrar"}
