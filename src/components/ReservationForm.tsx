@@ -16,7 +16,7 @@ import { db } from '@/lib/firebase';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 
 interface ReservationFormProps {
@@ -27,7 +27,7 @@ interface ReservationFormProps {
 const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
   const { customerData, isLoggedIn } = useCustomerAuth();
   
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
 
   const FormSchema = z.object({
@@ -88,6 +88,30 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
         title: "Oh não! Algo deu errado.",
         description: "Houve um problema ao enviar sua reserva. Por favor, tente novamente.",
       })
+    }
+  };
+
+  // Helper function to safely format date
+  const formatDate = (dateValue: string) => {
+    if (!dateValue) return null;
+    
+    try {
+      // Try to parse the date string
+      const parsedDate = parseISO(dateValue);
+      if (isValid(parsedDate)) {
+        return format(parsedDate, "dd/MM/yyyy");
+      }
+      
+      // If parseISO fails, try with Date constructor
+      const date = new Date(dateValue);
+      if (isValid(date)) {
+        return format(date, "dd/MM/yyyy");
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return null;
     }
   };
 
@@ -205,7 +229,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                               )}
                             >
                               {field.value ? (
-                                format(new Date(field.value), "dd/MM/yyyy")
+                                formatDate(field.value) || "Data inválida"
                               ) : (
                                 <span>Escolha uma data</span>
                               )}
@@ -217,14 +241,19 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                           <Calendar
                             mode="single"
                             selected={date}
-                            onSelect={(date) => {
-                              setDate(date)
-                              field.onChange(date?.toLocaleDateString())
+                            onSelect={(selectedDate) => {
+                              setDate(selectedDate)
+                              if (selectedDate) {
+                                field.onChange(selectedDate.toISOString())
+                              } else {
+                                field.onChange("")
+                              }
                             }}
                             disabled={(date) =>
                               date < new Date()
                             }
                             initialFocus
+                            className="p-3 pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
