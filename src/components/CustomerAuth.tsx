@@ -156,7 +156,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl">
+      <DialogContent className="sm:max-w-md max-w-[90vw] w-full bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="text-center space-y-4 pb-6">
           <div 
             className="w-16 h-16 rounded-full mx-auto flex items-center justify-center shadow-lg"

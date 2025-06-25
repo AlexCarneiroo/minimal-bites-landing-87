@@ -117,7 +117,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-[500px] h-[90vh] max-h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="w-full max-w-[90vw] sm:max-w-[500px] h-[85vh] max-h-[85vh] p-0 overflow-hidden">
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 border-b">
           <DialogTitle className="text-xl sm:text-2xl text-center">Reserva de Mesa</DialogTitle>
           <DialogDescription className="text-center text-sm sm:text-base">
@@ -140,7 +140,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                         {...field} 
                         readOnly={isLoggedIn}
                         className={cn(
-                          "text-sm sm:text-base",
+                          "text-sm sm:text-base h-10 sm:h-11",
                           isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
                         )}
                       />
@@ -168,7 +168,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                         {...field} 
                         readOnly={isLoggedIn}
                         className={cn(
-                          "text-sm sm:text-base",
+                          "text-sm sm:text-base h-10 sm:h-11",
                           isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
                         )}
                       />
@@ -196,7 +196,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                         {...field} 
                         readOnly={isLoggedIn}
                         className={cn(
-                          "text-sm sm:text-base",
+                          "text-sm sm:text-base h-10 sm:h-11",
                           isLoggedIn ? "bg-gray-50 cursor-not-allowed" : ""
                         )}
                       />
@@ -224,7 +224,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-full pl-3 text-left font-normal text-sm sm:text-base h-9 sm:h-10",
+                                "w-full pl-3 text-left font-normal text-sm sm:text-base h-10 sm:h-11",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -273,7 +273,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                           type="time" 
                           placeholder="Escolha um horário" 
                           {...field} 
-                          className="text-sm sm:text-base h-9 sm:h-10"
+                          className="text-sm sm:text-base h-10 sm:h-11"
                         />
                       </FormControl>
                       <FormMessage className="text-xs sm:text-sm" />
@@ -294,7 +294,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                         placeholder="1" 
                         {...field} 
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                        className="text-sm sm:text-base h-9 sm:h-10"
+                        className="text-sm sm:text-base h-10 sm:h-11"
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
@@ -312,7 +312,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                       <Input 
                         placeholder="Alguma observação?" 
                         {...field} 
-                        className="text-sm sm:text-base h-9 sm:h-10"
+                        className="text-sm sm:text-base h-10 sm:h-11"
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
@@ -323,7 +323,7 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
               <div className="pt-4">
                 <Button 
                   type="submit" 
-                  className="w-full text-sm sm:text-base h-10 sm:h-11"
+                  className="w-full text-sm sm:text-base h-11 sm:h-12"
                 >
                   Enviar reserva
                 </Button>

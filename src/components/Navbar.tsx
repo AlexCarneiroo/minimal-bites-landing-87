@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Utensils, Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReservationForm from './ReservationForm';
@@ -16,6 +16,7 @@ const Navbar = () => {
   const { isLoggedIn, customerData } = useCustomerAuth();
   const [showCustomerAuth, setShowCustomerAuth] = useState(false);
   const [showCustomerProfile, setShowCustomerProfile] = useState(false);
+  const navigate = useNavigate();
 
   const handleCustomerAuthSuccess = () => {
     setShowCustomerAuth(false);
@@ -25,6 +26,14 @@ const Navbar = () => {
   const handleCustomerButton = () => {
     if (isLoggedIn) {
       setShowCustomerProfile(true);
+    } else {
+      setShowCustomerAuth(true);
+    }
+  };
+
+  const handleReservationClick = () => {
+    if (isLoggedIn) {
+      setShowReservationDialog(true);
     } else {
       setShowCustomerAuth(true);
     }
@@ -55,7 +64,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/20">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md shadow-sm border-b border-white/10">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
@@ -71,38 +80,44 @@ const Navbar = () => {
           
           <div className="hidden md:flex items-center space-x-8">
             {/* Navigation links */}
-            <Link to="/" className="hover:text-gray-600 transition-colors duration-300">
+            <Link to="/" className="hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium">
               Início
             </Link>
             <button 
               onClick={() => handleSmoothScroll('menu')} 
-              className="hover:text-gray-600 transition-colors duration-300"
+              className="hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium"
             >
-              Menu
+              Menu de Destaque
             </button>
             <button 
               onClick={() => handleSmoothScroll('gallery')} 
-              className="hover:text-gray-600 transition-colors duration-300"
+              className="hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium"
             >
               Galeria
             </button>
             <button 
               onClick={() => handleSmoothScroll('delivery')} 
-              className="hover:text-gray-600 transition-colors duration-300"
+              className="hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium"
             >
               Entrega
             </button>
             <button 
               onClick={() => handleSmoothScroll('about')} 
-              className="hover:text-gray-600 transition-colors duration-300"
+              className="hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium"
             >
               Sobre
             </button>
             <button 
               onClick={() => handleSmoothScroll('contact')} 
-              className="hover:text-gray-600 transition-colors duration-300"
+              className="hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium"
             >
               Contato
+            </button>
+            <button 
+              onClick={handleReservationClick}
+              className="hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium"
+            >
+              Reservar Mesa
             </button>
           </div>
 
@@ -130,41 +145,47 @@ const Navbar = () => {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white/95 backdrop-blur-lg border-t border-white/20">
+          <div className="md:hidden bg-white/90 backdrop-blur-md border-t border-white/20">
             <div className="px-4 py-4 space-y-3">
               {/* Mobile navigation links */}
-              <Link to="/" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
+              <Link to="/" className="block py-2 hover:text-gray-600 transition-colors duration-300 text-gray-800 font-medium" onClick={closeMobileMenu}>
                 Início
               </Link>
               <button 
                 onClick={() => handleSmoothScroll('menu')} 
-                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full text-gray-800 font-medium"
               >
-                Menu
+                Menu de Destaque
               </button>
               <button 
                 onClick={() => handleSmoothScroll('gallery')} 
-                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full text-gray-800 font-medium"
               >
                 Galeria
               </button>
               <button 
                 onClick={() => handleSmoothScroll('delivery')} 
-                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full text-gray-800 font-medium"
               >
                 Entrega
               </button>
               <button 
                 onClick={() => handleSmoothScroll('about')} 
-                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full text-gray-800 font-medium"
               >
                 Sobre
               </button>
               <button 
                 onClick={() => handleSmoothScroll('contact')} 
-                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full text-gray-800 font-medium"
               >
                 Contato
+              </button>
+              <button 
+                onClick={() => { handleReservationClick(); closeMobileMenu(); }}
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full text-gray-800 font-medium"
+              >
+                Reservar Mesa
               </button>
               
               <Button
