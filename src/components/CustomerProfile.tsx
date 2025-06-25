@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { getCustomerReservations, signOutCustomer, CustomerReservation } from '@/lib/firebase-customer-auth';
 import { Calendar, Clock, Users, Phone, Mail, User, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -23,9 +21,11 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
   const [reservations, setReservations] = useState<CustomerReservation[]>([]);
   const [loading, setLoading] = useState(false);
   const { customerData, user, isLoggedIn } = useCustomerAuth();
-  const { isAdmin } = useAdminAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Verificar se o usuário é admin
+  const isAdmin = customerData?.isAdmin === 1;
 
   useEffect(() => {
     if (isLoggedIn && customerData?.email) {
@@ -145,7 +145,7 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
         </DialogHeader>
 
         <ScrollArea className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6">
-          <div className="space-y-6 sm:space-y-8 mt-4">
+          <div className="space-y-4 sm:space-y-6 mt-4">
             {/* Informações do Cliente */}
             <Card className="border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader className="pb-3 sm:pb-4">

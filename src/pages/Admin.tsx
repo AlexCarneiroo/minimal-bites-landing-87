@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -17,7 +16,6 @@ import {
   MessageCircle, 
   Info 
 } from "lucide-react";
-import AdminLogin from '@/components/AdminLogin';
 import AdminHeader from '@/components/admin/AdminHeader';
 import GeneralSettings from '@/components/admin/GeneralSettings';
 import AppearanceSettings from '@/components/admin/AppearanceSettings';
@@ -27,33 +25,35 @@ import FeedbackManager from '@/components/admin/FeedbackManager';
 import AboutSection from '@/components/admin/AboutSection';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
-import { onAuthChange, signOutOwner } from '@/lib/firebase-auth';
+import { useCustomerAuth } from '@/hooks/useCustomerAuth';
+import { signOutCustomer } from '@/lib/firebase-customer-auth';
 
 const Admin = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
-  const [loading, setLoading] = useState(true);
+  const { customerData, isLoggedIn, loading } = useCustomerAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Verificar se o usuário é admin
+  const isAdmin = customerData?.isAdmin === 1;
+
   useEffect(() => {
-    const unsubscribe = onAuthChange((user) => {
-      setIsAuthenticated(!!user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
+    if (!loading && (!isLoggedIn || !isAdmin)) {
+      navigate('/');
+      if (!isAdmin && isLoggedIn) {
+        toast({
+          title: "Acesso negado",
+          description: "Você não tem permissão para acessar esta área",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [loading, isLoggedIn, isAdmin, navigate, toast]);
 
   const handleLogout = async () => {
     try {
-      const result = await signOutOwner();
+      const result = await signOutCustomer();
       if (result.success) {
-        setIsAuthenticated(false);
         toast({
           title: "Logout realizado",
           description: "Você foi desconectado com sucesso",
@@ -94,8 +94,8 @@ const Admin = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <AdminLogin onLogin={handleLogin} />;
+  if (!isLoggedIn || !isAdmin) {
+    return null; // O useEffect já redirecionará
   }
 
   const tabs = [
