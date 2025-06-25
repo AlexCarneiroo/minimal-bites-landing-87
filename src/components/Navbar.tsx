@@ -55,7 +55,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/20">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
@@ -74,6 +74,12 @@ const Navbar = () => {
             <Link to="/" className="hover:text-gray-600 transition-colors duration-300">
               Início
             </Link>
+            <button 
+              onClick={() => handleSmoothScroll('menu')} 
+              className="hover:text-gray-600 transition-colors duration-300"
+            >
+              Menu
+            </button>
             <button 
               onClick={() => handleSmoothScroll('gallery')} 
               className="hover:text-gray-600 transition-colors duration-300"
@@ -103,9 +109,9 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {/* Botão Área do Cliente */}
             <Button
-              variant="outline"
               onClick={handleCustomerButton}
-              className="hidden md:flex items-center gap-2"
+              className="hidden md:flex items-center gap-2 text-white hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: primariColor }}
             >
               <User className="w-4 h-4" />
               {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
@@ -124,12 +130,18 @@ const Navbar = () => {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t">
+          <div className="md:hidden bg-white/95 backdrop-blur-lg border-t border-white/20">
             <div className="px-4 py-4 space-y-3">
               {/* Mobile navigation links */}
               <Link to="/" className="block py-2 hover:text-gray-600 transition-colors duration-300" onClick={closeMobileMenu}>
                 Início
               </Link>
+              <button 
+                onClick={() => handleSmoothScroll('menu')} 
+                className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
+              >
+                Menu
+              </button>
               <button 
                 onClick={() => handleSmoothScroll('gallery')} 
                 className="block py-2 hover:text-gray-600 transition-colors duration-300 text-left w-full"
@@ -156,9 +168,9 @@ const Navbar = () => {
               </button>
               
               <Button
-                variant="outline"
                 onClick={handleCustomerButton}
-                className="w-full justify-start gap-2"
+                className="w-full justify-start gap-2 text-white hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: primariColor }}
               >
                 <User className="w-4 h-4" />
                 {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
