@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChefHat } from 'lucide-react';
@@ -6,6 +5,7 @@ import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import CustomerAuth from './CustomerAuth';
 import ReservationForm from './ReservationForm';
 
@@ -30,6 +30,15 @@ const Hero = () => {
     if (isLoggedIn) {
       setShowReservationForm(true);
     } else {
+      toast.error("Você precisa estar logado para fazer reservas", {
+        description: "Faça login ou cadastre-se para continuar",
+        duration: 4000,
+        style: {
+          background: '#fee2e2',
+          border: '1px solid #fecaca',
+          color: '#991b1b',
+        },
+      });
       setShowCustomerAuth(true);
     }
   };
