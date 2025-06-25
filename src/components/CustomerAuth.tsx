@@ -285,14 +285,14 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                   </div>
                 </div>
                 
-                <Button 
+                <button 
                   type="submit" 
                   disabled={loading} 
                   className="w-full h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-xl text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {loading ? "Entrando..." : "Entrar"}
-                </Button>
+                </button>
                 
                 <Button 
                   type="button" 
@@ -402,14 +402,14 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                   </div>
                 </div>
                 
-                <Button 
+                <button 
                   type="submit" 
                   disabled={loading} 
                   className="w-full h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-xl text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {loading ? "Cadastrando..." : "Cadastrar"}
-                </Button>
+                </button>
               </form>
             </TabsContent>
           </Tabs>

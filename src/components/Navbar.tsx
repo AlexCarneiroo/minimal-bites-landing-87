@@ -112,14 +112,14 @@ const Navbar = () => {
 
           <div className="flex items-center space-x-4">
             {/* Botão Área do Cliente */}
-            <Button
+            <button
               onClick={handleCustomerButton}
-              className="hidden md:flex items-center gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
+              className="hidden md:flex items-center gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg py-2 px-4 rounded-lg"
               style={{ backgroundColor: primariColor }}
             >
               <User className="w-4 h-4" />
               {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
-            </Button>
+            </button>
 
             {/* Mobile menu button */}
             <button 
@@ -187,14 +187,14 @@ const Navbar = () => {
             </button>
             
             <div className="pt-2">
-              <Button
+              <button
                 onClick={handleCustomerButton}
-                className="w-full justify-start gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
+                className="w-full justify-start gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg p-2 rounded-lg flex items-center"
                 style={{ backgroundColor: primariColor }}
               >
                 <User className="w-4 h-4" />
                 {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
-              </Button>
+              </button>
             </div>
           </div>
         </div>

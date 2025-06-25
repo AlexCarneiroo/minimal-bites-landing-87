@@ -1,10 +1,8 @@
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,6 +16,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isValid, parseISO } from 'date-fns';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 interface ReservationFormProps {
   onClose: () => void;
@@ -25,30 +24,19 @@ interface ReservationFormProps {
 }
 
 const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
-  const { customerData, isLoggedIn } = useCustomerAuth();
-  
+  const { customerData, isLoggedIn } = useCustomerAuth(); // seu hook para dados do usuário logado
+  const { settings } = useSiteSettings();
   const [date, setDate] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
+  const corPrincipal = settings?.primaryColor || '';
 
   const FormSchema = z.object({
-    name: z.string().min(2, {
-      message: "Nome deve ter pelo menos 2 caracteres.",
-    }),
-    email: z.string().email({
-      message: "Por favor, insira um email válido.",
-    }),
-    phone: z.string().min(10, {
-      message: "Número de telefone deve ter pelo menos 10 dígitos.",
-    }),
-    date: z.string().min(1, {
-      message: "Por favor, selecione uma data.",
-    }),
-    time: z.string().min(1, {
-      message: "Por favor, selecione um horário.",
-    }),
-    guests: z.number().min(1, {
-      message: "Deve haver pelo menos 1 convidado.",
-    }),
+    name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres." }),
+    email: z.string().email({ message: "Por favor, insira um email válido." }),
+    phone: z.string().min(10, { message: "Número de telefone deve ter pelo menos 10 dígitos." }),
+    date: z.string().min(1, { message: "Por favor, selecione uma data." }),
+    time: z.string().min(1, { message: "Por favor, selecione um horário." }),
+    guests: z.number().min(1, { message: "Deve haver pelo menos 1 convidado." }),
     message: z.string().optional(),
   })
 
@@ -66,6 +54,15 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
       message: "",
     },
   });
+
+  // Atualiza campos caso logue depois do form abrir
+  useEffect(() => {
+    if (isLoggedIn && customerData) {
+      form.setValue("name", customerData.name || "");
+      form.setValue("email", customerData.email || "");
+      form.setValue("phone", customerData.phone || "");
+    }
+  }, [isLoggedIn, customerData]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -91,26 +88,20 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
     }
   };
 
-  // Helper function to safely format date
+  // Formata a data para exibição
   const formatDate = (dateValue: string) => {
     if (!dateValue) return null;
-    
     try {
-      // Try to parse the date string
       const parsedDate = parseISO(dateValue);
       if (isValid(parsedDate)) {
         return format(parsedDate, "dd/MM/yyyy");
       }
-      
-      // If parseISO fails, try with Date constructor
       const date = new Date(dateValue);
       if (isValid(date)) {
         return format(date, "dd/MM/yyyy");
       }
-      
       return null;
-    } catch (error) {
-      console.error('Error formatting date:', error);
+    } catch {
       return null;
     }
   };
@@ -126,10 +117,10 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
             Preencha o formulário abaixo para fazer sua reserva em nosso restaurante.
           </DialogDescription>
         </DialogHeader>
-        
         <ScrollArea className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
+
               <FormField
                 control={form.control}
                 name="name"
@@ -137,9 +128,9 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                   <FormItem className="animate-fade-in" style={{ animationDelay: "200ms" }}>
                     <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Nome completo</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Seu nome completo" 
-                        {...field} 
+                      <Input
+                        placeholder="Seu nome completo"
+                        {...field}
                         readOnly={isLoggedIn}
                         className={cn(
                           "text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500",
@@ -164,10 +155,10 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                   <FormItem className="animate-fade-in" style={{ animationDelay: "300ms" }}>
                     <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Email</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="email" 
-                        placeholder="seu@email.com" 
-                        {...field} 
+                      <Input
+                        type="email"
+                        placeholder="seu@email.com"
+                        {...field}
                         readOnly={isLoggedIn}
                         className={cn(
                           "text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500",
@@ -192,10 +183,10 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                   <FormItem className="animate-fade-in" style={{ animationDelay: "400ms" }}>
                     <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Telefone</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="tel" 
-                        placeholder="(11) 99999-9999" 
-                        {...field} 
+                      <Input
+                        type="tel"
+                        placeholder="(11) 99999-9999"
+                        {...field}
                         readOnly={isLoggedIn}
                         className={cn(
                           "text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500",
@@ -271,12 +262,23 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                     <FormItem className="flex-1">
                       <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Horário</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="time" 
-                          placeholder="Escolha um horário" 
-                          {...field} 
-                          className="text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500 hover:shadow-md focus:shadow-lg"
+                        <input
+                          type="time"
+                          {...field}
+                          className="
+    flex h-12 w-full rounded-xl
+    border-2 border-gray-200
+    bg-white/80 backdrop-blur-sm
+    px-4 py-3 text-base
+    placeholder:text-gray-400
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
+    focus:border-primary focus:bg-white
+    transition-all duration-300
+    disabled:cursor-not-allowed disabled:opacity-50
+    md:text-sm shadow-sm hover:shadow-md focus:shadow-lg
+  "
                         />
+
                       </FormControl>
                       <FormMessage className="text-xs sm:text-sm" />
                     </FormItem>
@@ -291,10 +293,10 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                   <FormItem className="animate-fade-in" style={{ animationDelay: "600ms" }}>
                     <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Número de convidados</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="1" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        placeholder="1"
+                        {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                         className="text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500 hover:shadow-md focus:shadow-lg"
                       />
@@ -311,9 +313,9 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                   <FormItem className="animate-fade-in" style={{ animationDelay: "700ms" }}>
                     <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Mensagem (opcional)</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="💬 Alguma observação?" 
-                        {...field} 
+                      <Input
+                        placeholder="💬 Alguma observação?"
+                        {...field}
                         className="text-sm sm:text-base h-12 sm:h-14 border-2 rounded-xl transition-all duration-300 hover:border-gray-400 focus:border-blue-500 hover:shadow-md focus:shadow-lg"
                       />
                     </FormControl>
@@ -321,14 +323,15 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                   </FormItem>
                 )}
               />
-              
-              <div className="pt-4 animate-fade-in" style={{ animationDelay: "800ms" }}>
-                <Button 
-                  type="submit" 
-                  className="w-full text-sm sm:text-base h-12 sm:h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl font-medium"
+
+              <div className="pt-4 justify-center flex animate-fade-in" style={{ animationDelay: "800ms" }}>
+                <button
+                  style={{ backgroundColor: corPrincipal }}
+                  type="submit"
+                  className="w-[90%] text-sm sm:text-base h-12 sm:h-14 bg-gradient-to-r  text-white rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl font-medium"
                 >
                   🎉 Enviar reserva
-                </Button>
+                </button>
               </div>
             </form>
           </Form>
