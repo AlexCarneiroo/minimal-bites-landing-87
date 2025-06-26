@@ -31,30 +31,45 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
   // Verificar se o usuário é admin
   const isAdmin = customerData?.isAdmin === 1;
 
-  useEffect(() => {
-    if (isLoggedIn && customerData?.email) {
-      fetchReservations();
-    }
-  }, [isLoggedIn, customerData]);
+  /*   useEffect(() => {
+      if (isLoggedIn && customerData?.email) {
+      }
+    }, [isLoggedIn, customerData]); */
 
-  const fetchReservations = async () => {
+  const formatPhoneNumber = (phone: string): string => {
+    if (!phone) return '';
+    const numbers = phone.replace(/\D/g, "");
+    if (numbers.length < 10) return phone;
+    const ddd = numbers.slice(0, 2);
+    const firstPart = numbers.length === 11 ? numbers.slice(2, 7) : numbers.slice(2, 6);
+    const lastPart = numbers.length === 11 ? numbers.slice(7) : numbers.slice(6);
+    return `(${ddd}) ${firstPart}-${lastPart}`;
+  }
+
+  useEffect(() => {
     if (!customerData?.email) return;
 
     setLoading(true);
-    try {
-      const userReservations = await getCustomerReservations(customerData.email);
-      setReservations(userReservations);
-    } catch (error) {
-      console.error('Erro ao buscar reservas:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar suas reservas",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+
+    const unsubscribe = getCustomerReservations(
+      customerData.email,
+      (userReservations) => {
+        setReservations(userReservations);
+        setLoading(false);
+      },
+      (error) => {
+        setLoading(false);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar suas reservas",
+          variant: "destructive",
+        });
+      }
+    );
+
+    // Cancela o listener ao sair
+    return () => unsubscribe();
+  }, [customerData?.email]);
 
   const handleLogout = async () => {
     try {
@@ -271,7 +286,7 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="font-semibold text-gray-700 block mb-1 text-sm sm:text-base">Telefone:</span>
-                    <span className="text-gray-900 text-base sm:text-lg break-words">{customerData.phone}</span>
+                    <span className="text-gray-900 text-base sm:text-lg break-words">{formatPhoneNumber(customerData.phone)}</span>
                   </div>
                 </div>
               </CardContent>

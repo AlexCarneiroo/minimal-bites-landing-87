@@ -8,7 +8,7 @@ import {
   signOut,
   User
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, serverTimestamp , onSnapshot , Unsubscribe } from 'firebase/firestore';
 import { db } from './firebase';
 
 const auth = getAuth();
@@ -128,24 +128,35 @@ export const getCustomerData = async (uid: string): Promise<CustomerData | null>
   }
 };
 
-// Buscar reservas do cliente
-export const getCustomerReservations = async (email: string): Promise<CustomerReservation[]> => {
-  try {
-    const q = query(
-      collection(db, 'reservations'),
-      where('email', '==', email),
-      //orderBy('createdAt', 'desc')
-    );
-    
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as CustomerReservation[];
-  } catch (error) {
-    console.error('Erro ao buscar reservas:', error);
-    return [];
-  }
+type ReservationCallback = (reservations: CustomerReservation[]) => void;
+type ErrorCallback = (error: any) => void;
+
+ //Buscar reservas do clienteexport 
+export const getCustomerReservations = (
+  email: string,
+  callback: ReservationCallback,
+  onError?: ErrorCallback
+): Unsubscribe => {
+  const q = query(
+    collection(db, 'reservations'),
+    where('email', '==', email)
+    // orderBy('createdAt', 'desc')
+  );
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const reservations = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as CustomerReservation[];
+      callback(reservations);
+    },
+    (error) => {
+      console.error('Erro ao buscar reservas:', error);
+      if (onError) onError(error);
+    }
+  );
 };
 
 // Observador de estado de autenticação

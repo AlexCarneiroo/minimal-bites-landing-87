@@ -17,12 +17,12 @@ interface CustomerAuthProps {
 
 const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [registerForm, setRegisterForm] = useState({ 
-    name: '', 
-    email: '', 
-    phone: '', 
-    password: '', 
-    confirmPassword: '' 
+  const [registerForm, setRegisterForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
   });
   const [resetEmail, setResetEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
 
     try {
       const result = await signInCustomer(loginForm.email, loginForm.password);
-      
+
       if (result.success) {
         toast({
           title: "Login realizado com sucesso",
@@ -51,7 +51,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
       } else {
         toast({
           title: "Erro no login",
-          description:"Senha ou Email incorretos",
+          description: "Senha ou Email incorretos",
           variant: "destructive",
         });
       }
@@ -68,7 +68,18 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Validação do telefone (regex básica BR)
+    const phoneRegex = /^(\(?\d{2}\)?\s?)?(\d{4,5}\-?\d{4})$/;
+    if (!phoneRegex.test(registerForm.phone.replace(/\D/g, ""))) {
+      toast({
+        title: "Erro no cadastro",
+        description: "Digite um número de telefone válido com DDD",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (registerForm.password !== registerForm.confirmPassword) {
       toast({
         title: "Erro no cadastro",
@@ -96,7 +107,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
         registerForm.name,
         registerForm.phone
       );
-      
+
       if (result.success) {
         toast({
           title: "Cadastro realizado com sucesso",
@@ -122,13 +133,14 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
     }
   };
 
+
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const result = await resetCustomerPassword(resetEmail);
-      
+
       if (result.success) {
         toast({
           title: "Email enviado",
@@ -158,9 +170,9 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-w-[90vw] w-full bg-gradient-to-br from-white via-gray-50 to-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
         <DialogHeader className="text-center space-y-4 pb-6">
-          <div 
+          <div
             className="w-20 h-20 rounded-full mx-auto flex items-center justify-center shadow-xl animate-fade-in transition-all duration-500 hover:scale-110"
-            style={{ 
+            style={{
               background: `linear-gradient(135deg, ${primaryColor}20, ${primaryColor}10)`,
               border: `2px solid ${primaryColor}30`
             }}
@@ -181,7 +193,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
               <h3 className="text-lg font-semibold text-gray-800 mb-2">Recuperar Senha</h3>
               <p className="text-gray-600 text-sm">Digite seu email para receber as instruções</p>
             </div>
-            
+
             <form onSubmit={handlePasswordReset} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="reset-email" className="text-gray-700 font-medium">Email</Label>
@@ -198,19 +210,19 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                   />
                 </div>
               </div>
-              
+
               <div className="flex gap-3 pt-4">
-                <Button 
-                  type="submit" 
-                  disabled={loading} 
+                <Button
+                  type="submit"
+                  disabled={loading}
                   className="flex-1 h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {loading ? "Enviando..." : "Enviar"}
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setShowReset(false)}
                   className="flex-1 h-14 rounded-xl border-2 border-gray-300 hover:bg-gray-50 transition-all duration-300 hover:scale-105 text-base font-medium"
                 >
@@ -222,28 +234,28 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
         ) : (
           <Tabs defaultValue="login" className="w-full animate-fade-in" style={{ animationDelay: "300ms" }}>
             <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1 h-12">
-              <TabsTrigger 
-                value="login" 
+              <TabsTrigger
+                value="login"
                 className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300 text-base font-medium hover:scale-105"
-                style={{ 
+                style={{
                   color: primaryColor,
-                  '--tw-ring-color': primaryColor 
+                  '--tw-ring-color': primaryColor
                 } as React.CSSProperties}
               >
                 Entrar
               </TabsTrigger>
-              <TabsTrigger 
-                value="register" 
+              <TabsTrigger
+                value="register"
                 className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300 text-base font-medium hover:scale-105"
-                style={{ 
+                style={{
                   color: primaryColor,
-                  '--tw-ring-color': primaryColor 
+                  '--tw-ring-color': primaryColor
                 } as React.CSSProperties}
               >
                 Cadastrar
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="login" className="space-y-6 pt-6">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
@@ -255,13 +267,13 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                       type="email"
                       placeholder="Digite seu email"
                       value={loginForm.email}
-                      onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                       className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="login-password" className="text-gray-700 font-medium text-base">Senha</Label>
                   <div className="relative group">
@@ -271,7 +283,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                       type={showLoginPassword ? "text" : "password"}
                       placeholder="Digite sua senha"
                       value={loginForm.password}
-                      onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                       className="pl-12 pr-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
@@ -284,19 +296,19 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                     </button>
                   </div>
                 </div>
-                
-                <button 
-                  type="submit" 
-                  disabled={loading} 
+
+                <button
+                  type="submit"
+                  disabled={loading}
                   className="w-full h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-xl text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {loading ? "Entrando..." : "Entrar"}
                 </button>
-                
-                <Button 
-                  type="button" 
-                  variant="ghost" 
+
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => setShowReset(true)}
                   className="w-full text-base hover:bg-gray-100 transition-all duration-300 hover:scale-105"
                   style={{ color: primaryColor }}
@@ -305,7 +317,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                 </Button>
               </form>
             </TabsContent>
-            
+
             <TabsContent value="register" className="space-y-6 pt-6">
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
@@ -317,13 +329,13 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                       type="text"
                       placeholder="Digite seu nome"
                       value={registerForm.name}
-                      onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
+                      onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
                       className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="register-email" className="text-gray-700 font-medium text-base">Email</Label>
                   <div className="relative group">
@@ -333,13 +345,13 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                       type="email"
                       placeholder="Digite seu email"
                       value={registerForm.email}
-                      onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+                      onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
                       className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="register-phone" className="text-gray-700 font-medium text-base">Telefone</Label>
                   <div className="relative group">
@@ -349,13 +361,13 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                       type="tel"
                       placeholder="Digite seu telefone"
                       value={registerForm.phone}
-                      onChange={(e) => setRegisterForm({...registerForm, phone: e.target.value})}
+                      onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
                       className="pl-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="register-password" className="text-gray-700 font-medium text-base">Senha</Label>
                   <div className="relative group">
@@ -365,7 +377,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                       type={showRegisterPassword ? "text" : "password"}
                       placeholder="Digite sua senha"
                       value={registerForm.password}
-                      onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                      onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
                       className="pl-12 pr-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
@@ -378,7 +390,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="register-confirm" className="text-gray-700 font-medium text-base">Confirmar Senha</Label>
                   <div className="relative group">
@@ -388,7 +400,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirme sua senha"
                       value={registerForm.confirmPassword}
-                      onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
+                      onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
                       className="pl-12 pr-12 h-14 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base transition-all duration-300 hover:border-gray-300"
                       required
                     />
@@ -401,10 +413,10 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
                     </button>
                   </div>
                 </div>
-                
-                <button 
-                  type="submit" 
-                  disabled={loading} 
+
+                <button
+                  type="submit"
+                  disabled={loading}
                   className="w-full h-14 rounded-xl text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-xl text-base font-medium"
                   style={{ backgroundColor: primaryColor }}
                 >
