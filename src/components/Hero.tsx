@@ -51,7 +51,7 @@ const Hero = () => {
   return (
     <>
       <section id="home" className="relative overflow-hidden">
-        <div className="bg-gradient-elegant text-white">
+        <div className="bg-gradient-elegant text-white pt-[35px]">
           <div className="container mx-auto px-4 py-12 sm:py-20 md:py-32 max-w-7xl">
             <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
               <div className="w-full lg:w-1/2 mb-6 lg:mb-0 text-center lg:text-left">

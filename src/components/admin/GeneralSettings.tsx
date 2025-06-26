@@ -29,7 +29,7 @@ import { ImageUpload } from "@/components/ui/image-upload";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { saveGeneralSettings, getGeneralSettings } from '@/lib/firebase-operations';
-
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 interface EstablishmentData {
   type?: string; // 👈 novo campo
   name: string;
@@ -100,7 +100,8 @@ export default function GeneralSettings() {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [establishmentData, setEstablishmentData] = useState<EstablishmentData>(defaultEstablishmentData);
-
+  const { settings} = useSiteSettings();
+  const corPrimaria = settings?.primaryColor || '';
   // Carregar dados do Firebase
   useEffect(() => {
     const fetchData = async () => {
@@ -210,7 +211,7 @@ export default function GeneralSettings() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Informações do Estabelecimento</h2>
+          <h2 className="text-2xl font-bold mb-6" style={{ color: corPrimaria }}>Informações do Estabelecimento</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
@@ -310,13 +311,13 @@ export default function GeneralSettings() {
                 />
               </div>
 
-              <div>
+{/*               <div>
                 <Label>Logo</Label>
                 <ImageUpload
                   value={safeValue(establishmentData.logo)}
                   onChange={(url) => updateEstablishmentData('logo', url)}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </CardContent>
@@ -324,7 +325,7 @@ export default function GeneralSettings() {
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Produto em Destaque</h2>
+          <h2 className="text-2xl font-bold mb-6" style={{ color: corPrimaria }}>Produto em Destaque</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
@@ -367,7 +368,7 @@ export default function GeneralSettings() {
             <div className="space-y-4">
               <div>
                 <Label>Imagem do Produto</Label>
-                <ImageUpload
+                <ImageUpload              
                   value={safeValue(establishmentData?.featuredProduct?.image)}
                   onChange={(url) => updateFeaturedProduct('image', url)}
                 />
@@ -379,7 +380,7 @@ export default function GeneralSettings() {
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Visibilidade das Seções</h2>
+          <h2 className="text-2xl font-bold mb-6" style={{ color: corPrimaria }}>Visibilidade das Seções</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -423,7 +424,7 @@ export default function GeneralSettings() {
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Horário de Funcionamento</h2>
+          <h2 className="text-2xl font-bold mb-6" style={{ color: corPrimaria }}>Horário de Funcionamento</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
@@ -461,7 +462,7 @@ export default function GeneralSettings() {
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Redes Sociais</h2>
+          <h2 className="text-2xl font-bold mb-6" style={{ color: corPrimaria }}>Redes Sociais</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -508,9 +509,9 @@ export default function GeneralSettings() {
       </Card>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isSaving}>
+        <button className='py-2 px-4 rounded-lg font-medium' style={{ backgroundColor: corPrimaria , color: 'white' }} type="submit" disabled={isSaving}>
           {isSaving ? "Salvando..." : "Salvar Alterações"}
-        </Button>
+        </button>
       </div>
     </form>
   );

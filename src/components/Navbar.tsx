@@ -94,7 +94,7 @@ const Navbar = () => {
               onClick={() => handleSmoothScroll('delivery')} 
               className="hover:text-gray-600 transition-all duration-300 text-gray-800 font-medium relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full"
             >
-              Entrega
+              Delivery
             </button>
             <button 
               onClick={() => handleSmoothScroll('about')} 
@@ -114,10 +114,10 @@ const Navbar = () => {
             {/* Botão Área do Cliente */}
             <button
               onClick={handleCustomerButton}
-              className="hidden md:flex items-center gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg py-2 px-4 rounded-lg"
+              className="font-medium hidden md:flex items-center gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg py-2 px-4 rounded-xl"
               style={{ backgroundColor: primariColor }}
             >
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 font-medium" />
               {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
             </button>
 
@@ -189,10 +189,10 @@ const Navbar = () => {
             <div className="pt-2">
               <button
                 onClick={handleCustomerButton}
-                className="w-full justify-start gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg p-2 rounded-lg flex items-center"
+                className="w-full justify-start gap-2 text-white hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg p-2 rounded-lg flex items-center font-medium"
                 style={{ backgroundColor: primariColor }}
               >
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 font-medium" />
                 {isLoggedIn ? `Olá, ${customerData?.name?.split(' ')[0]}` : 'Área do Cliente'}
               </button>
             </div>

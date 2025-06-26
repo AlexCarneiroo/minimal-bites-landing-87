@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getAboutSettings } from '@/lib/firebase-operations';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+
 
 interface GalleryImage {
   id: string;
@@ -31,6 +33,8 @@ const Gallery = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const { settings } = useSiteSettings();
+  const corPrimaria = settings?.primaryColor || ''; // Default to purple if not set
 
   useEffect(() => {
     const fetchGalleryImages = async () => {
@@ -94,7 +98,7 @@ const Gallery = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-snackbar-dark mb-4">Conheça Nosso Espaço</h2>
           <div className="flex justify-center items-center gap-2 mb-4">
             <div className="h-[1px] w-10 bg-snackbar-gray"></div>
-            <Image className="w-5 h-5 text-snackbar-purple" />
+            <Image className="w-5 h-5 text-snackbar-purple" style={{ color: corPrimaria }} />
             <div className="h-[1px] w-10 bg-snackbar-gray"></div>
           </div>
           <p className="text-snackbar-gray max-w-xl mx-auto">

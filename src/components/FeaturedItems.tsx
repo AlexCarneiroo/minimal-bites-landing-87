@@ -190,7 +190,7 @@ const FeaturedItems = () => {
               onClick={() => handleCategoryClick(category.name)}
             >
               <div 
-                className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-white border-2 flex items-center justify-center mb-2 group-hover:scale-110 transition-all duration-300 ${
+                className={`w-auto h-auto sm:w-auto sm:h-auto lg:w-auto lg:h-auto rounded-xl bg-white border-2 flex items-center justify-center mb-2 px-3 py-2 group-hover:scale-110 transition-all duration-300 ${
                   activeCategory === category.name ? 'scale-110' : ''
                 }`}
                 style={{ 
@@ -199,18 +199,18 @@ const FeaturedItems = () => {
                   boxShadow: activeCategory === category.name ? `0 4px 15px ${primaryColor}40` : 'none'
                 }}
               >
-                <div style={{ color: activeCategory === category.name ? 'white' : primaryColor }}>
-                  {category.icon}
+                <div className='font-medium text-sm sm:text-base' style={{ color: activeCategory === category.name ? 'white' : primaryColor }}>
+                  {category.name}
                 </div>
               </div>
-              <span 
+{/*               <span 
                 className={`font-medium text-sm sm:text-base ${
                   activeCategory === category.name ? 'font-bold' : ''
                 }`} 
                 style={{ color: primaryColor }}
               >
                 {category.name}
-              </span>
+              </span> */}
             </div>
           ))}
         </div>

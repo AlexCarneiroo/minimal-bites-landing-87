@@ -51,7 +51,7 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
       } else {
         toast({
           title: "Erro no login",
-          description: result.error || "Credenciais inválidas",
+          description:"Senha ou Email incorretos",
           variant: "destructive",
         });
       }
@@ -167,10 +167,10 @@ const CustomerAuth = ({ isOpen, onClose, onSuccess }: CustomerAuthProps) => {
           >
             <User className="w-10 h-10 animate-pulse" style={{ color: primaryColor }} />
           </div>
-          <DialogTitle className="text-3xl font-bold text-gray-800 animate-fade-in" style={{ animationDelay: "100ms" }}>
+          <DialogTitle className="text-center text-3xl font-bold text-gray-800 animate-fade-in" style={{ animationDelay: "100ms" }}>
             Área do Cliente
           </DialogTitle>
-          <p className="text-gray-600 text-sm animate-fade-in" style={{ animationDelay: "200ms" }}>
+          <p className="text-center text-gray-600 text-sm animate-fade-in" style={{ animationDelay: "200ms" }}>
             Acesse sua conta ou cadastre-se para continuar
           </p>
         </DialogHeader>

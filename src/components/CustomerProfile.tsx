@@ -11,6 +11,8 @@ import { Calendar, Clock, Users, Phone, Mail, User, Settings, LogOut } from 'luc
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+
 
 interface CustomerProfileProps {
   isOpen: boolean;
@@ -21,6 +23,8 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
   const [reservations, setReservations] = useState<CustomerReservation[]>([]);
   const [loading, setLoading] = useState(false);
   const { customerData, user, isLoggedIn } = useCustomerAuth();
+  const { settings } = useSiteSettings();
+  const corPrincipal = settings?.primaryColor || ''; // Azul padrão
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -35,7 +39,7 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
 
   const fetchReservations = async () => {
     if (!customerData?.email) return;
-    
+
     setLoading(true);
     try {
       const userReservations = await getCustomerReservations(customerData.email);
@@ -115,23 +119,24 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-4xl h-[90vh] max-h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-4xl h-[90vh] max-h-[90vh] p-0 overflow-hidden rounded-xl">
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-4 border-b">
           <DialogTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <span className="text-xl sm:text-2xl font-bold">Meu Perfil</span>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
+            <span className="text-xl sm:text-2xl font-bold" style={{ color: corPrincipal }}>Meu Perfil</span>
+            <div className="flex flex-wrap mt-6 gap-2 sm:gap-3">
               {isAdmin && (
                 <Button
                   variant="default"
                   size="sm"
                   onClick={handleAdminAccess}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 text-xs sm:text-sm"
+                  className="bg-gradient-to-r from-gray-800 to-black hover:to-black transition-all duration-300 text-xs sm:text-sm"
                 >
                   <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   Painel Admin
                 </Button>
               )}
               <Button
+                style={{ borderColor: corPrincipal, color: corPrincipal }}
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
@@ -146,47 +151,6 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
 
         <ScrollArea className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6">
           <div className="space-y-4 sm:space-y-6 mt-4">
-            {/* Informações do Cliente */}
-            <Card className="border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardHeader className="pb-3 sm:pb-4">
-                <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
-                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-full">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                  </div>
-                  Informações Pessoais
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-3 sm:space-y-4">
-                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
-                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-full flex-shrink-0">
-                    <User className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="font-semibold text-gray-700 block mb-1 text-sm sm:text-base">Nome:</span>
-                    <span className="text-gray-900 text-base sm:text-lg break-words">{customerData.name}</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
-                  <div className="p-1.5 sm:p-2 bg-green-100 rounded-full flex-shrink-0">
-                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="font-semibold text-gray-700 block mb-1 text-sm sm:text-base">Email:</span>
-                    <span className="text-gray-900 text-base sm:text-lg break-all">{customerData.email}</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
-                  <div className="p-1.5 sm:p-2 bg-purple-100 rounded-full flex-shrink-0">
-                    <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="font-semibold text-gray-700 block mb-1 text-sm sm:text-base">Telefone:</span>
-                    <span className="text-gray-900 text-base sm:text-lg break-words">{customerData.phone}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Reservas */}
             <Card className="border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader className="pb-3 sm:pb-4">
@@ -252,14 +216,14 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
                               {getStatusLabel(reservation.status)}
                             </Badge>
                           </div>
-                          
+
                           {reservation.message && (
                             <div className="mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg border-l-4 border-blue-200">
                               <p className="text-xs sm:text-sm font-semibold text-blue-800 mb-1">Observações:</p>
                               <p className="text-blue-700 text-sm sm:text-base break-words">{reservation.message}</p>
                             </div>
                           )}
-                          
+
                           <div className="mt-4 pt-4 border-t border-gray-100">
                             <p className="text-xs text-gray-500">
                               Reserva criada em: {formatDate(reservation.createdAt)}
@@ -272,6 +236,47 @@ const CustomerProfile = ({ isOpen, onClose }: CustomerProfileProps) => {
                 )}
               </CardContent>
             </Card>
+            {/* Informações do Cliente */}
+            <Card className="border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-full">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  </div>
+                  Informações Pessoais
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-3 sm:space-y-4">
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-full flex-shrink-0">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="font-semibold text-gray-700 block mb-1 text-sm sm:text-base">Nome:</span>
+                    <span className="text-gray-900 text-base sm:text-lg break-words">{customerData.name}</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                  <div className="p-1.5 sm:p-2 bg-green-100 rounded-full flex-shrink-0">
+                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="font-semibold text-gray-700 block mb-1 text-sm sm:text-base">Email:</span>
+                    <span className="text-gray-900 text-base sm:text-lg break-all">{customerData.email}</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                  <div className="p-1.5 sm:p-2 bg-purple-100 rounded-full flex-shrink-0">
+                    <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="font-semibold text-gray-700 block mb-1 text-sm sm:text-base">Telefone:</span>
+                    <span className="text-gray-900 text-base sm:text-lg break-words">{customerData.phone}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
           </div>
         </ScrollArea>
       </DialogContent>

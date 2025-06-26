@@ -134,7 +134,7 @@ export const getCustomerReservations = async (email: string): Promise<CustomerRe
     const q = query(
       collection(db, 'reservations'),
       where('email', '==', email),
-      orderBy('createdAt', 'desc')
+      //orderBy('createdAt', 'desc')
     );
     
     const snapshot = await getDocs(q);

@@ -7,14 +7,14 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  LayoutDashboard, 
-  Palette, 
-  Star, 
-  Calendar, 
-  Tag, 
-  MessageCircle, 
-  Info 
+import {
+  LayoutDashboard,
+  Palette,
+  Star,
+  Calendar,
+  Tag,
+  MessageCircle,
+  Info
 } from "lucide-react";
 import AdminHeader from '@/components/admin/AdminHeader';
 import GeneralSettings from '@/components/admin/GeneralSettings';
@@ -27,12 +27,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { signOutCustomer } from '@/lib/firebase-customer-auth';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("general");
   const { customerData, isLoggedIn, loading } = useCustomerAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { settings } = useSiteSettings();
+  const corPrimaria = settings?.primaryColor || ''; // Default to primary color if not set
 
   // Verificar se o usuário é admin
   const isAdmin = customerData?.isAdmin === 1;
@@ -126,11 +129,21 @@ const Admin = () => {
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl font-medium transition-all duration-300 hover:bg-blue-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                    style={
+                      activeTab === tab.value
+                        ? {
+                          background: `linear-gradient(90deg, ${corPrimaria}, ${corPrimaria}90)`,
+                          color: "#fff",
+                          //boxShadow: "0 2px 16px 0 rgba(0,0,0,0.10)",
+                        }
+                        : {}
+                    }
+                    className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl font-medium transition-all duration-300 hover:bg-blue-50"
                   >
                     <Icon className="w-4 h-4" />
                     <span className="text-xs">{tab.label}</span>
                   </TabsTrigger>
+
                 );
               })}
             </TabsList>
