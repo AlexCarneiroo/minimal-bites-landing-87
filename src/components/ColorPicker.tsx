@@ -87,7 +87,7 @@ const ColorPicker = ({ color, onChange, onSave }: ColorPickerProps) => {
           onClick={onSave} 
           variant="gradient"
           size="lg"
-          className="gap-2"
+          className="gap-2 p-3"
         >
           <Sparkles className="w-4 h-4" />
           Aplicar

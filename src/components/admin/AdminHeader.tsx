@@ -37,13 +37,13 @@ const AdminHeader = ({ onLogout }: AdminHeaderProps) => {
         
         <div className="flex items-center gap-3">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button 
+            <Button
+              onClick={()=> window.location.href = '/'}
               variant="outline" 
-              onClick={() => navigate('/')}
               className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl transition-all duration-300"
             >
-              <Home className="mr-2 h-4 w-4" />
-              Ver Site
+                <Home className="mr-2 h-4 w-4" />
+                Ver Site
             </Button>
           </motion.div>
           
