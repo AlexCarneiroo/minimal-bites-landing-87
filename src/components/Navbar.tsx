@@ -74,36 +74,42 @@ const Navbar = () => {
             {/* Navigation links */}
             <Link
               to="/"
+              style={{ color: primariColor }}
               className="hover:text-gray-600 transition-all duration-300 text-gray-800 font-medium relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full"
             >
               Início
             </Link>
             <button
               onClick={() => handleSmoothScroll('menu')}
+              style={{ color: primariColor }}
               className="hover:text-gray-600 transition-all duration-300 text-gray-800 font-medium relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full"
             >
               Menu
             </button>
             <button
               onClick={() => handleSmoothScroll('gallery')}
+              style={{ color: primariColor }}
               className="hover:text-gray-600 transition-all duration-300 text-gray-800 font-medium relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full"
             >
               Galeria
             </button>
             <button
               onClick={() => handleSmoothScroll('delivery')}
+              style={{ color: primariColor }}
               className="hover:text-gray-600 transition-all duration-300 text-gray-800 font-medium relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full"
             >
               Delivery
             </button>
             <button
               onClick={() => handleSmoothScroll('about')}
+              style={{ color: primariColor }}
               className="hover:text-gray-600 transition-all duration-300 text-gray-800 font-medium relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full"
             >
               Sobre
             </button>
             <button
               onClick={() => handleSmoothScroll('contact')}
+              style={{ color: primariColor }}
               className="hover:text-gray-600 transition-all duration-300 text-gray-800 font-medium relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full"
             >
               Contato
@@ -162,35 +168,41 @@ const Navbar = () => {
               to="/"
               className="block py-3 px-2  transition-all duration-300 text-white font-medium rounded-lg hover:bg-gray-100/50 transform hover:translate-x-2"
               onClick={closeMobileMenu}
+              style={{ color: primariColor }}
             >
               Início
             </Link>
             <button
               onClick={() => handleSmoothScroll('menu')}
+              style={{ color: primariColor }}
               className="block py-3 px-2  transition-all duration-300 text-left w-full text-white font-medium rounded-lg hover:bg-gray-100/50 transform hover:translate-x-2"
             >
               Menu
             </button>
             <button
               onClick={() => handleSmoothScroll('gallery')}
+              style={{ color: primariColor }}
               className="block py-3 px-2  transition-all duration-300 text-left w-full text-white font-medium rounded-lg hover:bg-gray-100/50 transform hover:translate-x-2"
             >
               Galeria
             </button>
             <button
               onClick={() => handleSmoothScroll('delivery')}
+              style={{ color: primariColor }}
               className="block py-3 px-2  transition-all duration-300 text-left w-full text-white font-medium rounded-lg hover:bg-gray-100/50 transform hover:translate-x-2"
             >
               Entrega
             </button>
             <button
               onClick={() => handleSmoothScroll('about')}
+              style={{ color: primariColor }}
               className="block py-3 px-2  transition-all duration-300 text-left w-full text-white font-medium rounded-lg hover:bg-gray-100/50 transform hover:translate-x-2"
             >
               Sobre
             </button>
             <button
               onClick={() => handleSmoothScroll('contact')}
+              style={{ color: primariColor }}
               className="block py-3 px-2  transition-all duration-300 text-left w-full text-white font-medium rounded-lg hover:bg-gray-100/50 transform hover:translate-x-2"
             >
               Contato

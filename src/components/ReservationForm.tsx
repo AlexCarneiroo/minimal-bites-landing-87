@@ -15,8 +15,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isValid, parseISO } from 'date-fns';
+import { pt } from 'date-fns/locale';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import { useEstablishmentData } from '@/hooks/useEstablishmentData';
 
 interface ReservationFormProps {
   onClose: () => void;
@@ -26,7 +28,9 @@ interface ReservationFormProps {
 const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
   const { customerData, isLoggedIn } = useCustomerAuth(); // seu hook para dados do usuário logado
   const { settings } = useSiteSettings();
+  const { data: establishmentData, getAvailableTimesForDate } = useEstablishmentData();
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const { toast } = useToast();
   const corPrincipal = settings?.primaryColor || '';
 
@@ -64,6 +68,21 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
     }
   }, [isLoggedIn, customerData]);
 
+  // Atualiza horários disponíveis quando a data muda
+  useEffect(() => {
+    if (date) {
+      const times = getAvailableTimesForDate(date);
+      setAvailableTimes(times);
+      // Limpa o horário selecionado se não estiver mais disponível
+      const currentTime = form.getValues("time");
+      if (currentTime && !times.includes(currentTime)) {
+        form.setValue("time", "");
+      }
+    } else {
+      setAvailableTimes([]);
+    }
+  }, [date, getAvailableTimesForDate]);
+
   const onSubmit = async (data: FormData) => {
     try {
       await addDoc(collection(db, 'reservations'), {
@@ -94,17 +113,31 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
     try {
       const parsedDate = parseISO(dateValue);
       if (isValid(parsedDate)) {
-        return format(parsedDate, "dd/MM/yyyy");
+        return format(parsedDate, "dd/MM/yyyy", { locale: pt });
       }
       const date = new Date(dateValue);
       if (isValid(date)) {
-        return format(date, "dd/MM/yyyy");
+        return format(date, "dd/MM/yyyy", { locale: pt });
       }
       return null;
     } catch {
       return null;
     }
   };
+
+  if (establishmentData && establishmentData.reservationsEnabled === false) {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="w-full max-w-[90vw] sm:max-w-[500px] h-[40vh] max-h-[40vh] flex items-center justify-center">
+          <div className="w-full text-center">
+            <h2 className="text-2xl font-bold mb-4 text-gray-700">Sem reservas no momento</h2>
+            <p className="text-gray-500">As reservas online estão temporariamente desabilitadas. Por favor, tente novamente mais tarde.</p>
+            <Button className="mt-6" onClick={onClose} style={{ backgroundColor: corPrincipal }}>Fechar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -204,6 +237,18 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                 )}
               />
 
+              {establishmentData?.schedule && (
+                <div className="animate-fade-in" style={{ animationDelay: "450ms" }}>
+                  <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800 font-medium mb-1">Horário de Funcionamento:</p>
+                    <p className="text-xs text-blue-700">
+                      Dias úteis: {establishmentData.schedule.weekdays || 'Não definido'} | 
+                      Fins de semana: {establishmentData.schedule.weekends || 'Não definido'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row justify-between gap-4 sm:space-x-4 animate-fade-in" style={{ animationDelay: "500ms" }}>
                 <FormField
                   control={form.control}
@@ -262,9 +307,9 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
                     <FormItem className="flex-1">
                       <FormLabel className="text-sm sm:text-base font-medium text-gray-700">Horário</FormLabel>
                       <FormControl>
-                        <input
-                          type="time"
+                        <select
                           {...field}
+                          disabled={!date || availableTimes.length === 0}
                           className="
     flex h-12 w-full rounded-xl
     border-2 border-gray-200
@@ -277,10 +322,26 @@ const ReservationForm = ({ onClose, onSuccess }: ReservationFormProps) => {
     disabled:cursor-not-allowed disabled:opacity-50
     md:text-sm shadow-sm hover:shadow-md focus:shadow-lg
   "
-                        />
-
+                        >
+                          <option value="">Selecione um horário</option>
+                          {availableTimes.map((time) => (
+                            <option key={time} value={time}>
+                              {time}
+                            </option>
+                          ))}
+                        </select>
                       </FormControl>
                       <FormMessage className="text-xs sm:text-sm" />
+                      {!date && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Selecione uma data primeiro
+                        </p>
+                      )}
+                      {date && availableTimes.length === 0 && (
+                        <p className="text-xs text-red-500 mt-1">
+                          Nenhum horário disponível para esta data
+                        </p>
+                      )}
                     </FormItem>
                   )}
                 />

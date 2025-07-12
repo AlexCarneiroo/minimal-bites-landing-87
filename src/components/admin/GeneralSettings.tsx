@@ -61,6 +61,7 @@ interface EstablishmentData {
     featuredItems: boolean;
     testimonials: boolean;
   };
+  reservationsEnabled?: boolean;
 }
 
 const defaultEstablishmentData: EstablishmentData = {
@@ -93,7 +94,8 @@ const defaultEstablishmentData: EstablishmentData = {
   sectionVisibility: {
     featuredItems: true,
     testimonials: true
-  }
+  },
+  reservationsEnabled: true,
 };
 
 export default function GeneralSettings() {
@@ -319,6 +321,16 @@ export default function GeneralSettings() {
                 />
               </div> */}
             </div>
+          </div>
+          <div className="mt-6 flex items-center gap-4">
+            <Switch
+              checked={establishmentData.reservationsEnabled}
+              onCheckedChange={(checked) => updateEstablishmentData('reservationsEnabled', checked)}
+              id="reservationsEnabled"
+            />
+            <Label htmlFor="reservationsEnabled" className="text-base font-medium">
+              Permitir reservas online
+            </Label>
           </div>
         </CardContent>
       </Card>

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { getFeedbacks } from '@/lib/firebase-operations';
-
+import perfilsemfoto from '../../public/lovable-uploads/Perfil sem foto.png';
 interface Feedback {
   id: string;
   name: string;
@@ -23,7 +23,7 @@ export function useFeedbacks() {
           name: feedback.name || '',
           role: feedback.role || '',
           comment: feedback.comment || '',
-          image: feedback.image || 'https://i.pravatar.cc/150?img=' + Math.floor(Math.random() * 20)
+          image: feedback.image || perfilsemfoto
         }));
         
         setFeedbacks(formattedFeedbacks);
